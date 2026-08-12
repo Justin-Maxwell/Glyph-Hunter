@@ -165,3 +165,40 @@ Consequences that follow:
   legible as a 10px swatch. Width is what makes sameness visible.
 - Grouping over-separates. That is the weakness the colour repairs. The grouping itself
   was never the weak part.
+
+## Set 5, 2026-08-13
+
+### Hue domain is pinned and static
+
+- Status: assessed
+- Default 250 to 1700.
+- Expansive on purpose. Empty space is preferred over overflow at this stage.
+- A given advance then draws the same colour on every device, in every set, so two
+  screenshots compare by eye directly. That serves the Fedora-against-Android thread.
+
+### Configuration moves into a data file
+
+- Status: stated
+- Driven by how much of the tool is now data rather than logic.
+- Glyph grouping is the first case. The hue domain is the second.
+- A user sets their own range for their own purposes.
+
+Scope for review, not yet agreed:
+
+- Hue domain, and the ramp used across it.
+- Glyph groups: name, shape family, members.
+- Font panel: category and the families under each.
+- Default glyph set, default measuring size, default anchor.
+- Guide visibility defaults.
+
+Members should be authored as codepoints and ranges rather than literal glyphs, so the
+file diffs and greps without depending on anything rendering.
+
+### Three kinds of data, kept apart
+
+- Status: proposed by Claude, follows from the above
+- **Derived** — name, category, East Asian Width, mirrored, block. Objective, from the
+  UCD, generated not authored.
+- **Configured** — everything in the scope list above. Opinionated, user-owned, authored.
+- **Documented** — why each entry earns its place. Prose, in `docs/`, already the pattern
+  set by the font justification list.
