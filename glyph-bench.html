@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glyph bench — advance, adjacency, width class</title>
+<style>
+  :root{
+    --paper:#E6EBEF;
+    --panel:#FBFCFD;
+    --ink:#0E1A22;
+    --rule:#9DB1BE;
+    --rule-faint:#C6D3DB;
+    --label:#4A6675;
+    --dev:#B3261E;
+    --agree:#166B53;
+    --mono: ui-monospace,"SF Mono","Cascadia Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+    --ui: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--rule-faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule-faint) 1px, transparent 1px);
+    background-size:100% 28px, 28px 100%;
+    color:var(--ink);
+    font-family:var(--ui);
+    font-size:15px;
+    line-height:1.5;
+    padding:0 0 5rem;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+
+  header{padding:2.75rem 0 1.5rem;border-bottom:2px solid var(--ink)}
+  .eyebrow{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--label);margin:0 0 .75rem
+  }
+  h1{
+    font-size:clamp(1.9rem,5.5vw,3rem);line-height:1.02;margin:0 0 .9rem;
+    font-weight:800;letter-spacing:-.028em;max-width:22ch
+  }
+  .standfirst{margin:0;max-width:62ch;color:#2A3E4A}
+  .standfirst b{font-weight:650}
+
+  section{padding:2rem 0;border-bottom:1px solid var(--rule)}
+  h2{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--label);margin:0 0 1.1rem;font-weight:500
+  }
+
+  .controls{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  label{display:block;font-size:.78rem;letter-spacing:.04em;color:var(--label);margin-bottom:.35rem}
+  input[type=text],input[type=number],textarea,select{
+    width:100%;font-family:var(--mono);font-size:.95rem;
+    background:var(--panel);color:var(--ink);
+    border:1px solid var(--rule);border-radius:0;padding:.55rem .6rem
+  }
+  textarea{min-height:5.5rem;resize:vertical;line-height:1.8}
+  input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{
+    outline:2px solid var(--ink);outline-offset:2px
+  }
+  .presets{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+  button{
+    font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;
+    background:transparent;color:var(--label);
+    border:1px solid var(--rule);padding:.35rem .6rem;cursor:pointer
+  }
+  button:hover{color:var(--ink);border-color:var(--ink)}
+  .full{grid-column:1/-1}
+
+  /* specimen */
+  .specimen{
+    background:var(--panel);border:1px solid var(--rule);
+    padding:1.25rem;overflow-x:auto;white-space:nowrap;
+    font-size:clamp(2rem,7vw,3.4rem);line-height:1.35;letter-spacing:.08em
+  }
+
+  /* signature: the deviation rule */
+  .groups{display:grid;gap:.5rem}
+  .grp{
+    display:grid;grid-template-columns:7.5rem 1fr;gap:1rem;align-items:center;
+    background:var(--panel);border:1px solid var(--rule-faint);padding:.7rem .85rem
+  }
+  .grp .w{font-family:var(--mono);font-size:.95rem;color:var(--label)}
+  .grp .w b{color:var(--ink);font-size:1.15rem;font-weight:700}
+  .grp .gl{font-size:1.7rem;letter-spacing:.14em;word-break:break-all}
+  .grp.solo{border-left:3px solid var(--agree)}
+  .grp.many{border-left:3px solid var(--dev)}
+
+  .ruler{position:relative;height:3.1rem;margin:.9rem 0 0;border-top:1px solid var(--rule)}
+  .tick{position:absolute;top:0;width:1px;height:11px;background:var(--ink)}
+  .tick span{
+    position:absolute;top:13px;left:50%;transform:translateX(-50%);
+    font-family:var(--mono);font-size:.62rem;color:var(--label);white-space:nowrap
+  }
+  .verdict{font-family:var(--mono);font-size:.8rem;margin:.9rem 0 0}
+  .verdict.ok{color:var(--agree)}
+  .verdict.no{color:var(--dev)}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.83rem}
+  th{
+    text-align:right;font-weight:500;color:var(--label);
+    font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+    padding:.4rem .55rem;border-bottom:1px solid var(--ink);white-space:nowrap
+  }
+  th:first-child,td:first-child{text-align:left}
+  td{padding:.42rem .55rem;text-align:right;border-bottom:1px solid var(--rule-faint);white-space:nowrap}
+  td.g{font-size:1.5rem;text-align:left;line-height:1}
+  .cls{display:inline-block;min-width:1.5rem;text-align:center;padding:0 .3rem;border:1px solid var(--rule)}
+  .cls.A{background:#F3E2C8;border-color:#C79A4E}
+  .cls.W,.cls.F{background:#E0D3EA;border-color:#8E6DA8}
+  .d0{color:var(--label)}
+  .dx{color:var(--dev);font-weight:700}
+  .notdef{color:var(--dev)}
+
+  .note{max-width:66ch;color:#2A3E4A;font-size:.92rem}
+  .note h3{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--label);margin:1.5rem 0 .5rem;font-weight:500}
+  .note code{font-family:var(--mono);font-size:.86rem;background:var(--panel);border:1px solid var(--rule-faint);padding:.08rem .3rem}
+  .note pre{font-family:var(--mono);font-size:.8rem;background:var(--panel);border:1px solid var(--rule);padding:.7rem .8rem;overflow-x:auto}
+  .note ul{padding-left:1.1rem}
+  .note li{margin:.3rem 0}
+
+  @media (max-width:600px){
+    .grp{grid-template-columns:1fr;gap:.35rem}
+    thead{display:none}
+    tr{display:grid;grid-template-columns:auto 1fr;gap:0 .6rem;padding:.55rem 0;border-bottom:1px solid var(--rule-faint)}
+    td{border:0;padding:.06rem 0;text-align:left}
+    td.g{grid-row:1/6;align-self:start;font-size:2rem;padding-right:.4rem}
+    td[data-l]::before{content:attr(data-l) " ";color:var(--label);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">MarkRight · glyph metrology</p>
+  <h1>Measure the glyphs where they actually render.</h1>
+  <p class="standfirst">This measures advance width, adjacency shift and width class <b>in this browser, on this device, in the font you name</b> — not in whatever fonts a build container happens to ship. Open it on Fedora and on Android and compare.</p>
+  <p class="standfirst" style="margin-top:.8rem">It cannot tell you a font's <i>name</i> — no browser exposes that to script. Naming instructions are at the foot of the page.</p>
+</header>
+
+<section>
+  <h2>Test conditions</h2>
+  <div class="controls">
+    <div>
+      <label for="fam">Font family (CSS syntax)</label>
+      <input id="fam" type="text" value="monospace" spellcheck="false" autocapitalize="off">
+      <div class="presets" id="fampre"></div>
+    </div>
+    <div>
+      <label for="size">Measuring size (px)</label>
+      <input id="size" type="number" value="200" min="20" max="800" step="10">
+      <div class="presets"><button type="button" data-note>Widths report per 1000 em, so they compare directly to font tables.</button></div>
+    </div>
+    <div>
+      <label for="anchor">Adjacency anchor</label>
+      <input id="anchor" type="text" value="0" spellcheck="false" autocapitalize="off">
+      <div class="presets" id="anchpre"></div>
+    </div>
+    <div class="full">
+      <label for="set">Glyphs under test</label>
+      <textarea id="set" spellcheck="false" autocapitalize="off">○●◐◑◎◉◌◒◓◔◕◠◡◴◵◶◷◧◨◩◪◰◱◲◳⬤⊖⊗⦶⦷⦸⦹⦺⦻⦼⦾⦿⧀⧁▱▰▭▬</textarea>
+      <div class="presets" id="setpre"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Specimen</h2>
+  <div class="specimen" id="spec"></div>
+</section>
+
+<section>
+  <h2>Width groups</h2>
+  <p class="note" style="margin:-.4rem 0 1.1rem">Glyphs sharing an advance are grouped. A single group means the set is uniform and will column-align. Green edge is a lone group; red edge means that group is one of several.</p>
+  <div class="ruler" id="ruler"></div>
+  <div class="groups" id="groups"></div>
+  <p class="verdict" id="verdict"></p>
+</section>
+
+<section>
+  <h2>Per glyph</h2>
+  <table>
+    <thead><tr>
+      <th>glyph</th><th>codepoint</th><th>class</th><th>alone</th><th>in run</th><th>shift</th><th>flag</th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="note" style="margin-top:1rem"><b>Shift</b> is the advance beside the anchor minus the advance alone. Non-zero means the glyph is being drawn from a different font once it has a neighbour — the run got re-itemised. Kerning can also produce a small shift, so treat single-digit values as inconclusive and large ones as font substitution.</p>
+</section>
+
+<section>
+  <h2>Naming the font</h2>
+  <div class="note">
+    <h3>Chrome, either platform</h3>
+    <p>DevTools → Elements → select the text node → Computed pane → scroll to <b>Rendered Fonts</b>. It lists every font that supplied glyphs in that node, with a glyph count each. Two entries for one set of markers is the substitution you're chasing.</p>
+    <p>For Chrome on Android: connect by USB, open <code>chrome://inspect</code> in desktop Chrome, and you get the same DevTools against the phone. It's the only reliable per-glyph readout on Android.</p>
+    <h3>Firefox</h3>
+    <p>Inspector → <b>Fonts</b> panel. Shows "Fonts used" for the current selection, which is a cleaner readout than Chrome's.</p>
+    <h3>Fedora, command line</h3>
+    <pre>fc-list ':charset=25CB' family file    # every font holding U+25CB
+fc-match ':charset=25CB'               # what fontconfig picks
+fc-match -s ':charset=25CB' | head     # the sorted fallback chain</pre>
+    <p>Hex codepoint, no <code>U+</code>. Note fontconfig's answer is what it <i>would</i> pick — an application with its own fallback logic may differ, so treat it as a shortlist rather than a verdict.</p>
+    <h3>Android, system side</h3>
+    <pre>adb shell ls /system/fonts
+adb shell cat /system/etc/fonts.xml</pre>
+    <p><code>fonts.xml</code> is the fallback order itself. The symbol coverage you are hitting is almost certainly NotoSansSymbols2, and the file will tell you where it sits in the chain relative to the CJK and emoji faces.</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+const EAW = [[161,161,"A"],[164,164,"A"],[167,168,"A"],[170,170,"A"],[173,174,"A"],[176,180,"A"],[182,186,"A"],[188,191,"A"],[198,198,"A"],[208,208,"A"],[215,216,"A"],[222,225,"A"],[230,230,"A"],[232,234,"A"],[236,237,"A"],[240,240,"A"],[242,243,"A"],[247,250,"A"],[252,252,"A"],[254,254,"A"],[257,257,"A"],[273,273,"A"],[275,275,"A"],[283,283,"A"],[294,295,"A"],[299,299,"A"],[305,307,"A"],[312,312,"A"],[319,322,"A"],[324,324,"A"],[328,331,"A"],[333,333,"A"],[338,339,"A"],[358,359,"A"],[363,363,"A"],[462,462,"A"],[464,464,"A"],[466,466,"A"],[468,468,"A"],[470,470,"A"],[472,472,"A"],[474,474,"A"],[476,476,"A"],[593,593,"A"],[609,609,"A"],[708,708,"A"],[711,711,"A"],[713,715,"A"],[717,717,"A"],[720,720,"A"],[728,731,"A"],[733,733,"A"],[735,735,"A"],[768,879,"A"],[913,929,"A"],[931,937,"A"],[945,961,"A"],[963,969,"A"],[1025,1025,"A"],[1040,1103,"A"],[1105,1105,"A"],[4352,4447,"W"],[8208,8208,"A"],[8211,8214,"A"],[8216,8217,"A"],[8220,8221,"A"],[8224,8226,"A"],[8228,8231,"A"],[8240,8240,"A"],[8242,8243,"A"],[8245,8245,"A"],[8251,8251,"A"],[8254,8254,"A"],[8308,8308,"A"],[8319,8319,"A"],[8321,8324,"A"],[8361,8361,"H"],[8364,8364,"A"],[8451,8451,"A"],[8453,8453,"A"],[8457,8457,"A"],[8467,8467,"A"],[8470,8470,"A"],[8481,8482,"A"],[8486,8486,"A"],[8491,8491,"A"],[8531,8532,"A"],[8539,8542,"A"],[8544,8555,"A"],[8560,8569,"A"],[8585,8585,"A"],[8592,8601,"A"],[8632,8633,"A"],[8658,8658,"A"],[8660,8660,"A"],[8679,8679,"A"],[8704,8704,"A"],[8706,8707,"A"],[8711,8712,"A"],[8715,8715,"A"],[8719,8719,"A"],[8721,8721,"A"],[8725,8725,"A"],[8730,8730,"A"],[8733,8736,"A"],[8739,8739,"A"],[8741,8741,"A"],[8743,8748,"A"],[8750,8750,"A"],[8756,8759,"A"],[8764,8765,"A"],[8776,8776,"A"],[8780,8780,"A"],[8786,8786,"A"],[8800,8801,"A"],[8804,8807,"A"],[8810,8811,"A"],[8814,8815,"A"],[8834,8835,"A"],[8838,8839,"A"],[8853,8853,"A"],[8857,8857,"A"],[8869,8869,"A"],[8895,8895,"A"],[8978,8978,"A"],[8986,8987,"W"],[9001,9002,"W"],[9193,9196,"W"],[9200,9200,"W"],[9203,9203,"W"],[9312,9449,"A"],[9451,9547,"A"],[9552,9587,"A"],[9600,9615,"A"],[9618,9621,"A"],[9632,9633,"A"],[9635,9641,"A"],[9650,9651,"A"],[9654,9655,"A"],[9660,9661,"A"],[9664,9665,"A"],[9670,9672,"A"],[9675,9675,"A"],[9678,9681,"A"],[9698,9701,"A"],[9711,9711,"A"],[9725,9726,"W"],[9733,9734,"A"],[9737,9737,"A"],[9742,9743,"A"],[9748,9749,"W"],[9756,9756,"A"],[9758,9758,"A"],[9792,9792,"A"],[9794,9794,"A"],[9800,9811,"W"],[9824,9825,"A"],[9827,9829,"A"],[9831,9834,"A"],[9836,9837,"A"],[9839,9839,"A"],[9855,9855,"W"],[9875,9875,"W"],[9886,9887,"A"],[9889,9889,"W"],[9898,9899,"W"],[9917,9918,"W"],[9919,9919,"A"],[9924,9925,"W"],[9926,9933,"A"],[9934,9934,"W"],[9935,9939,"A"],[9940,9940,"W"],[9941,9953,"A"],[9955,9955,"A"],[9960,9961,"A"],[9962,9962,"W"],[9963,9969,"A"],[9970,9971,"W"],[9972,9972,"A"],[9973,9973,"W"],[9974,9977,"A"],[9978,9978,"W"],[9979,9980,"A"],[9981,9981,"W"],[9982,9983,"A"],[9989,9989,"W"],[9994,9995,"W"],[10024,10024,"W"],[10045,10045,"A"],[10060,10060,"W"],[10062,10062,"W"],[10067,10069,"W"],[10071,10071,"W"],[10102,10111,"A"],[10133,10135,"W"],[10160,10160,"W"],[10175,10175,"W"],[11035,11036,"W"],[11088,11088,"W"],[11093,11093,"W"],[11094,11097,"A"],[11904,11929,"W"],[11931,12019,"W"],[12032,12245,"W"],[12272,12283,"W"],[12288,12288,"F"],[12289,12350,"W"],[12353,12438,"W"],[12441,12543,"W"],[12549,12591,"W"],[12593,12686,"W"],[12688,12771,"W"],[12784,12830,"W"],[12832,12871,"W"],[12872,12879,"A"],[12880,19903,"W"],[19968,42124,"W"],[42128,42182,"W"],[43360,43388,"W"],[44032,55203,"W"],[57344,63743,"A"],[63744,64255,"W"],[65024,65039,"A"],[65040,65049,"W"],[65072,65106,"W"],[65108,65126,"W"],[65128,65131,"W"],[65281,65376,"F"],[65377,65470,"H"],[65474,65479,"H"],[65482,65487,"H"],[65490,65495,"H"],[65498,65500,"H"],[65504,65510,"F"],[65512,65518,"H"],[65533,65533,"A"],[94176,94180,"W"],[94192,94193,"W"],[94208,100343,"W"],[100352,101589,"W"],[101632,101640,"W"],[110576,110579,"W"],[110581,110587,"W"],[110589,110590,"W"],[110592,110882,"W"],[110898,110898,"W"],[110928,110930,"W"],[110933,110933,"W"],[110948,110951,"W"],[110960,111355,"W"],[126980,126980,"W"],[127183,127183,"W"],[127232,127242,"A"],[127248,127277,"A"],[127280,127337,"A"],[127344,127373,"A"],[127374,127374,"W"],[127375,127376,"A"],[127377,127386,"W"],[127387,127404,"A"],[127488,127490,"W"],[127504,127547,"W"],[127552,127560,"W"],[127568,127569,"W"],[127584,127589,"W"],[127744,127776,"W"],[127789,127797,"W"],[127799,127868,"W"],[127870,127891,"W"],[127904,127946,"W"],[127951,127955,"W"],[127968,127984,"W"],[127988,127988,"W"],[127992,128062,"W"],[128064,128064,"W"],[128066,128252,"W"],[128255,128317,"W"],[128331,128334,"W"],[128336,128359,"W"],[128378,128378,"W"],[128405,128406,"W"],[128420,128420,"W"],[128507,128591,"W"],[128640,128709,"W"],[128716,128716,"W"],[128720,128722,"W"],[128725,128727,"W"],[128732,128735,"W"],[128747,128748,"W"],[128756,128764,"W"],[128992,129003,"W"],[129008,129008,"W"],[129292,129338,"W"],[129340,129349,"W"],[129351,129535,"W"],[129648,129660,"W"],[129664,129672,"W"],[129680,129725,"W"],[129727,129733,"W"],[129742,129755,"W"],[129760,129768,"W"],[129776,129784,"W"],[131072,196605,"W"],[196608,262141,"W"],[917760,917999,"A"],[983040,1048573,"A"],[1048576,1114109,"A"]];
+const FAM_PRESETS = ["monospace","sans-serif","serif","system-ui","Noto Sans Symbols 2","Noto Sans Symbols","DejaVu Sans","DejaVu Sans Mono","Cascadia Code","JetBrains Mono","Hack","Iosevka","Roboto","Noto Sans CJK JP","FreeSerif"];
+const ANCH_PRESETS = ["0","M","○","◉","◡"," "];
+const SET_PRESETS = {
+  "plain circles":"○●◐◑◎◉◌",
+  "quadrant circles":"◴◵◶◷",
+  "black-part circles":"◒◓◔◕",
+  "squares":"◧◨◩◪◰◱◲◳",
+  "U+29Bx run":"⦶⦷⦸⦹⦺⦻⦼⦾⦿⧀⧁",
+  "circled operators":"⊖⊗⊘⊙⊚⊛⊜⊝",
+  "current spec markers":"▱▰▭▬",
+  "everything":"○●◐◑◎◉◌◒◓◔◕◠◡◴◵◶◷◧◨◩◪◰◱◲◳⬤⊖⊗⦶⦷⦸⦹⦺⦻⦼⦾⦿⧀⧁▱▰▭▬"
+};
+
+const cvs = document.createElement("canvas");
+const ctx = cvs.getContext("2d", {alpha:false});
+
+const $ = id => document.getElementById(id);
+
+function eawOf(cp){
+  let lo=0, hi=EAW.length-1;
+  while(lo<=hi){
+    const m=(lo+hi)>>1, r=EAW[m];
+    if(cp<r[0]) hi=m-1;
+    else if(cp>r[1]) lo=m+1;
+    else return r[2];
+  }
+  return "N";
+}
+
+function chars(s){ return Array.from(s).filter(c => !/\s/.test(c) || c===" " ? c.codePointAt(0)>32 : false); }
+
+function build(){
+  const fam = $("fam").value.trim() || "monospace";
+  const size = Math.max(20, Math.min(800, +$("size").value || 200));
+  const anchor = $("anchor").value || "0";
+  const glyphs = Array.from($("set").value).filter(c => c.codePointAt(0) > 32);
+
+  $("spec").style.fontFamily = fam;
+  $("spec").textContent = glyphs.join("");
+  document.querySelectorAll(".grp .gl, td.g").forEach(el => el.style.fontFamily = fam);
+
+  ctx.font = `${size}px ${fam}`;
+  const per1000 = w => Math.round(w / size * 1000);
+  const anchorW = ctx.measureText(anchor).width;
+  const notdef = per1000(ctx.measureText("\u{10FFFD}").width);
+
+  const rows = [];
+  for(const g of glyphs){
+    const cp = g.codePointAt(0);
+    const alone = per1000(ctx.measureText(g).width);
+    const inRun = per1000(ctx.measureText(anchor + g).width - anchorW);
+    rows.push({g, cp, cls:eawOf(cp), alone, inRun, shift:inRun - alone, nd: alone === notdef && notdef > 0});
+  }
+
+  // groups by measured advance
+  const map = new Map();
+  for(const r of rows){
+    if(!map.has(r.alone)) map.set(r.alone, []);
+    map.get(r.alone).push(r.g);
+  }
+  const widths = [...map.keys()].sort((a,b)=>a-b);
+
+  const gEl = $("groups"); gEl.innerHTML = "";
+  for(const w of widths){
+    const d = document.createElement("div");
+    d.className = "grp " + (widths.length===1 ? "solo" : "many");
+    d.innerHTML = `<div class="w"><b>${w}</b> /1000em</div><div class="gl" style="font-family:${CSS.escape ? fam : fam}">${map.get(w).join("")}</div>`;
+    d.querySelector(".gl").style.fontFamily = fam;
+    gEl.appendChild(d);
+  }
+
+  // ruler
+  const rEl = $("ruler"); rEl.innerHTML = "";
+  const min = widths[0], max = widths[widths.length-1], span = (max-min) || 1;
+  for(const w of widths){
+    const t = document.createElement("div");
+    t.className = "tick";
+    t.style.left = (widths.length===1 ? 50 : 4 + (w-min)/span*92) + "%";
+    t.innerHTML = `<span>${w}</span>`;
+    rEl.appendChild(t);
+  }
+
+  const v = $("verdict");
+  if(widths.length === 1){
+    v.className = "verdict ok";
+    v.textContent = `Uniform — all ${rows.length} glyphs measure ${widths[0]}/1000em. This set column-aligns in this font.`;
+  } else {
+    v.className = "verdict no";
+    v.textContent = `${widths.length} distinct advances across ${rows.length} glyphs — spread ${min} to ${max}, ${(max/min).toFixed(3)}×. This set will not column-align in this font.`;
+  }
+
+  const clsMix = new Set(rows.map(r=>r.cls));
+  if(clsMix.size > 1){
+    v.textContent += `  Width classes present: ${[...clsMix].join(", ")} — mixed classes break fixed-cell alignment in terminals regardless of the numbers above.`;
+  }
+
+  const tb = $("rows"); tb.innerHTML = "";
+  for(const r of rows){
+    const tr = document.createElement("tr");
+    const hex = r.cp.toString(16).toUpperCase().padStart(4,"0");
+    tr.innerHTML =
+      `<td class="g">${r.g}</td>` +
+      `<td data-l="cp">U+${hex}</td>` +
+      `<td data-l="class"><span class="cls ${r.cls}">${r.cls}</span></td>` +
+      `<td data-l="alone">${r.alone}</td>` +
+      `<td data-l="in run">${r.inRun}</td>` +
+      `<td data-l="shift" class="${r.shift===0?"d0":"dx"}">${r.shift>0?"+":""}${r.shift}</td>` +
+      `<td data-l="flag" class="${r.nd?"notdef":"d0"}">${r.nd?"notdef width":"—"}</td>`;
+    tr.querySelector("td.g").style.fontFamily = fam;
+    tb.appendChild(tr);
+  }
+}
+
+function chips(host, items, apply){
+  for(const it of items){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = typeof it === "string" ? it : it[0];
+    b.addEventListener("click", () => { apply(it); build(); });
+    host.appendChild(b);
+  }
+}
+chips($("fampre"), FAM_PRESETS, v => $("fam").value = v);
+chips($("anchpre"), ANCH_PRESETS, v => $("anchor").value = v);
+chips($("setpre"), Object.entries(SET_PRESETS), ([,v]) => $("set").value = v);
+document.querySelectorAll("#setpre button").forEach((b,i) => b.textContent = Object.keys(SET_PRESETS)[i]);
+
+for(const id of ["fam","size","anchor","set"]) $(id).addEventListener("input", build);
+document.querySelectorAll("button[data-note]").forEach(b => { b.style.cursor="default"; b.style.textAlign="left"; b.style.whiteSpace="normal"; });
+
+build();
+</script>
+</body>
+</html>
