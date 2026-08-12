@@ -30,12 +30,29 @@ whether the candidate marker set renders at all.
 
 | Family | Reason |
 | --- | --- |
-| `Noto Sans Symbols 2` | Named as the likely Android supplier for the symbol coverage being hit. (established) |
-| `Noto Sans Symbols` | On-device measurement traced the run to `NotoSansSymbols-Regular-Subsetted.ttf`, a device-specific subsetted build. (established) |
+| `Noto Sans Symbols` | The confirmed Android supplier. On-device experiment, 2026-08-12 evening, traced the U+29Bx run to `NotoSansSymbols-Regular-Subsetted.ttf`, Android's reduced build of this family. (established) |
+| `Noto Sans Symbols 2` | A distinct family, not the supplier. Kept as the near-miss that has to be ruled out by measurement rather than by name. (established that it is not the supplier) |
 
-Gap: **Noto Sans Math** is absent. It was the original attribution for the run at 836,
-later retracted in favour of the subsetted Symbols build. Worth keeping in the panel to
-make that retraction re-checkable rather than only recorded. (inferred)
+Two attributions have been made and retracted for this run. Both are recorded so neither
+is re-derived:
+
+- **Noto Sans Math** — retracted. Gave eleven of twelve at 836, which looked conclusive
+  and was not the face in use.
+- **Noto Sans Symbols 2** — retracted. Inferred from the family name; the subsetted build
+  belongs to Noto Sans Symbols, without the 2.
+
+### The advance is the discriminator
+
+The candidate faces do not agree on the run's advance. Noto Sans Math gives 836; the
+on-device measurement is 796. (established)
+
+So the measured number identifies the supplier without DevTools, on a platform where
+per-glyph font readout is otherwise only reachable over USB. That the 796 belongs to the
+subsetted Symbols build specifically is (inferred) — it follows from the retraction rather
+than from a direct file measurement.
+
+This is the strongest argument for the bench existing at all: naming a font by measuring
+it, on a device that will not tell you.
 
 ## Reference desktop faces
 
