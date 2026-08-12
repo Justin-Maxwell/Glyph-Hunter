@@ -48,3 +48,40 @@ it, and selectors kept small.
 - Status: stated
 - A separate markdown file recording why each font in the panel is there.
 - Lives at `docs/fonts.md`.
+
+## Set 2, 2026-08-13
+
+### Glyph-class selectors become toggles
+
+- Status: stated
+- Mixed and matched, so sets combine rather than replace.
+- Consequence: `everything` is no longer needed and goes.
+
+### Glyph-class selectors visually grouped
+
+- Status: stated
+- By shape family: circles, squares, and so on.
+
+### In-use Unicode blocks, listed
+
+- Status: stated
+- For whatever is currently in the glyphs-under-test box.
+
+### Glyphs-under-test box shrinks
+
+- Status: stated
+
+### Specimen shows glyph placement within the rendering box
+
+- Status: stated
+- Baseline and glyph centre-lines, or an equivalent Claude judges better.
+- Guides carry a visibility toggle.
+
+### Specimen gets copy-to-clipboard
+
+- Status: stated
+
+### Glyph info box on tap or hover
+
+- Status: stated
+- Described as desirable rather than required.
