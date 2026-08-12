@@ -25,8 +25,16 @@ eliminated three candidates. No measurement surfaces it.
 
 ## Largest uniform subset
 
-- Status: unassessed
+- Status: superseded, 2026-08-13
 - Raised: 2026-08-13
+
+Superseded twice over. The bench's width-groups block already shows the clusters
+visually, so the bench needs nothing. And the meaningful version is not *uniform within
+one font* but *co-grouped across every font tested*, which is now Justin's own recording
+item in `ROADMAP.md`.
+
+What survives is narrow: `sysfont.py` should present the same cluster model the bench
+does, which is convergence rather than a feature.
 
 Both tools answer *is this set uniform*. The decision needs *what is the largest subset
 that is uniform, and how big*.
@@ -50,8 +58,12 @@ invisible.
 
 ## Export and cross-platform diff
 
-- Status: unassessed
+- Status: subsumed, 2026-08-13
 - Raised: 2026-08-13
+
+Subsumed by Justin's recording item in `ROADMAP.md`, which is the same machinery with a
+better purpose: not diffing two runs by eye, but accumulating runs and asking which
+glyphs never split.
 
 Comparing Android against Fedora `[FKOJuVo1r5JH]` is currently done by eye.
 

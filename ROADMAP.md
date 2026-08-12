@@ -171,7 +171,7 @@ Consequences that follow:
 ### Hue domain is pinned and static
 
 - Status: assessed
-- Default 250 to 1700.
+- Default 350 to 1800. Revised from 250 to 1700.
 - Expansive on purpose. Empty space is preferred over overflow at this stage.
 - A given advance then draws the same colour on every device, in every set, so two
   screenshots compare by eye directly. That serves the Fedora-against-Android thread.
@@ -202,3 +202,71 @@ file diffs and greps without depending on anything rendering.
 - **Configured** — everything in the scope list above. Opinionated, user-owned, authored.
 - **Documented** — why each entry earns its place. Prose, in `docs/`, already the pattern
   set by the font justification list.
+
+## Set 6, 2026-08-13
+
+### Served page is the target for browsers
+
+- Status: stated
+- GitHub Pages. Settles the `fetch` question, since a served origin can load config.
+
+### JS shim alongside the JSON config
+
+- Status: agreed
+- Keeps behaviour identical when the page is opened as a local file.
+- One authored source, two emitted forms, from the same generator as the derived data.
+
+### JSON now, keyboard-friendly format later
+
+- Status: agreed for now, revisit
+- JSON is fine for the medium term.
+- A more keyboard-friendly authoring format is wanted eventually.
+- TOML is the obvious successor: Python parses it without a dependency, and it is far
+  kinder to hand-edit. The browser would read the generated JSON, so the shim pattern
+  already covers it.
+
+### Recording results across font tests
+
+- Status: stated, long-term desire
+
+Knowing **which glyphs stayed grouped across font tests** is the goal.
+
+- This is the design question itself, not a reporting convenience.
+- A set that never splits across any tested font is a safe marker set.
+- A set that always splits somewhere is the evidence that the patch font is necessary.
+
+Shape of it:
+
+- Each run records a glyph-to-advance mapping, plus what produced it.
+- Across runs, count how often each pair of glyphs shared an advance.
+- Subsets that co-grouped in *every* run are the candidates.
+- Largest such subset is the answer being hunted.
+
+Consequence for work happening now:
+
+- A measurement needs a **run envelope** from the outset: font family as requested and as
+  resolved, platform, device, measuring size, timestamp.
+- Retrofitting provenance onto records that lack it is the rework this constraint exists
+  to avoid.
+
+### Recorded observations are a fourth kind of data
+
+- Status: proposed by Claude
+- **Derived** — objective, from the UCD, generated.
+- **Configured** — opinions, authored.
+- **Documented** — reasoning, prose, in `docs/`.
+- **Observed** — timestamped facts about one environment. Committed to the repo so the
+  evidence base diffs, greps, and travels between devices.
+
+### On the TUI, and what it is actually for
+
+- Status: Claude's assessment, for Justin's review
+- Python, and the natural route is `sysfont.py` growing a front end rather than a new
+  project. `textual` if mouse and rich layout are wanted, `curses` if not.
+- Worth being clear that it cannot replicate the browser. A terminal has cells, not
+  advances, so itemisation and adjacency findings are out of reach there.
+- That is not a shortfall. The three front ends answer three different questions:
+  - Browser: what a renderer actually does, including re-itemisation.
+  - Python and fontTools: what a font file contains.
+  - Terminal: how many cells a glyph occupies, which is the East Asian Width question,
+    and the one neither of the others can test.
