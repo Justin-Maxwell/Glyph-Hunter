@@ -139,8 +139,29 @@ premature, and misleads by implying a standard the work has not reached.
 - Status: stated
 - Currently a 3px left border.
 
-### Open question raised by the above
+### Hue maps to value on the log axis. Settled
 
-- Hue mapped to *value* leaves 836 and 838 near-identical, since they sit 0.25% apart
-  on the axis. Hue mapped to *group rank* separates them fully.
-- Rank is what delivers the stated intent. Awaiting Justin's call.
+- Status: assessed, 2026-08-13
+
+Near-identical hues for 836 and 838 are the point, not a defect.
+
+- Separate rows already make the two groups distinct.
+- What the rows lack is any signal that the two widths are effectively the same.
+- Bold `836` above bold `838` reads as two facts. It is close to one.
+- A shared hue says *same width* across rows that grouping has forced apart.
+
+Rejected: hue by group rank.
+
+- It would render a 0.24% difference as maximal separation.
+- Worse than no colour, because it asserts a distinction that is not there.
+- Recorded so it is not reintroduced.
+
+Consequences that follow:
+
+- Hue distance is read as ratio distance, so the ramp must be perceptually uniform.
+  A naive HSL rainbow is badly non-uniform and would make equal ratios look unequal
+  depending on where they land. This promotes `oklch()` from nicety to load-bearing.
+- The wide tag is functional. A near-identical hue is unreadable as a 3px stripe and
+  legible as a 10px swatch. Width is what makes sameness visible.
+- Grouping over-separates. That is the weakness the colour repairs. The grouping itself
+  was never the weak part.
