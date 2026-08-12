@@ -30,6 +30,10 @@ Tana node IDs in brackets point at the session record that raised the item.
   - Observed in Justin's screencap: `594`/`604` overprint, and `836`/`838` overprint.
   - Labels are absolutely positioned from the advance value with no collision handling.
   - Worst exactly where it matters most, since near-equal advances are the interesting case.
+- **Zero and single-value advances break a log scale**
+  - A missing glyph can report a zero advance, and `log(0)` is negative infinity.
+  - A set with one width group gives a zero log span, so the position divides by zero.
+  - The linear code guards the second case with `(max-min) || 1`; the log form needs both.
 - **notdef detection is heuristic**
   - Compares each advance against the advance of U+10FFFD.
   - A glyph legitimately sharing that advance reads as missing.

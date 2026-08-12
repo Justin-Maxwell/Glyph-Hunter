@@ -115,3 +115,32 @@ premature, and misleads by implying a standard the work has not reached.
 - Status: raised, deliberately unresolved
 - Justin leans group order, with an unstated exception.
 - To be returned to in a few prompts. Do not settle it before then.
+
+## Set 4, 2026-08-13
+
+### The scale becomes logarithmic
+
+- Status: stated
+- Advance divergence is multiplicative, so equal ratios should get equal distance.
+
+### Tick labels stagger vertically on collision
+
+- Status: stated
+- Only as much vertical space as needed. Labels may almost touch.
+
+### Colour is a spectrum across the scale, left to right
+
+- Status: stated
+- Ties ruler tick, group card and table row into one instrument.
+- Intended to make the 836-against-838 pair separable by eye.
+
+### Row colour tags roughly triple width
+
+- Status: stated
+- Currently a 3px left border.
+
+### Open question raised by the above
+
+- Hue mapped to *value* leaves 836 and 838 near-identical, since they sit 0.25% apart
+  on the axis. Hue mapped to *group rank* separates them fully.
+- Rank is what delivers the stated intent. Awaiting Justin's call.
