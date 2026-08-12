@@ -26,6 +26,10 @@ Tana node IDs in brackets point at the session record that raised the item.
 - **Verdict is binary**
   - Uniform or not-uniform, with no largest-uniform-subset.
   - Same shape as the sysfont defect above.
+- **Ruler tick labels collide**
+  - Observed in Justin's screencap: `594`/`604` overprint, and `836`/`838` overprint.
+  - Labels are absolutely positioned from the advance value with no collision handling.
+  - Worst exactly where it matters most, since near-equal advances are the interesting case.
 - **notdef detection is heuristic**
   - Compares each advance against the advance of U+10FFFD.
   - A glyph legitimately sharing that advance reads as missing.

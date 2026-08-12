@@ -85,3 +85,33 @@ it, and selectors kept small.
 
 - Status: stated
 - Described as desirable rather than required.
+
+## Set 3, 2026-08-13
+
+### The tool is a visual explorer, not an assessor
+
+- Status: stated
+- Reframing, and it governs the rest.
+
+No candidate set is going to work perfectly at this stage. Pass-or-fail judgement is
+premature, and misleads by implying a standard the work has not reached.
+
+- The bench is for humans going glyph-hunting.
+- Verdict prose comes out.
+- Judgement is deferred, and conditional on user-tagging ever being added. Not near.
+
+### Width groups: details on tap or hover
+
+- Status: stated
+- Same affordance as the specimen and the info box.
+
+### Width groups: drop the verdict line
+
+- Status: stated
+- The trailing sentence about column-alignment and mixed width classes goes.
+
+### Glyph ordering
+
+- Status: raised, deliberately unresolved
+- Justin leans group order, with an unstated exception.
+- To be returned to in a few prompts. Do not settle it before then.
