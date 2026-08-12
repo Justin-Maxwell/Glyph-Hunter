@@ -16,7 +16,7 @@ are world-readable on Android.
 Usage
     python sysfont.py                          # the MarkRight candidate set
     python sysfont.py 29B6 29B7 29B8           # named codepoints, hex
-    python sysfont.py --chars "⦶⦷⦸⦺⦼⦾⦿⧀⧁"     # or paste the glyphs
+    python sysfont.py --chars "⦶⦷⦺⦼⦽⦾⦿"     # or paste the glyphs
     python sysfont.py --match 796              # only faces giving that advance
     python sysfont.py --dir /system/fonts      # somewhere else
     python sysfont.py --fallback               # print the fallback order too
@@ -43,7 +43,7 @@ FALLBACK_XML = ("/system/etc/fonts.xml", "/system/etc/font_fallback.xml")
 
 # The MarkRight marker candidates, as of this session.
 DEFAULT_CPS = [
-    0x29B6, 0x29B7, 0x29B8, 0x29B9, 0x29BA, 0x29BB, 0x29BC, 0x29BD,
+    0x29B5, 0x29B6, 0x29B7, 0x29B8, 0x29B9, 0x29BA, 0x29BB, 0x29BC, 0x29BD,
     0x29BE, 0x29BF, 0x29C0, 0x29C1,
 ]
 

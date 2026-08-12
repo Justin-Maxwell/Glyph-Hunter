@@ -1,0 +1,48 @@
+# Debt
+
+Running list of known-trivial defects and small improvements. Fixed opportunistically,
+alongside feature work, rather than as a work item of their own.
+
+Tana node IDs in brackets point at the session record that raised the item.
+
+## sysfont.py
+
+- **Largest-uniform-subset not reported** `[fGCdGiHoDLZN]`
+  - The final `clean` comprehension gates on `len(m) == len(cps)`.
+  - So a face carrying all-but-one of the set is dropped entirely.
+  - Observed: the Android run had ten of twelve uniform at 796 and reported nothing.
+- **Failure message asserts an unestablished cause**
+  - `"none — every face that has the whole set splits it across widths"`.
+  - Reachable by two different routes: no face carries the whole set, or faces split widths.
+  - On the Android run it printed the second explanation for the first situation.
+- **`--match` semantics are loose**
+  - Filters faces where *any* glyph in the set has that advance.
+  - Reads as though it means *all*.
+- **TTCollection is not closed**
+  - Individual faces are closed; the collection handle is not.
+
+## glyph-bench.html
+
+- **Verdict is binary**
+  - Uniform or not-uniform, with no largest-uniform-subset.
+  - Same shape as the sysfont defect above.
+- **notdef detection is heuristic**
+  - Compares each advance against the advance of U+10FFFD.
+  - A glyph legitimately sharing that advance reads as missing.
+- **No Bidi_Mirrored data**
+  - Five members of the circled run are mirrored, which disqualifies them as
+    structural markers, and no measurement surfaces it.
+- **No General_Category data**
+  - The Sm-versus-So question `[p198idbJ6rvc]` is not visible in the readout.
+- **`chars()` is dead code**
+  - Defined, never called, and its filter expression is incoherent.
+- **`CSS.escape ? fam : fam`**
+  - Both branches identical; the guard does nothing.
+  - Family is set again via `style.fontFamily` on the next line anyway.
+
+## Both
+
+- **No export**
+  - Cross-platform comparison `[FKOJuVo1r5JH]` is done by eye.
+- **Candidate sets drift between the two tools**
+  - Each carries its own hardcoded default.
