@@ -25,6 +25,7 @@ block identicon: it is specified, stable, and identical for anyone else who uses
 identicons agree between implementations without any agreement being needed.
 """
 
+import datetime
 import json
 import os
 import re
@@ -146,6 +147,7 @@ def main():
             "block_aliases_from": pva_file,
             "block_aliases_version": pva_version,
             "identicon_hash_input": "block_canonical",
+            "generated_iso": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
             "note": "Derived data. Do not hand-edit; regenerate with tools/gen_data.py.",
         },
         "blocks": blocks,
@@ -174,6 +176,12 @@ def main():
         fh.write("// Edit data/config.json and re-run the generator.\n")
         fh.write("window.GLYPHCONFIG = ")
         json.dump(config, fh, ensure_ascii=False, separators=(",", ":"))
+        fh.write(";\n")
+        # A file:// page cannot fetch config.json to check whether this shim is stale, so
+        # the shim states its own age and the page shows it. Editing config.json without
+        # re-running this generator is otherwise silent.
+        fh.write("window.GLYPHCONFIG_GENERATED = ")
+        json.dump(datetime.datetime.now().astimezone().isoformat(timespec="seconds"), fh)
         fh.write(";\n")
 
     print(f"{len(glyphs)} glyphs across {len(blocks)} blocks")

@@ -66,6 +66,10 @@
       }
     }
     state.dataPath = viaFetch ? "fetch" : "shim";
+    // On the shim path the config on screen is a generated copy, and an edit to
+    // config.json since then is invisible. Show when it was generated so the staleness is
+    // at least checkable against the clock.
+    state.dataGenerated = viaFetch ? null : (root.GLYPHCONFIG_GENERATED || "unknown");
 
     state.index = new Map();
     state.data.glyphs.forEach(function (g) { state.index.set(g.cp, g); });
@@ -520,7 +524,8 @@
     var ms = Math.round(performance.now() - t0);
     $("envelope").textContent = JSON.stringify(result.envelope, null, 1);
     $("status").textContent = cps.length + " glyphs · " + sets.length + " advance sets · " +
-      ms + "ms · data via " + state.dataPath;
+      ms + "ms · data via " + state.dataPath +
+      (state.dataGenerated ? " generated " + state.dataGenerated : "");
   };
 
   ui.state = state;
