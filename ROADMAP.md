@@ -557,3 +557,43 @@ Justin's responses to the verification findings in `docs/findings.md`.
   regardless, so no coverage question decides *whether* to build the fallback. Which
   browsers expose `queryLocalFonts()` now only decides how often the enhanced path is the
   one actually taken.
+
+## Set 14, 2026-08-13
+
+### A group split needs a reason, or it gets combined
+
+- Status: stated, and it is a standing rule rather than a one-off
+- Justin on the `plain circles` / `black-part circles` split: there was no reason for it,
+  and the session that inherited it could not find the reason the session before had.
+- So: **combine any group split for which no reason can be found.** The burden is on the
+  split to justify itself, not on the merge.
+- Applies to the whole grouping, not only to circles.
+
+Applied on the day it was stated:
+
+- `plain circles` / `black-part circles` had already dissolved: the regrouping put all
+  eleven into one `circles` group, so nothing was needed.
+- `geometric shapes, unshaped names` dissolved. Two members with nothing in common —
+  `ROUND TARGET` went to `circles`, `HEAVY EQUALS SIGN` to `unsorted`. It was the residue
+  of a name parser, not a grouping.
+- The Yijing family rejoined. Trigrams, digrams and monograms sat in `misc symbols` and the
+  hexagrams and tetragrams in `divination`, split only because Unicode puts them in
+  different blocks. Sixteen glyphs moved.
+
+Flagged, not acted on, because they are placements rather than splits:
+
+- `alchemy and astrology` promises astrology its rule does not deliver: the astrological
+  symbols are in Miscellaneous Symbols and went to `misc symbols`. Either the name is
+  wrong or the group is incomplete.
+- Counting Rod Numerals are in `historic and religious`. They are historic, so there is a
+  reason; they are also numerals, and there are three numeral groups.
+
+### Block boundaries are a weak reason, and they are still a reason
+
+- Status: Claude's assessment, following from the above
+- Thirty-five of the groups are cut on Unicode block. A block boundary is a fact about
+  committee history, not about glyph shape or width.
+- It is kept as a reason because it is stable, greppable and reproducible, and because the
+  identicon work makes blocks a recognisable unit in their own right.
+- But it is the weakest reason in the file, and it is where the next unjustified split will
+  be found. `misc math symbols` against `math operators` is the clearest candidate.

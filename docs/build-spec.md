@@ -292,9 +292,10 @@ answer would be invisible.
 - Whether the glyph info box should identify the font actually supplying a glyph. Raised
   by Justin, assessed in `PROPOSALS.md`, **not part of this spec**. Viable by metric
   fingerprinting against `sysfont.py` output; not viable by any API.
-- Whether the `plain circles` / `black-part circles` split survives. It is not a
-  principled boundary: `◐ ◑` and `◒ ◓` are one family by name and by construction, and
-  U+25D0–25D5 is a contiguous run the split cuts after the second member. The real
-  coverage cliff is inside the second group — `◔ ◕` at 46 faces against `◒ ◓` at 131.
-  The grouping recorded a genuine observation and named it wrongly. Justin has not yet
-  said what to do about it.
+- ~~Whether the `plain circles` / `black-part circles` split survives.~~ **Settled, and it
+  had already dissolved itself.** That split lived in the old build's `SET_PRESETS`, not in
+  the authored config: the regrouping put all eleven of `○●◐◑◎◉◌` and `◒◓◔◕` into one
+  `circles` group. Justin has since confirmed there was never a reason for it, and made it
+  a standing rule — see `ROADMAP.md` set 14. The coverage observation underneath it (`◔ ◕`
+  at 46 faces against `◒ ◓` at 131) was real and is not a reason to split a group; it is a
+  fact about faces, which is what the bench measures.
