@@ -277,6 +277,17 @@ Consequence for work happening now:
 
 - Status: stated
 - Minimal block identifier per row, full name on hover.
+  - Form: initials of the block name, then the block's first codepoint. `GS·25A0`.
+  - Initials alone are not unique. Of 339 blocks, only 206 have distinct initials; 39
+    collide. `GS` is Geometric Shapes, Georgian Supplement and Glagolitic Supplement.
+    `BE`, `MT`, `MS` and `D` all collide too, and all four are blocks in play here.
+  - The start codepoint disambiguates completely, and carries information the codepoint
+    column cannot: where the block boundary falls. Fonts subset by block, so shared block
+    membership is a weak predictor of shared supply.
+  - Block data comes from `fontTools.unicodedata.block()`, already a `sysfont.py`
+    dependency. No hand-maintained table, and no reachability problem.
+  - Initials must preserve the `-A` and `-B` suffixes, or Miscellaneous Mathematical
+    Symbols-A and -B both reduce to `MMS`.
 - `CLASS` gets an explicit title. It is East Asian Width and says so nowhere.
 - `FLAG` is opaque. It is a notdef-width guess.
 - `ALONE` and `IN RUN` only earn two columns if they can differ. They cannot until the
