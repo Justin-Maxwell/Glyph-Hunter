@@ -184,6 +184,16 @@
   <p class="note">Categories and the reason each face is here: <code>docs/fonts.md</code>.
      Four reference faces named there are deliberately absent — adding them is Justin's call.</p>
   <div id="font-panel"></div>
+  <h2 style="margin-top:.6rem">Which face is supplying a glyph?</h2>
+  <p class="note">No browser will say. The bench guesses from advance widths and metric
+     comparison, and labels every answer as a guess — that works everywhere and needs no
+     permission. Chrome can do better: granting local font access lets the page read the
+     installed fonts' own tables, which narrows the guess to the faces that actually carry
+     the codepoint at the measured advance. It needs this click and a permission prompt.</p>
+  <div class="row">
+    <button class="act" id="enable-local-fonts">grant local font access</button>
+    <span id="local-fonts-note" class="note"></span>
+  </div>
 </div>
 
 <div class="drawer" id="drawer-groups" hidden>
@@ -341,6 +351,23 @@
         : "copy failed: " + err.name + ". Select the box and copy manually.";
     }
   }
+  // queryLocalFonts() throws `SecurityError: User activation is required` without a
+  // gesture, so it is deliberately behind a button rather than attempted on load.
+  var lfNote = $("local-fonts-note");
+  lfNote.textContent = GH.fontguess.localFontsState().api_present
+    ? "available in this browser"
+    : "not available in this browser — the guesser falls back to metric comparison";
+  $("enable-local-fonts").addEventListener("click", async function () {
+    lfNote.textContent = "requesting…";
+    var st = await GH.fontguess.enableLocalFonts(function (i, n) {
+      lfNote.textContent = "reading font tables… " + i + " of " + n;
+    });
+    lfNote.textContent = st.granted
+      ? "indexed " + st.faces_indexed + " faces — the guess is now narrowed by real coverage"
+      : "unavailable: " + st.error;
+    ui.refresh();
+  });
+
   $("copy-set").addEventListener("click", function () { copy(state.text, $("copy-note")); });
   $("copy-specimen").addEventListener("click", function () {
     copy(state.text, $("specimen-note"));
