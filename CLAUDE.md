@@ -1,4 +1,4 @@
-# Unicode-Hunter
+# Glyph-Hunter
 
 Instruments for choosing Unicode glyphs that behave predictably as structural markers in
 text. Built for the MarkRight specification, which needs a set of marker glyphs that hold
