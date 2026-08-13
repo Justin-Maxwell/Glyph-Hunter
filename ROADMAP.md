@@ -642,3 +642,49 @@ Flagged, not acted on, because they are placements rather than splits:
 
 - Status: deferred by instruction
 - Set 14's merges stand. No further grouping work until Justin reopens it.
+
+## Set 16, 2026-08-13
+
+### The pattern: each tool is born from the frustration of the one above it
+
+- Status: stated
+- Tana Paste frustrated Justin, so MarkRight is being born out of that. Hand-copying
+  candidates off Unicode websites frustrated him, so Glyph-Hunter is being born out of
+  MarkRight's needs.
+- *"See the pattern?"*
+- The pattern is not that each tool serves the one above. It is that **the frustration is
+  only the trigger**, and what gets built each time is the general instrument underneath.
+- So the reframing in set 15 is not a one-off correction about Glyph-Hunter. It applies at
+  every level, and it will apply again to whatever this project turns out to sit on top of.
+- Practical effect: never scope a decision to the immediate irritant. It is the least
+  durable thing in the room.
+
+### `width group` is excised
+
+- Status: stated, with reservation
+- Justin, having flagged the term twice: *"I almost want to excise that term completely.
+  I'm holding back only because maybe I'm about to see some value in it."*
+- The concept is kept. The term is gone.
+- Claude's assessment of why the term kept grating: **it reads as a taxonomy and it is
+  nothing of the kind.** A "width group" sounds like a property glyphs have. It is the
+  result of one measurement in one font, and the same glyphs regroup differently in the
+  next font — which is exactly the objection Justin raised as *"it's font dependent"*.
+  Worse, `group` was already spoken for by the authored glyph groups in `config.json`,
+  which genuinely are a taxonomy. One word was doing two opposite jobs.
+- Now: `core.advanceSets()` in code, **Glyphs sharing an advance** as the heading, and the
+  panel names the font — *"5 distinct advances in monospace"* — so the font-dependence is
+  stated rather than implied.
+- The reservation stands. If it still earns nothing once seen in use, the panel goes and
+  the per-glyph table carries the information alone.
+- `ROADMAP.md` sets 3 and 4 keep the old term. They are a record of what was said at the
+  time and are not rewritten.
+
+### Thirty glyphs, not a group
+
+- Status: stated
+- *"'hunter' not 'smörgåsbord'."* 162 was still too many.
+- The opening set is now an explicit codepoint list in `defaults.glyph_set`, which set 5
+  already put in config scope, rather than a whole group switched on. No group is the right
+  size by accident.
+- Thirty circles across six blocks: five advance sets, six block identicons, everything on
+  one screen with nothing rationed.

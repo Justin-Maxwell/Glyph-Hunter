@@ -183,16 +183,29 @@
           left: round2(t.actualBoundingBoxLeft / sizePx * 1000),
           right: round2(t.actualBoundingBoxRight / sizePx * 1000),
         },
-        // A guess, and labelled one. DEBT.md records that a glyph legitimately sharing the
-        // notdef advance reads as missing.
+        // A guess, and labelled one. DEBT.md records that a glyph legitimately sharing
+        // the notdef advance reads as missing. Whether it is worth showing at all is
+        // decided below, once the whole set is known.
         notdefLike: domAdvance > 0 && Math.abs(domAdvance - notdefAdvance) < 0.5,
       };
     });
+
+    // The notdef comparison only carries information when the notdef advance is
+    // distinctive. In a monospaced face every glyph has it, so the flag fires on
+    // everything and means nothing — 18 of 30 glyphs in the opening set, all rendering
+    // perfectly. Suppressed rather than shown as noise, and the reason is reported.
+    var notdefHits = records.filter(function (r) { return r.notdefLike; }).length;
+    var notdefInformative = records.length > 0 && notdefHits / records.length < 0.5;
+    if (!notdefInformative) {
+      records.forEach(function (r) { r.notdefLike = false; });
+    }
 
     return {
       records: records,
       anchorAdvance: round2(anchorAlone),
       notdefAdvance: round2(notdefAdvance),
+      notdefInformative: notdefInformative,
+      notdefSuppressedFor: notdefInformative ? 0 : notdefHits,
       fontBox: fontBox(ctx, sizePx),
       envelope: measure.envelope({
         family: opts.family, sizePx: sizePx, anchor: anchor, hueDomain: opts.hueDomain,

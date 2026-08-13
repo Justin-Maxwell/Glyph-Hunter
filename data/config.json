@@ -8,7 +8,40 @@
   "font_family": "monospace",
   "size": 200,
   "anchor": "0",
-  "guide_opacity": 0.5
+  "guide_opacity": 0.5,
+  "glyph_set": [
+   "25CB",
+   "25CF",
+   "25CD",
+   "25CE",
+   "25C9",
+   "25CC",
+   "25D0",
+   "25D1",
+   "25D2",
+   "25D3",
+   "25D4",
+   "25D5",
+   "25D6",
+   "25D7",
+   "25F4",
+   "25F5",
+   "25F6",
+   "25F7",
+   "2B24",
+   "25EF",
+   "26AA",
+   "26AB",
+   "2B58",
+   "2A00",
+   "2299",
+   "229A",
+   "229B",
+   "229C",
+   "2B55",
+   "272A"
+  ],
+  "specimen_limit": 60
  },
  "font_panel": [
   {
@@ -66,7 +99,7 @@
  "groups": [
   {
    "name": "circles",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "1F78A",
     "25CB",

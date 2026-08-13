@@ -99,15 +99,15 @@
     });
   });
 
-  suite("width groups", function () {
+  suite("advance sets", function () {
     var recs = [
       { cp: 0x25D0, advance: 604 }, { cp: 0x25D1, advance: 604 },
       { cp: 0x29B5, advance: 836 }, { cp: 0x2B24, advance: 928 },
       { cp: 0x25F7, advance: 836 }, { cp: 0x25CB, advance: 836 },
     ];
 
-    test("one group per distinct advance, ordered by advance", function () {
-      var g = core.widthGroups(recs);
+    test("one set per distinct advance, ordered by advance", function () {
+      var g = core.advanceSets(recs);
       assert.deep(g.map(function (x) { return x.advance; }), [604, 836, 928]);
       assert.deep(g.map(function (x) { return x.count; }), [2, 3, 1]);
     });
@@ -119,13 +119,13 @@
     });
 
     test("guard: empty set", function () {
-      assert.deep(core.widthGroups([]), []);
+      assert.deep(core.advanceSets([]), []);
       assert.deep(core.largestUniformSubset([]), { advance: null, members: [] });
     });
 
-    test("guard: a single width group", function () {
+    test("guard: a single advance set", function () {
       var one = [{ cp: 1, advance: 500 }, { cp: 2, advance: 500 }];
-      assert.equal(core.widthGroups(one).length, 1);
+      assert.equal(core.advanceSets(one).length, 1);
       assert.equal(core.largestUniformSubset(one).advance, 500);
     });
   });

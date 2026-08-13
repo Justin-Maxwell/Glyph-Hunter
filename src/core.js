@@ -82,11 +82,18 @@
     return alpha == null ? "oklch(" + base + ")" : "oklch(" + base + " / " + alpha + ")";
   };
 
-  // ---------------------------------------------------------------- width groups
+  // ---------------------------------------------------------------- advance sets
 
-  // Records in, width groups out. One group per distinct advance, ordered by advance.
+  // Records in, advance sets out. One set per distinct advance, ordered by advance.
   // No verdict, no pass or fail: the bench is a visual explorer, not an assessor.
-  core.widthGroups = function (records) {
+  //
+  // Called *sets* rather than groups deliberately. "Width group" reads as a taxonomy — a
+  // property the glyphs have — and it is nothing of the kind. It is the result of one
+  // measurement in one font, and the same glyphs regroup differently in the next font.
+  // The name should not assert a classification where there is only a reading. `group`
+  // is also already spoken for by the authored glyph groups in config.json, which *are*
+  // a taxonomy, so one term was doing two opposite jobs.
+  core.advanceSets = function (records) {
     var byAdvance = new Map();
     (records || []).forEach(function (r) {
       var key = r.advance;
@@ -105,10 +112,10 @@
   // project asks is which glyphs stay grouped, and DEBT.md records both tools reporting
   // only a binary uniform / not-uniform where this is what was wanted.
   core.largestUniformSubset = function (records) {
-    var groups = core.widthGroups(records);
-    if (!groups.length) return { advance: null, members: [] };
-    var best = groups[0];
-    groups.forEach(function (g) { if (g.count > best.count) best = g; });
+    var sets = core.advanceSets(records);
+    if (!sets.length) return { advance: null, members: [] };
+    var best = sets[0];
+    sets.forEach(function (s) { if (s.count > best.count) best = s; });
     return { advance: best.advance, members: best.members.slice() };
   };
 

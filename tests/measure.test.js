@@ -26,7 +26,7 @@
   suite("measurement", function () {
     test("advances are whole units per 1000 em", function () {
       // The regression this guards: measuring to two decimals let sub-pixel layout noise
-      // split one width into many. 5083 glyphs produced 662 width groups where rounding
+      // split one width into many. 5083 glyphs produced 662 advance sets where rounding
       // gives 576, and near-identical values like 151.02 and 151.03 read as distinct.
       var r = run("sans-serif", "○●◐◑◎◉◌⬤⦵⦶⦷");
       r.records.forEach(function (rec) {
@@ -34,10 +34,10 @@
       });
     });
 
-    test("identical glyphs in one width group do not shatter", function () {
+    test("identical glyphs in one advance set do not shatter", function () {
       var r = run("monospace", "○●◐◑◎◉◌");
-      var groups = core.widthGroups(r.records);
-      assert.equal(groups.length, 1, "a monospaced face must give exactly one width group");
+      var groups = core.advanceSets(r.records);
+      assert.equal(groups.length, 1, "a monospaced face must give exactly one advance set");
     });
 
     test("every record carries the shared shape a front end consumes", function () {
@@ -73,7 +73,7 @@
       var r = run("sans-serif", "");
       assert.deep(r.records, []);
       assert.equal(r.envelope.glyph_count, 0);
-      assert.deep(core.widthGroups(r.records), []);
+      assert.deep(core.advanceSets(r.records), []);
     });
 
     test("the anchor changes an advance when it forces a fallback", function () {

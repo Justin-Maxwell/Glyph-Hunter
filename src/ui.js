@@ -77,11 +77,18 @@
     state.guideOpacity = def.guide_opacity == null ? 0.5 : def.guide_opacity;
     if (def.specimen_limit) state.specimenLimit = def.specimen_limit;
 
-    // Opening set is whatever the config marks selected_by_default.
+    // The opening set is an explicit codepoint list when the config gives one. A whole
+    // group is too much to open on — a hunter's bench, not a smörgåsbord — and no group
+    // is the right size by accident. `selected_by_default` remains as the fallback, so a
+    // config without a `glyph_set` still behaves.
     var cps = [];
-    (state.config.groups || []).forEach(function (g) {
-      if (g.selected_by_default) (g.members || []).forEach(function (m) { cps.push(core.fromHex(m)); });
-    });
+    if (def.glyph_set && def.glyph_set.length) {
+      cps = def.glyph_set.map(core.fromHex);
+    } else {
+      (state.config.groups || []).forEach(function (g) {
+        if (g.selected_by_default) (g.members || []).forEach(function (m) { cps.push(core.fromHex(m)); });
+      });
+    }
     state.text = cps.map(core.charOf).join("");
   };
 
@@ -265,17 +272,17 @@
 
   var MAX_LABEL_ROWS = 6;
 
-  function renderRuler(groups) {
+  function renderRuler(sets) {
     var host = $("ruler");
     var domain = state.config.hue_domain;
     var rowHeight = 15;
 
     // Every group gets a tick at its true position. Labels are rationed: with several
-    // hundred width groups the stagger would otherwise run to a column hundreds of rows
+    // hundred advance sets the stagger would otherwise run to a column hundreds of rows
     // deep, and every advance below the domain floor clamps to the same x, so they pile
     // up in one place. Labelling the largest groups first keeps the ruler about the
     // groups that carry glyphs.
-    var ticks = groups.map(function (g) {
+    var ticks = sets.map(function (g) {
       return {
         advance: g.advance, count: g.count,
         pos: core.logPosition(g.advance, domain) * 100,
@@ -323,39 +330,40 @@
     var unlabelled = byWeight.length - laid.placed.length;
     var clamped = ticks.filter(function (t) { return t.clamped; }).length;
     $("ruler-note").textContent =
-      ticks.length + " width groups, " + laid.placed.length + " labelled" +
+      ticks.length + " advance sets, " + laid.placed.length + " labelled" +
       (unlabelled > 0 ? " (the largest; " + unlabelled + " unlabelled, hover a tick)" : "") +
       (clamped > 0 ? " · " + clamped + " outside the " + domain.min + "–" + domain.max +
         " domain, pinned to an edge and left unlabelled" : "");
   }
 
-  // ---------------------------------------------------------------- width groups
+  // ---------------------------------------------------------------- advance sets
 
-  var MAX_GROUP_CARDS = 60;
+  var MAX_SET_CARDS = 60;
 
-  function renderWidthGroups(groups) {
-    var host = $("width-groups");
+  function renderAdvanceSets(sets) {
+    var host = $("advance-sets");
     var domain = state.config.hue_domain;
     host.innerHTML = "";
 
     // Reading order stays by advance, matching the ruler. When there are more groups than
     // can be read, the ones kept are the ones carrying the most glyphs — a wall of
     // single-glyph groups is not what this block is for.
-    var shown = groups;
-    if (groups.length > MAX_GROUP_CARDS) {
-      shown = groups.slice()
+    var shown = sets;
+    if (sets.length > MAX_SET_CARDS) {
+      shown = sets.slice()
         .sort(function (a, b) { return b.count - a.count || a.advance - b.advance; })
-        .slice(0, MAX_GROUP_CARDS)
+        .slice(0, MAX_SET_CARDS)
         .sort(function (a, b) { return a.advance - b.advance; });
     }
-    $("wgroup-note").textContent = groups.length > MAX_GROUP_CARDS
-      ? "showing the " + MAX_GROUP_CARDS + " largest of " + groups.length + " groups, in advance order"
-      : groups.length + " group" + (groups.length === 1 ? "" : "s");
+    $("aset-note").textContent = (sets.length > MAX_SET_CARDS
+      ? "showing the " + MAX_SET_CARDS + " largest of " + sets.length + " sets, in advance order"
+      : sets.length + " distinct advance" + (sets.length === 1 ? "" : "s")) +
+      " in " + state.family;
 
     shown.forEach(function (g) {
       var colour = core.colourFor(g.advance, domain);
       var card = document.createElement("div");
-      card.className = "wgroup";
+      card.className = "aset";
       // The hue makes colour mean identity, not quality. No green and red edges: `.solo`
       // and `.many` were the same judgement in colour, and there are no verdicts here.
       card.innerHTML = '<div class="swatch" style="background:' + colour + '"></div>' +
@@ -366,12 +374,12 @@
         (g.members.length > 60 ? "…" : "") + "</div>" +
         '<div class="wcount">' + g.count + " glyph" + (g.count === 1 ? "" : "s") + "</div></div>";
 
-      hover.attach(card, function () { return widthGroupInfo(g, colour); }, "wg" + g.advance);
+      hover.attach(card, function () { return advanceSetInfo(g, colour); }, "wg" + g.advance);
       host.appendChild(card);
     });
   }
 
-  function widthGroupInfo(g, colour) {
+  function advanceSetInfo(g, colour) {
     var rows = g.members.slice(0, 40).map(function (r) {
       var d = state.index.get(r.hex);
       return "<tr><td class=\"g\">" + esc(r.char) + "</td><td>U+" + r.hex + "</td><td>" +
@@ -412,7 +420,10 @@
     host.replaceChildren(frag);
 
     $("table-note").textContent = result.records.length + " glyphs · advance is the DOM " +
-      "measurement, which is what the page draws · delta shown only when the anchor changes it";
+      "measurement, which is what the page draws · delta shown only when the anchor changes it" +
+      (result.notdefInformative ? "" :
+        " · notdef flag suppressed: " + result.notdefSuppressedFor + " glyphs share the notdef " +
+        "advance of " + result.notdefAdvance + ", so the test says nothing here");
   }
 
   function flagCell(r) {
@@ -498,17 +509,17 @@
     });
     state.result = result;
 
-    var groups = core.widthGroups(result.records);
+    var sets = core.advanceSets(result.records);
     renderSpecimen(result);
-    renderRuler(groups);
-    renderWidthGroups(groups);
+    renderRuler(sets);
+    renderAdvanceSets(sets);
     renderTable(result);
     renderBlocks(result);
     renderGroupToggles();
 
     var ms = Math.round(performance.now() - t0);
     $("envelope").textContent = JSON.stringify(result.envelope, null, 1);
-    $("status").textContent = cps.length + " glyphs · " + groups.length + " width groups · " +
+    $("status").textContent = cps.length + " glyphs · " + sets.length + " advance sets · " +
       ms + "ms · data via " + state.dataPath;
   };
 
