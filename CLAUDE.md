@@ -1,8 +1,18 @@
 # Glyph-Hunter
 
-Instruments for choosing Unicode glyphs that behave predictably as structural markers in
-text. Built for the MarkRight specification, which needs a set of marker glyphs that hold
-a consistent advance width across the fonts and platforms its author actually uses.
+Instruments for examining how Unicode glyphs actually behave when rendered — advance
+width, itemisation, coverage, width class. **It is a general tool**, built because no
+equivalent appears to exist and because the alternative was hours on Unicode websites
+copying candidates around by hand.
+
+MarkRight is the **first real-world test** of the tool, not its purpose. It needs marker
+glyphs holding a consistent advance across the fonts and platforms its author uses, and it
+is what the bench will first be pointed at. Do not treat it as the specification.
+
+The practical consequence, in Justin's words: whether something serves his immediate
+concern is *"a superposition of fully relevant and entirely irrelevant"*. So **"is this a
+marker candidate?" is not a filter for what matters.** A finding about arrows or braille
+is not less interesting than one about circles.
 
 The author is Justin. Read `ROADMAP.md` before doing anything: it is his direction, and it
 governs.
@@ -16,8 +26,10 @@ Two instruments, three questions, and they do not overlap.
 - **`sysfont.py`** — what a *font file* contains. fontTools over `/system/fonts` or any
   directory. Runs under Termux on Android, or anywhere with Python.
 - A **TUI** is wanted eventually, and would answer a third question neither of these can:
-  how many terminal cells a glyph occupies. That is the East Asian Width question, and
-  EAW uniformity is the one hard constraint on the marker set. Do not build it yet.
+  how many terminal cells a glyph occupies. That is the East Asian Width question, and it
+  is the only width Unicode itself specifies — advance widths live in fonts, not in the
+  UCD. EAW uniformity is the hard constraint in the MarkRight test case. Do not build it
+  yet.
 
 ## Where truth lives
 

@@ -29,6 +29,9 @@ reintroduced and so the record of what the old build got wrong survives.
 - ~~**Verdict is binary**~~ — verdicts are gone entirely (ROADMAP set 3). The
   largest-uniform-subset it lacked exists as `core.largestUniformSubset` and is tested, but
   is deliberately **not surfaced**: nothing in the build spec asks for it on screen.
+  It reports the largest set sharing one advance **in a single run**. It is not
+  cross-font stability analysis, which ROADMAP set 15 puts firmly out of scope, and it
+  must not be mistaken for the start of it.
 - ~~**Ruler tick labels collide**~~ — labels stagger downward on collision, ticks keep
   their true positions, and the depth of the stagger sets the ruler height.
 - ~~**Zero and single-value advances break a log scale**~~ — both guarded in

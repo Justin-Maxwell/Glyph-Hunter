@@ -238,7 +238,7 @@
   },
   {
    "name": "arcs, half shapes",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "25DC",
     "25DD",
@@ -267,7 +267,7 @@
   },
   {
    "name": "squares",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "25A3",
     "25AB",
@@ -615,7 +615,7 @@
   },
   {
    "name": "rectangles",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "25AD",
     "25AF",
@@ -631,7 +631,7 @@
   },
   {
    "name": "diamonds, lozenges",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "25C8",
     "2B2B",
@@ -688,7 +688,7 @@
   },
   {
    "name": "triangles",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "25B5",
     "25B9",
@@ -788,7 +788,7 @@
   },
   {
    "name": "polygons",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "23E2",
     "2B20",
@@ -808,7 +808,7 @@
   },
   {
    "name": "stars, asterisks",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2B52",
     "2606",
@@ -919,7 +919,7 @@
   },
   {
    "name": "crosses, saltires",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "26D1",
     "271E",
@@ -983,7 +983,7 @@
   },
   {
    "name": "bullets, dots",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "25E6",
     "204C",
@@ -1035,7 +1035,7 @@
   },
   {
    "name": "block elements",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2582",
     "258E",
@@ -1076,7 +1076,7 @@
   },
   {
    "name": "box drawing",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2500",
     "2501",
@@ -1208,7 +1208,7 @@
   },
   {
    "name": "misc math symbols",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "27EC",
     "27ED",
@@ -1319,7 +1319,7 @@
   },
   {
    "name": "math operators",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2AFE",
     "2AFF",
@@ -1767,7 +1767,7 @@
   },
   {
    "name": "arrows",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "21E6",
     "21E7",
@@ -2403,7 +2403,7 @@
   },
   {
    "name": "misc symbols and arrows",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2B2D",
     "2B2F",
@@ -2473,7 +2473,7 @@
   },
   {
    "name": "technical",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2320",
     "2321",
@@ -2729,7 +2729,7 @@
   },
   {
    "name": "legacy computing",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "1FBC1",
     "1FBC2",
@@ -3192,7 +3192,7 @@
   },
   {
    "name": "enclosed alphanumerics",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "272A",
     "27B2",
@@ -4000,7 +4000,7 @@
   },
   {
    "name": "number forms",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2170",
     "2171",
@@ -4125,7 +4125,7 @@
   },
   {
    "name": "letterlike",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2129",
     "2100",
@@ -4168,7 +4168,7 @@
   },
   {
    "name": "currency",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "20A0",
     "20A1",
@@ -4210,7 +4210,7 @@
   },
   {
    "name": "standalone accents",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "A708",
     "A709",
@@ -4379,7 +4379,7 @@
   },
   {
    "name": "general punctuation",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2010",
     "2011",
@@ -4447,7 +4447,7 @@
   },
   {
    "name": "supplemental punctuation",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2E01",
     "2E04",
@@ -4710,7 +4710,7 @@
   },
   {
    "name": "dingbats",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2704",
     "2705",
@@ -4829,7 +4829,7 @@
   },
   {
    "name": "misc symbols",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "260F",
     "2616",
@@ -6338,7 +6338,7 @@
   },
   {
    "name": "games",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "1F006",
     "1F0DF",
@@ -6665,7 +6665,7 @@
   },
   {
    "name": "alchemy and astrology",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "1F772",
     "1F773",
@@ -6798,7 +6798,7 @@
   },
   {
    "name": "divination",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "2630",
     "2631",
@@ -6973,7 +6973,7 @@
   },
   {
    "name": "historic and religious",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "101FB",
     "10190",
@@ -10065,7 +10065,7 @@
   },
   {
    "name": "unsorted",
-   "selected_by_default": true,
+   "selected_by_default": false,
    "members": [
     "FBC0",
     "FBC1",

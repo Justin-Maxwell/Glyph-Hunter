@@ -597,3 +597,48 @@ Flagged, not acted on, because they are placements rather than splits:
   identicon work makes blocks a recognisable unit in their own right.
 - But it is the weakest reason in the file, and it is where the next unjustified split will
   be found. `misc math symbols` against `math operators` is the clearest candidate.
+
+## Set 15, 2026-08-13
+
+### The tool is general. MarkRight is its first test, not its purpose
+
+- Status: stated, and it corrects how Claude had been reading the whole project
+- Justin built this because no equivalent appears to exist, after many hours on Unicode
+  websites looking for candidates and copying them around by hand. The intent was a simple
+  tool, which became *"let's build a tool that works for my variant-human-editions around
+  the world maybe"*.
+- MarkRight is the first and immediate real-world test of the tool. It is not the
+  specification for it.
+- Consequence, in his words: whether something fits his immediate concern is *"a
+  superposition of fully relevant and entirely irrelevant. So you can't win!"*
+- So **"is this a marker candidate?" is not a filter for what matters.** Claude had been
+  using it as one — reporting an East Asian Width change as unimportant because the
+  characters were not circles. Recorded in `CLAUDE.md` so it is read first.
+
+### Almost nothing is selected by default
+
+- Status: stated
+- Either zero groups, or just some circle groups.
+- Applied: `circles` alone, 162 glyphs. Zero would open on a blank bench, which shows
+  nothing working; one shape family exercises every panel and stays readable.
+- Effect: 162 glyphs, 32 width groups, 20 blocks. Every rationing mechanism added for the
+  5,083-glyph default now sits dormant, which is where it belongs — those caps are for
+  when something large is pasted in, not for the resting state.
+
+### Cross-font stability is for later, and saying otherwise is a hazard
+
+- Status: stated, and it is a correction
+- Justin told the session that wrote the build spec that this was a **for later**
+  requirement. Nowhere near useful at this stage. *"One huge potential issue source."*
+- Claude then described it as *the answer being hunted*, which is exactly the
+  over-weighting being warned about. `ROADMAP.md` set 6 and `CLAUDE.md` both already mark
+  it deferred; the error was in reading, not in the record.
+- What remains sanctioned is only the run envelope, as `CLAUDE.md` says. Nothing consumes
+  it and nothing should be built toward consuming it.
+- `core.largestUniformSubset` exists and is tested. It is a single-run fact and clears a
+  `DEBT.md` item; it is **not** cross-font machinery and nothing surfaces it.
+
+### Grouping returns next turn
+
+- Status: deferred by instruction
+- Set 14's merges stand. No further grouping work until Justin reopens it.
