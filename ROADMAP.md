@@ -276,18 +276,13 @@ Consequence for work happening now:
 ### Per-glyph table
 
 - Status: stated
-- Minimal block identifier per row, full name on hover.
-  - Form: initials of the block name, then the block's first codepoint. `GS·25A0`.
-  - Initials alone are not unique. Of 339 blocks, only 206 have distinct initials; 39
-    collide. `GS` is Geometric Shapes, Georgian Supplement and Glagolitic Supplement.
-    `BE`, `MT`, `MS` and `D` all collide too, and all four are blocks in play here.
-  - The start codepoint disambiguates completely, and carries information the codepoint
-    column cannot: where the block boundary falls. Fonts subset by block, so shared block
-    membership is a weak predictor of shared supply.
-  - Block data comes from `fontTools.unicodedata.block()`, already a `sysfont.py`
-    dependency. No hand-maintained table, and no reachability problem.
-  - Initials must preserve the `-A` and `-B` suffixes, or Miscellaneous Mathematical
-    Symbols-A and -B both reduce to `MMS`.
+- Block identified by a **colour identicon**, jdenticon, nothing else in the cell.
+  - Column sits toward the right, away from the advance colour tags. Separation keeps the
+    two colour languages from being read as one.
+  - Details on hover. No initials, no codepoint, no text in the cell.
+  - Claude's hand-rolled initials scheme is dead. Unicode publishes official short
+    aliases, all 354 unique, and they are better: `Misc_Math_Symbols_B`,
+    `Sup_Punctuation`, `Geometric_Shapes_Ext`, `Misc_Arrows`.
 - `CLASS` gets an explicit title. It is East Asian Width and says so nowhere.
 - `FLAG` is opaque. It is a notdef-width guess.
 - `ALONE` and `IN RUN` only earn two columns if they can differ. They cannot until the
@@ -318,3 +313,43 @@ per-glyph detail on demand, and the table is short of horizontal space.
 
 - Justin has used TUIs and is aware of the limitations. The explanation was unnecessary.
 - For now the workflow is copy-paste out of the glyphs-under-test box, which works.
+
+## Set 8, 2026-08-13
+
+### Hover is a defined term. Standing specification
+
+- Status: stated
+- Applies wherever this document says hover. One component, used everywhere.
+
+- Opens on a delay, not instantly.
+- Autocloses after a period outside.
+- Carries a close button.
+- Escape closes it.
+- Tap opens it on mobile.
+- Tap outside closes it, as well as the close button.
+
+### Block identicons are coloured
+
+- Status: stated
+- Colour, not greyscale. Claude proposed desaturating to avoid clashing with the advance
+  hues; Justin's answer is spatial separation instead. Column goes to the right.
+
+### Normalisation follows the Unicode Consortium
+
+- Status: stated, and the specification exists
+
+Justin's suspicion was correct.
+
+- `PropertyValueAliases.txt` gives official short and long aliases for all 354 blocks.
+  Short aliases are unique. Vendored at `data/PropertyValueAliases-18.0.0.txt`.
+- The file directs that **loose matching** be applied to all property names and values,
+  excepting String Property values. Loose matching ignores case, whitespace, underscores
+  and hyphens.
+- So the hash input is the official long alias in its canonical underscored form, for
+  example `Miscellaneous_Mathematical_Symbols_B`, rather than a display string mangled by
+  hand.
+- Consequence, and the point behind the joke: any other tool hashing the same canonical
+  alias with jdenticon produces the same icon. The identicon is portable by construction,
+  with no agreement needed between implementations.
+- Note the vendored file is UCD 18.0.0 while local `unicodedata` is 15.0.0. Version skew
+  to keep an eye on.
