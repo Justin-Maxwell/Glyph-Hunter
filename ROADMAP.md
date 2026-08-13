@@ -491,3 +491,71 @@ Function does not parse at all, and this is the limit:
 - Rationale: Claude Code can run a headless browser, so it can settle three questions this
   session could not — canvas additivity behind the dead adjacency anchor, identicon
   legibility at table size, and whether x-height probing survives a symbol font.
+
+## Set 13, 2026-08-13
+
+### Two workstreams, deliberately separate
+
+- Status: stated
+- **Glyph curation** — the inventory, its grouping, and the naming of groups.
+- **App viewer** — the bench, its measurement, and its UI.
+- These now run apart. A change in one is not a change in the other, and neither waits on
+  the other.
+- Consequence: `docs/build-spec.md` remains the viewer's spec. Curation gets its own.
+
+### Groups become a two-level hierarchy
+
+- Status: stated
+- Reverses the flat-groups non-goal in `CLAUDE.md`, and settles the "see 47 chips before
+  deciding whether to nest" question left open in `docs/build-spec.md` §8. Justin has seen
+  it and decided.
+- Sections at the top, leaves beneath. **Target 20-25 members per leaf. Not a hard limit.**
+- Measured starting point: 9,800 glyphs in 47 flat groups, median 102, largest 1,275.
+  42 of the 47 exceed 25 and hold 9,748 of the glyphs.
+
+### Leaf names come from looking, not from name morphology
+
+- Status: stated
+- Justin's direction: leaf naming is LLM work, not hand work, and not mechanical.
+- Blocks, name stems, and contiguous codepoint runs are **guides, not authorities**.
+- Rationale, measured: name stems over-fragment (arrows yield 226 two-token stems),
+  blocks leave whales (squares' largest block is 193), runs help unevenly.
+
+### Grouping is a fuzzy, multi-pass, visual process
+
+- Status: stated
+- Claude renders contact sheets, looks at the glyphs, and reallocates.
+- Verified this session: 40 glyphs per sheet is comfortable; the eye finds families the
+  Unicode names blur, and surfaces foreign members sitting inside a name-derived group.
+- **Not single-pass.** A misfit is not a reject: it goes to a pool, and a home for it may
+  only become apparent in a later shuffle.
+- No leaf is closed until a confirmation sheet of that leaf alone reads as one family.
+
+### Judgement needs a durable layer of its own
+
+- Status: stated
+- Problem: `gen_groups.py` regenerates `config.json`, so LLM and hand judgement cannot
+  live there.
+- An overlay keyed by codepoint carries `leaf`, provenance (`rule` / `visual` / `justin`),
+  the sheet the call was made from, and an explicit `unsure` state.
+- The mechanical pass proposes; the overlay wins.
+- Consequence: re-running the generator stops being destructive.
+
+### Inventory trims back, interactively
+
+- Status: stated
+- "Include rather than exclude" was right for completeness. That phase is over.
+- Trimming happens **set by set, after show-and-tell**, never as a bulk list.
+- Dropped means dropped **from the inventory entirely**, as Latin alphabetics already are —
+  not merely deselected in the UI.
+- Settled this session: braille is a script; emoji are not appropriate here. Both go.
+
+### Rendering source
+
+- Status: stated
+- Justin asked whether Noto is the right source. It is, and it is now in use for the
+  sheets: Symbols2, Symbols, Math, Music, SignWriting, fetched from the notofonts repo.
+- Vector coverage for the bitmap-fallback remainder is worth pursuing for resolution.
+- But measure after the trim first: bitmap-only falls from 32.6% of the full inventory to
+  12.1% once the drop candidates go, with nothing left uncovered. The residual concentrates
+  in exactly the blocks being dropped.
