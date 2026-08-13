@@ -353,3 +353,35 @@ Justin's suspicion was correct.
   with no agreement needed between implementations.
 - Note the vendored file is UCD 18.0.0 while local `unicodedata` is 15.0.0. Version skew
   to keep an eye on.
+
+## Set 9, 2026-08-13
+
+### The info box carries the official abbreviation
+
+- Status: stated
+- Both aliases shown: the official short form and the canonical long form.
+- Reason is propagation, not Justin's own use.
+- Anyone else using the tool learns that an official abbreviation already exists.
+- The tool surfaces the standard rather than only consuming it. That is how a standard
+  spreads without anyone having to be evangelised at.
+
+### Identicons exist because recognition beats recall
+
+- Status: Justin's rationale, recorded
+- Remembering a glyph sat beside the orange pointy thing is cheaper than recalling a
+  block name.
+- Unicode block names are unusually hostile to recall. Of 354 blocks:
+  - 81 names are a strict prefix of another name.
+  - 23% end in a trailing qualifier that is the only thing distinguishing them.
+  - 18 begin `CJK_`, 9 `Latin_`, 9 `Old_`, 8 `Arabic_`, 8 `Miscellaneous_`.
+- So the names are near-minimal-pairs at scale, which is exactly the case where verbal
+  recall fails and visual recognition does not.
+
+Consequence, and the two decisions reinforce each other:
+
+- Recognition memory only works if the icon is stable across sessions, devices and tools.
+- Hashing the canonical alias is what guarantees that stability.
+- So the normalisation decision is not tidiness. It is what makes the identicon
+  learnable at all.
+- Follows: the identicon must appear everywhere a block appears, so the association gets
+  reinforced rather than taught once.
