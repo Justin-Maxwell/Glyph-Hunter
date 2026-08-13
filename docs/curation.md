@@ -175,6 +175,35 @@ classifier could:
 | hatch and checkerboard | 4 |
 | singletons | 3 |
 
+### small sets — currency, fullwidth, superscripts, number forms
+
+- **currency 33** — dropped entire.
+- **fullwidth and halfwidth 43** — the 29 ASCII duplicates dropped, identified by decomposition
+  rather than by eye: every one decomposes to a codepoint below U+0080. The remaining 14
+  dropped too.
+- **superscripts and subscripts 27** — dropped entire.
+- **number forms 58** — only the Roman numerals kept: 16 uppercase U+2160–216F and 16 lowercase
+  U+2170–217F. The 19 vulgar fractions and the archaic and apostrophic forms go.
+
+Deferred to the end, with the shape work: `rectangles` 7, `polygons` 11, `arcs, half shapes` 20,
+`geometric shapes, unshaped names` 2.
+
+**Two hazards attached to keeping the Roman numerals.**
+
+They are General_Category **Nl**, which means they are ID_Start and Alphabetic — identifier
+characters, and word-interior for segmentation. They are not symbols in the sense the rest of
+the marker set is.
+
+And they **case-map**: `Ⅰ`.lower() is `ⅰ`, `Ⅿ`.lower() is `ⅿ`. Keeping both cases means keeping a
+pair that any case-folding pipeline will silently convert between. Same hazard as the circled
+Latin letters.
+
+**A halfwidth loose end.** U+FFE8 HALFWIDTH FORMS LIGHT VERTICAL is dropped with its group, but
+its siblings — halfwidth black square, white circle, the four halfwidth arrows and the katakana
+middle dot — live in `squares`, `circles`, `arrows` and `bullets, dots` and are not affected.
+Those eight are the only matched narrow/normal pairs in the inventory, EAW H against N, and
+nothing has yet looked at them as a set.
+
 ## Compressed
 
 ### enclosed sets
