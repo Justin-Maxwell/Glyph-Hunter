@@ -479,3 +479,15 @@ Function does not parse at all, and this is the limit:
 - Consequence: a symbol face may carry neither `x` nor `H`, in which case the measurement
   silently returns another font's metrics. Those guides must then be **omitted with a
   visible reason**, never drawn from whatever answered.
+
+## Set 12, 2026-08-13
+
+### Handover to Claude Code
+
+- Status: stated
+- Claude Code builds the bench rebuild, with tests.
+- Justin snapshots this session's chat alongside the repo spec.
+- Spec at `docs/build-spec.md`. Entry point at `CLAUDE.md`.
+- Rationale: Claude Code can run a headless browser, so it can settle three questions this
+  session could not — canvas additivity behind the dead adjacency anchor, identicon
+  legibility at table size, and whether x-height probing survives a symbol font.
