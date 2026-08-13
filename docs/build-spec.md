@@ -62,6 +62,10 @@ No browser API reports them. The workaround is to render `x` and `H` and take
 Both files are generated. Do not hand-edit `glyphdata.json`.
 
 - `data/config.json` — authored. Groups with ordered members, hue domain, defaults.
+  **Justin edits this.** `tools/gen_groups.py` will not overwrite it without `--force`.
+- `data/config.json.orig` — the pristine generated pass, always rewritten by
+  `gen_groups.py`. Its purpose is to be diffed against `config.json` to see Justin's edits.
+  Never read it at runtime.
 - `data/glyphdata.json` — derived. Per glyph: `cp`, `name`, `gc`, `eaw`, `mirrored`,
   `bidi`, `block`, `block_canonical`, `block_short`. Absent keys mean absent or false.
 - `data/glyphdata.js` and a `config.js` shim assign the same payloads to globals.
@@ -280,6 +284,9 @@ answer would be invisible.
   is there. See the foot of `docs/fonts.md`.
 - Whether the absent reference faces should be added.
 - Whether 47 flat group toggles is usable, or sub-groups are needed. See it first.
+- Whether the glyph info box should identify the font actually supplying a glyph. Raised
+  by Justin, assessed in `PROPOSALS.md`, **not part of this spec**. Viable by metric
+  fingerprinting against `sysfont.py` output; not viable by any API.
 - Whether the `plain circles` / `black-part circles` split survives. It is not a
   principled boundary: `◐ ◑` and `◒ ◓` are one family by name and by construction, and
   U+25D0–25D5 is a contiguous run the split cuts after the second member. The real

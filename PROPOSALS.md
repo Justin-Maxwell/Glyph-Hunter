@@ -84,3 +84,59 @@ Recorded so it is not re-derived. **Not queued, and not to be acted on.**
 
 - Glyphs that share a role with `◡` across seven blocks, found by role rather than by name.
   Retrievable from session `DP1Wkr1y32iS` if ever wanted.
+
+## Font-in-use in the glyph info box
+
+- Status: unassessed, raised by Justin as a question 2026-08-13
+- Not in `docs/build-spec.md`. Do not build it as part of that spec.
+
+Justin asked whether showing the font actually supplying a glyph is viable in the browser
+popup. Short answer: not by any API, but by measurement yes — and most of the machinery
+already exists.
+
+### No API reports it
+
+- `getComputedStyle().fontFamily` returns the **declared** list, not what was used.
+- `document.fonts.check()` covers loaded `@font-face` faces only, not system fallback, and
+  answers liberally.
+- There is no `renderedFont` property in any browser. DevTools has the information and does
+  not expose it to script.
+
+### Metric fingerprinting does work, and the pieces are already here
+
+- `sysfont.py` already measures every face on the device and reports the advance each
+  assigns each codepoint. That is a lookup table.
+- The bench already measures what the renderer produced.
+- The current footer even describes the manual version: measure on screen, then find the
+  number in the table.
+- So the gap is only that the table lives in stdout rather than in a file the bench can
+  load. Have `sysfont.py` emit JSON and the lookup becomes automatic.
+
+**Strengthen it by fingerprinting on the vector, not one number.** A single advance is not
+unique — many faces use 1000 or 604. But `TextMetrics` gives five numbers per glyph:
+`width`, `actualBoundingBoxAscent`, `Descent`, `Left`, `Right`. Across ten glyphs that is
+fifty numbers, which should be near-unique among the hundred-odd faces on a device.
+
+Honest limits:
+
+- Requires `sysfont.py` to have been run on that device first. Device-local, two-step, not
+  automatic on a fresh machine.
+- Produces a **candidate set** where metrics collide, not a single answer. Say so in the
+  popup rather than picking one.
+- A subsetted system build may not match its upstream namesake. The confirmed Android
+  supplier is `NotoSansSymbols-Regular-Subsetted.ttf`, whose metrics need not equal any
+  distributable Noto Sans Symbols — which is precisely why measuring beats naming.
+
+### `queryLocalFonts()` is a second route, probably not on the platform that matters
+
+- Chromium's Local Font Access API returns installed families and can hand back the font
+  **blob**, so the browser could parse tables directly and do sysfont's job in-page.
+- Requires a permission prompt and a secure context.
+- Believed unavailable on Android Chrome, which is the platform this question matters most
+  for. **Unverified** — worth a check, since if it works the whole problem collapses.
+
+### Why this is more interesting than it looks
+
+On Android, per-glyph font readout otherwise needs a USB cable and desktop DevTools. An
+in-page identification would make the bench the only font-naming instrument available on
+the device — which is a stronger justification for the tool than metrology alone.

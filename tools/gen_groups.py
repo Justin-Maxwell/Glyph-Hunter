@@ -7,8 +7,13 @@ Justin to move around by hand; this script exists so the first pass is fast and,
 importantly, **auditable**. Every glyph records the rule that placed it, so a wrong
 placement can be traced to a rule rather than argued about glyph by glyph.
 
-    python tools/gen_groups.py            # writes data/config.json
+    python tools/gen_groups.py            # writes .orig; keeps an existing config.json
     python tools/gen_groups.py --report   # summary to stdout, writes nothing
+    python tools/gen_groups.py --force    # overwrite config.json too
+
+config.json.orig is the pristine generated pass and is always rewritten. config.json is
+Justin's to edit and is never overwritten without --force, so a re-run cannot destroy
+hand grouping. Diff the two to see what he changed.
 
 Inventory rule, per Justin, 2026-08-13
     In:  Sm Sc Sk So No Nl, all punctuation, and the Spacing Modifier Letters block.
@@ -282,6 +287,8 @@ DESELECTED_BY_DEFAULT = {
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--report", action="store_true", help="summarise, write nothing")
+    ap.add_argument("--force", action="store_true",
+                    help="overwrite config.json even if it exists and may hold edits")
     args = ap.parse_args()
 
     groups = {}
@@ -327,11 +334,24 @@ def main():
             for g in ordered
         ],
     }
-    out = os.path.join(DATA, "config.json")
-    with open(out, "w", encoding="utf-8") as fh:
-        json.dump(config, fh, ensure_ascii=False, indent=1)
-        fh.write("\n")
-    print(f"\nwrote {os.path.relpath(out, ROOT)}")
+    def write(path):
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(config, fh, ensure_ascii=False, indent=1)
+            fh.write("\n")
+
+    # .orig is always rewritten: it is the pristine generated pass, and its whole purpose
+    # is to be diffed against an edited config.json.
+    orig = os.path.join(DATA, "config.json.orig")
+    write(orig)
+    print(f"\nwrote {os.path.relpath(orig, ROOT)}")
+
+    live = os.path.join(DATA, "config.json")
+    if os.path.exists(live) and not args.force:
+        print(f"kept  {os.path.relpath(live, ROOT)} - already exists, may hold edits")
+        print("      diff against the .orig to see them; --force to overwrite")
+    else:
+        write(live)
+        print(f"wrote {os.path.relpath(live, ROOT)}")
 
 
 if __name__ == "__main__":
