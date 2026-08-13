@@ -190,3 +190,34 @@ Two findings attached to it:
   legacy computing, cjk punctuation, fullwidth and halfwidth, standalone accents.
 - Arabic Mathematical Alphabetic Symbols (143, 2 currently in) poses the same question as the
   styled Latin families.
+
+## Exemplars: four, seeded-random
+
+Supersedes first-and-last. Endpoints turned out to be a poor sample: they are systematically
+the *degenerate* members. The first hexagram is all-solid, the first domino is the tile back,
+the first tetragram is all-solid. A pair of extremes tells you the family's bounds and hides
+everything between them.
+
+- **Four exemplars per compressed set, drawn at random**, plus the total count. The count is
+  what implies the permutation space; the four show what a typical member looks like.
+- **Seeded on the family name**, so the same four come back on every regeneration. An unseeded
+  draw would churn the config on every run and make diffs meaningless.
+- The **range and count remain recorded separately**. Random exemplars delimit nothing, so this
+  is now load-bearing rather than a nicety.
+- **Hand-picked overrides stay available** and are recorded as such.
+
+Known weakness, worth stating rather than discovering later: random samples the typical, and a
+visually distinct minority can be missed entirely. Four random playing cards drew four pip
+cards and no court card — and the court cards are the interesting ones. Roughly a one-in-three
+chance of that happening. Where a family has a distinct minority, either override by hand or
+stratify the draw.
+
+### Consequence for pooling
+
+Compressed exemplars were to pool into one shared leaf. At two per set that landed at 22, just
+inside the band. At four it does not:
+
+- enclosed-set sequences: 11 sets, 44 exemplars
+- styled alphanumerics: 11 subgroups, 44 exemplars
+
+Both now need two leaves rather than one.
