@@ -45,6 +45,12 @@ is a serious error: it turns a suggestion into an instruction.
 - **Do not describe an image you have not examined.** A specimen row was described as
   uniform when it showed three distinct sizes, contradicting measurements quoted two
   paragraphs earlier.
+- **Never hand-type a glyph run in prose.** Emit it from the codepoints, the same way a
+  sheet is rendered. A seven-member cycle typed into chat carried U+32CB, December, in
+  place of U+328B, and the wrong glyph came from the run being discussed three lines
+  above. Worse, the error was then attributed to the reader's font stack, because the
+  rendered diagnostic — built from the range, and correct — could not reproduce it. A
+  typed glyph run is unverified data presented as evidence.
 - **Do not compare apparent sizes across separately cropped screenshots.** Different
   crops, different scales, no information.
 - **Flag inference as inference.** Say "I assume", "probably", "likely". Do not state a
