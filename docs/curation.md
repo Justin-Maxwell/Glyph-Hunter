@@ -92,16 +92,16 @@ case where the leaves fell inside the 20–25 band with no further splitting:
 | wavy and glissando | 2 |
 | kievan notation | 2 |
 
-### games — 324 → 149, nothing dropped
+### games — 324 → 153, nothing dropped
 
-Almost entirely enumerable runs, so compression alone removes 175.
+Almost entirely enumerable runs, so compression alone removes 171.
 
 | compressed set | members | range | exemplars |
 | --- | --- | --- | --- |
 | playing cards | 56 | U+1F0A1–U+1F0DE | U+1F0D1, U+1F0BE |
 | mahjong numbered suits | 27 | U+1F007–U+1F021 | U+1F007, U+1F021 |
-| domino horizontal | 50 | U+1F030–U+1F061 | U+1F030, U+1F061 |
-| domino vertical | 50 | U+1F062–U+1F093 | U+1F062, U+1F093 |
+| domino horizontal | 50 | U+1F030–U+1F061 | four random, seeded |
+| domino vertical | 50 | U+1F062–U+1F093 | four random, seeded |
 
 Everything else stays intact: chess rotated (23 neutral, 23 white, 23 black), card trumps 21,
 xiangqi red 7 and black 7, chess upright neutral 7, white 4, black 4, mahjong winds 4,
@@ -191,14 +191,27 @@ Two findings attached to it:
 - Arabic Mathematical Alphabetic Symbols (143, 2 currently in) poses the same question as the
   styled Latin families.
 
-## Divination — four seeded-random exemplars
+## Combination enumerations — four seeded-random exemplars
 
-**Scoped to divination.** The general rule stays first-and-last with hand-picked overrides.
+**Scoped to combination enumerations.** The general rule stays first-and-last with hand-picked
+overrides.
 
-Endpoints fail badly on the line-stack families specifically, because their first members are
-the degenerate ones: the first hexagram is all-solid, the first tetragram is all-solid. Both
-extremes of a permutation space, and nothing of what lies between. These families are
-*enumerations of combinations*, so a typical member is far more informative than a bound.
+A **combination enumeration** is a family whose members exhaust a combination space rather than
+running through a positional sequence. Three qualify:
+
+| family | space | n |
+| --- | --- | --- |
+| hexagram | binary, 2⁶ | 64 |
+| tetragram | ternary, 3⁴ | 81 |
+| domino, each orientation | 7×7 pip grid, plus a back tile | 50 |
+
+A positional sequence — an alphabet run, a card suit, a numbered mahjong suit — varies by one
+predictable position, so its ends describe it. A combination enumeration does not: its ends are
+the corners of the space.
+
+Endpoints fail badly on these, because their first members are the degenerate ones: the first
+hexagram is all-solid, the first tetragram is all-solid, the first domino is the tile back. All
+corners of a space, and nothing of what lies within it.
 
 - **Four exemplars, drawn at random**, plus the total count. The count implies the permutation
   space; the four show what a member looks like.
