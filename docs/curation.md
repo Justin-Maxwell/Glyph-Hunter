@@ -92,6 +92,49 @@ case where the leaves fell inside the 20–25 band with no further splitting:
 | wavy and glissando | 2 |
 | kievan notation | 2 |
 
+### games — 324 → 149, nothing dropped
+
+Almost entirely enumerable runs, so compression alone removes 175.
+
+| compressed set | members | range | exemplars |
+| --- | --- | --- | --- |
+| playing cards | 56 | U+1F0A1–U+1F0DE | U+1F0D1, U+1F0BE |
+| mahjong numbered suits | 27 | U+1F007–U+1F021 | U+1F007, U+1F021 |
+| domino horizontal | 50 | U+1F030–U+1F061 | U+1F030, U+1F061 |
+| domino vertical | 50 | U+1F062–U+1F093 | U+1F062, U+1F093 |
+
+Everything else stays intact: chess rotated (23 neutral, 23 white, 23 black), card trumps 21,
+xiangqi red 7 and black 7, chess upright neutral 7, white 4, black 4, mahjong winds 4,
+dragons 3, flowers 4, seasons 4, joker and back 2, card joker, fool and back 5. Every one is
+already inside the size band.
+
+Two defects found while building it:
+
+- The **nine mahjong circle tiles are in the `circles` group, not `games`**, because the shape
+  rule matches CIRCLE in the name. Same failure mode as the arrows precedence rule.
+- **Xiangqi pieces are circled Han characters** — red outlined, black knocked out of a filled
+  circle. They belong visually with `circled ideograph` and `negative circled`.
+
+## Exemplars are not range bounds
+
+Established on the playing cards. "First and last" had silently meant *first and last by
+codepoint*, because that was mechanical and unarguable. Cards broke it: the block runs spades,
+hearts, diamonds, clubs, so the codepoint endpoints are ace of spades and king of clubs —
+**both black**. A pair that hides half the deck being red is a bad representative of the family.
+
+So the exemplars are ace of clubs and king of hearts, which are the wrong way round in
+codepoint terms: U+1F0BE sits 19 codepoints before U+1F0D1.
+
+The rule that follows:
+
+- **Exemplars are chosen for visual coverage of the family**, not as bounds. They should span
+  whatever dimension actually varies — colour here, weight or fill elsewhere.
+- **The range and count are recorded separately**, and they are what makes inventory-level
+  compression lossless and regenerable.
+- A compressed set must therefore state both, and must not assume the exemplars delimit it.
+
+Mahjong keeps codepoint order, where the run is already characters, bamboos, circles.
+
 ## Compressed
 
 ### enclosed sets
