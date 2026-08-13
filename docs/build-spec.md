@@ -13,6 +13,11 @@ not patch it. The measurement path changes shape and the layout is built over it
 
 ## 0. Verify first. Three questions a browser can settle
 
+> **All three are now settled. See `docs/findings.md`.** Read it before section 2 or
+> section 6: two of the three came back differently from the expectation recorded below,
+> and the expectations here are load-bearing for what follows them. The questions are left
+> in place unedited so the findings can be read against what was asked.
+
 Do these before building. Each has a decision hanging on it, and each is cheap with a
 headless browser. Record findings in `docs/findings.md` and update `DEBT.md`.
 

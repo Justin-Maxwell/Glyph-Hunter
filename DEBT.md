@@ -47,6 +47,19 @@ Tana node IDs in brackets point at the session record that raised the item.
 - **`CSS.escape ? fam : fam`**
   - Both branches identical; the guard does nothing.
   - Family is set again via `style.fontFamily` on the next line anyway.
+  - Evidently an attempt at the quoting defect below, abandoned half-written.
+- **Unquoted family names silently drop one preset**
+  - `Noto Sans Symbols 2` is invalid CSS unquoted: an identifier may not begin with a
+    digit, so the whole declaration is dropped.
+  - Affects `ctx.font` at line 266 and `style.fontFamily` at lines 262, 292 and 333.
+  - Consequence: selecting that preset measures the *previously selected* font under the
+    new font's label. One of fifteen presets; the rest are unaffected.
+  - Verified against the bench's own assignments. See `docs/findings.md`.
+- **Adjacency shift is measured with the wrong instrument**
+  - `measureText(anchor + g).width - anchorW` cannot separate re-itemisation from kerning,
+    and canvas resolves fallback differently from DOM layout in at least one case, so it
+    can report a width the page never draws.
+  - Settled in `docs/findings.md` §0.1; the rebuild measures it in the DOM.
 
 ## Both
 

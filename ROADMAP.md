@@ -22,6 +22,30 @@ What that implies, for assessment:
 - One shared record shape for a measured glyph, used by every front end.
 - No decision logic living inside DOM manipulation.
 
+## Standing design constraint: stay browser agnostic
+
+- Status: stated, 2026-08-13
+- Not a deliverable. A constraint on how everything else is built.
+- Explicitly in the same vein as keeping a TUI viable.
+
+Chrome is where the work is being done, not what the tool is for. Anything that only Chrome
+can do is an enhancement over a path that works without it, never the path itself.
+
+What that implies, for the font guesser of set 13:
+
+- **Both are built, together.** The Chrome-specific route — `queryLocalFonts()` — and the
+  browser-independent fallback of metric fingerprinting. The fallback is not a later
+  retrofit for browsers that turn out to lack the good API.
+- Capability is decided by feature detection, never by sniffing the user agent.
+- Safari, Firefox, Chrome for Android and the rest are **later**. The constraint is that
+  reaching them should not require unpicking anything, not that they are addressed now.
+
+Claude's assessment, following: the fallback path is the one that must be trusted furthest
+from where it can be checked, so it is the one that needs the evidence. That is what makes
+the DevTools-protocol oracle in `docs/findings.md` worth having — Chrome can be made to
+report which face it actually used, so the browser-independent guesser can be scored
+against ground truth here before it is relied on somewhere that offers none.
+
 ## Set 1, 2026-08-13
 
 ### Vertical space
@@ -491,3 +515,45 @@ Function does not parse at all, and this is the limit:
 - Rationale: Claude Code can run a headless browser, so it can settle three questions this
   session could not — canvas additivity behind the dead adjacency anchor, identicon
   legibility at table size, and whether x-height probing survives a symbol font.
+
+## Set 13, 2026-08-13
+
+Justin's responses to the verification findings in `docs/findings.md`.
+
+### Identicons are 20px
+
+- Status: stated
+- Settles build-spec 0.2.
+
+### The DOM is definitive
+
+- Status: stated
+- Where the two measurement paths disagree about which face drew a glyph, the DOM is the
+  answer. It is what is on screen.
+- Justin's premise when saying this was that the canvas drew the specimen and the DOM drew
+  the width groups. It does not: the canvas in `glyph-bench.html` is never displayed, and
+  everything visible is DOM. The direction stands regardless, and on stronger ground —
+  Chrome's own `CSS.getPlatformFontsForNode` agrees with the DOM.
+
+### The large specimen glyphs stay
+
+- Status: stated
+- Described as very helpful. They are DOM text at the measuring size, not a canvas
+  rendering, so nothing about the measurement change threatens them.
+
+### Build a best-guesser for the supplying font, and say that it is a guess
+
+- Status: stated, conditional and the condition holds
+- Justin: if there is no browser-accessible character-to-font detection outside DevTools,
+  then build a best guesser and **acknowledge that to the user**.
+- There is none. A page cannot learn which face rendered a character.
+- So the guesser is wanted. The acknowledgement is not a caveat to bury: it is part of the
+  instruction, and it follows the standing rule that the bench does not assert what it has
+  not established.
+- Three inputs are available to it, none sufficient alone: `queryLocalFonts()` on desktop
+  behind a permission and a click, advance fingerprinting against `sysfont.py`, and the
+  metric-signature test from build-spec 0.3.
+- Superseded in part by the browser-agnostic constraint above: both routes get built
+  regardless, so no coverage question decides *whether* to build the fallback. Which
+  browsers expose `queryLocalFonts()` now only decides how often the enhanced path is the
+  one actually taken.
