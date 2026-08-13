@@ -135,6 +135,46 @@ The rule that follows:
 
 Mahjong keeps codepoint order, where the run is already characters, bamboos, circles.
 
+### legacy computing — 189 → 75
+
+All one block, fully covered by Noto Sans Symbols2.
+
+| disposition | n | result |
+| --- | --- | --- |
+| block sextants | 60 | six seeded-random — a combination enumeration, 2⁶ less the four already in Block Elements |
+| diagonals and triangles | 59 | six seeded-random |
+| stick figures | 5 | intact |
+| sorted remainder | 58 | intact, 13 families |
+| dropped | 7 | composites, below |
+
+**Dropped: glyphs that are fragments of a picture split across cells.** Left and right half
+running man (U+1FBB2, U+1FBB3), the three thirds of the white right pointing index
+(U+1FBC1–U+1FBC3), and left and right half folder (U+1FBB9, U+1FBBA). None is usable alone.
+
+The remainder was sorted **by eye**, not by name. Two things that sort could see and no
+classifier could:
+
+- the fills sort by **density and placement**, so the shaded triangles belong with the
+  half-cell shades rather than with the plain triangles
+- the vertical, horizontal and corner rules are one construction at three orientations — kept
+  separate because that is how they are scanned, not because they are different things
+
+| family | n |
+| --- | --- |
+| solid blocks, notched | 4 |
+| half-cell triangles | 6 |
+| vertical rules, 8th positions | 6 |
+| horizontal rules, 8th pos. | 6 |
+| corner rules, 4 ways | 4 |
+| multi-line rules | 2 |
+| upper fractional blocks | 5 |
+| right fractional blocks | 5 |
+| quarter bands | 1 |
+| shaded shapes | 9 |
+| shade against solid | 3 |
+| hatch and checkerboard | 4 |
+| singletons | 3 |
+
 ## Compressed
 
 ### enclosed sets
