@@ -74,3 +74,13 @@ Comparing Android against Fedora `[FKOJuVo1r5JH]` is currently done by eye.
 
 - JSON out, JSON back in, diff two runs.
 - Makes the patch-font decision `[2mxhJ-jYB0t3]` evidentiable rather than remembered.
+
+## Parked raw material
+
+- Status: parked, not proposed, 2026-08-13
+
+A byproduct of demonstrating that name morphology cannot reach a functional grouping.
+Recorded so it is not re-derived. **Not queued, and not to be acted on.**
+
+- Glyphs that share a role with `◡` across seven blocks, found by role rather than by name.
+  Retrievable from session `DP1Wkr1y32iS` if ever wanted.

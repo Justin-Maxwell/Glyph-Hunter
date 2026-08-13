@@ -394,19 +394,34 @@ Consequence, and the two decisions reinforce each other:
 - The file is hand-editable. Claude drafts; Justin moves things around.
 - No classifier, no runtime derivation from features.
 
-### Groups are named ordered selections, not a partition
+### For today: one group per glyph, flat, manually ordered
 
-- Status: assessed, and this is the load-bearing constraint
-- A glyph appears in as many groups as it belongs to, with no primary home.
-- `◡` is a horizontal half-circle **and** a vertical space definer. Both, not either.
-- What would force a rewrite later is exclusive membership, group-owns-glyph. Avoiding
-  that is the entire cost of being tag-ready, and it costs nothing now.
+- Status: stated, 2026-08-13
+- Glyphs belong to exactly one group.
+- Groups are flat. No nesting, no families-of-families.
+- Order within a group is manual.
+- This is the model the authored file and the UI both use. Nothing more.
 
-### Ordering becomes tagging later
+### Flexibility lives behind the scenes only
 
-- Status: stated, not to be built now
-- Order is a property of a group. Tags will be properties of a glyph. Orthogonal, so
-  tagging arrives as an addition rather than a migration.
+- Status: stated
+- The reader must not hard-assume exclusivity, so relaxing it later stays cheap.
+  Concretely: internal lookup of a glyph's grouping returns a collection, which today
+  always holds one entry.
+- Nothing about that surfaces. Not in the authored file, not in the UI.
+- No tags. No overlap affordance. No primary-group concept, which would itself be
+  premature structure.
+- Complexity belongs in the reader, never in the file Justin edits.
+
+### Groupings are peers, all of them
+
+- Status: Justin's correction to Claude, 2026-08-13
+- `horizontal half-circle` and `vertical delimiter` are peer terms.
+- Neither is a base layer the other decorates.
+- Claude had treated the name-parseable grouping as primary and the functional one as an
+  overlay. That is a fact about what a parser can draft, not about the glyphs.
+- There are on the order of a hundred and fifty groupings not yet considered. None of them
+  is being opened today.
 
 ### This data does not go to Tana
 
@@ -436,5 +451,3 @@ Function does not parse at all, and this is the limit:
   same job.
 - So a name parser cannot reach a functional family, by construction rather than by
   needing more work.
-- Candidates found this way, for whenever the depth-filler question is picked up again:
-  `◡ ⌣ ⏝ ⏟ ⎵ ⏡ _ ︶` below, and `◠ ⌢ ⏜ ⏞ ⎴ ⏠ ‾ ︵` above.
