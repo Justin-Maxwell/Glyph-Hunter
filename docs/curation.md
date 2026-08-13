@@ -191,33 +191,48 @@ Two findings attached to it:
 - Arabic Mathematical Alphabetic Symbols (143, 2 currently in) poses the same question as the
   styled Latin families.
 
-## Exemplars: four, seeded-random
+## Divination — four seeded-random exemplars
 
-Supersedes first-and-last. Endpoints turned out to be a poor sample: they are systematically
-the *degenerate* members. The first hexagram is all-solid, the first domino is the tile back,
-the first tetragram is all-solid. A pair of extremes tells you the family's bounds and hides
-everything between them.
+**Scoped to divination.** The general rule stays first-and-last with hand-picked overrides.
 
-- **Four exemplars per compressed set, drawn at random**, plus the total count. The count is
-  what implies the permutation space; the four show what a typical member looks like.
-- **Seeded on the family name**, so the same four come back on every regeneration. An unseeded
-  draw would churn the config on every run and make diffs meaningless.
-- The **range and count remain recorded separately**. Random exemplars delimit nothing, so this
-  is now load-bearing rather than a nicety.
-- **Hand-picked overrides stay available** and are recorded as such.
+Endpoints fail badly on the line-stack families specifically, because their first members are
+the degenerate ones: the first hexagram is all-solid, the first tetragram is all-solid. Both
+extremes of a permutation space, and nothing of what lies between. These families are
+*enumerations of combinations*, so a typical member is far more informative than a bound.
 
-Known weakness, worth stating rather than discovering later: random samples the typical, and a
-visually distinct minority can be missed entirely. Four random playing cards drew four pip
-cards and no court card — and the court cards are the interesting ones. Roughly a one-in-three
-chance of that happening. Where a family has a distinct minority, either override by hand or
-stratify the draw.
+- **Four exemplars, drawn at random**, plus the total count. The count implies the permutation
+  space; the four show what a member looks like.
+- **Seeded on the family name**, so the same four return on every regeneration. An unseeded
+  draw would churn the config every run and make diffs meaningless.
+- The range and count stay recorded separately, as everywhere else.
 
-### Consequence for pooling
+Structure: 165 glyphs across five line-depths, spread over three of our groups.
 
-Compressed exemplars were to pool into one shared leaf. At two per set that landed at 22, just
-inside the band. At four it does not:
+| depth | n | disposition |
+| --- | --- | --- |
+| monogram, 1 line | 3 | intact |
+| digram, 2 lines | 9 | intact |
+| trigram, 3 lines | 8 | intact |
+| tetragram, 4 lines | 81 | four random |
+| hexagram, 6 lines | 64 | four random |
 
-- enclosed-set sequences: 11 sets, 44 exemplars
-- styled alphanumerics: 11 subgroups, 44 exemplars
+**165 → 28.**
 
-Both now need two leaves rather than one.
+Two regroupings required: 14 members sit in `misc symbols` (2 monograms, 4 digrams, all 8
+trigrams) and U+1D307 TETRAGRAM FOR FULL CIRCLE sits in `circles`, pulled out by the shape rule.
+
+The Yijing is binary, 2⁶ = 64. The Tai Xuan Jing is ternary — solid, once-broken,
+twice-broken — 3⁴ = 81. It needs 3 monograms and 9 digrams, but 2 and 4 of those already
+existed in Miscellaneous Symbols as the binary yin-yang forms, so Unicode added only the new
+ones. Third instance of a family split across blocks because Unicode declined to encode twice,
+after the Letterlike borrowing and the mahjong circles.
+
+Advances in Noto Sans Symbols2: trigram 940, tetragram 940, hexagram 1043, all EAW N. Uniform
+within a depth, not across the system.
+
+### Note on random sampling, for wherever it is used next
+
+Random samples the typical, so a visually distinct minority can vanish. A trial draw of four
+playing cards produced four pip cards and no court card — roughly a one-in-three chance — and
+the court cards are the interesting ones. Where a family has a distinct minority, override by
+hand or stratify the draw.
