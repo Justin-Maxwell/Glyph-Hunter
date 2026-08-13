@@ -451,3 +451,31 @@ Function does not parse at all, and this is the limit:
   same job.
 - So a name parser cannot reach a functional family, by construction rather than by
   needing more work.
+
+## Set 11, 2026-08-13
+
+### Show every guide that can be measured
+
+- Status: stated
+- Baseline, x-height, cap-height, ink box, ink centre, advance.
+- Do not pre-tune the hierarchy. Show it, then tweak once seen in operation.
+
+### Opacity slider for the guides
+
+- Status: stated
+- Answers the seven-overlapping-layers problem by handing the tuning to the user rather
+  than Claude guessing at a hierarchy up front.
+
+### Guide convention
+
+- No specification exists, unlike the block-alias case. Only convergent practice in
+  type-design tools.
+- Baseline strongest and solid; other vertical metrics lighter or dashed; horizontal
+  extents visually distinct from vertical metrics.
+- Light green per Justin. FontForge's guide layer is green, from Claude's recollection
+  rather than verified.
+- x-height and cap-height are not reported by any browser API. They must be measured by
+  rendering `x` and `H` and taking the ink ascent.
+- Consequence: a symbol face may carry neither `x` nor `H`, in which case the measurement
+  silently returns another font's metrics. Those guides must then be **omitted with a
+  visible reason**, never drawn from whatever answered.
