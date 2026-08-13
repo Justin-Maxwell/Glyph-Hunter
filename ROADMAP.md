@@ -385,3 +385,56 @@ Consequence, and the two decisions reinforce each other:
   learnable at all.
 - Follows: the identicon must appear everywhere a block appears, so the association gets
   reinforced rather than taught once.
+
+## Set 10, 2026-08-13
+
+### Grouping and ordering are authored, not derived
+
+- Status: assessed
+- The file is hand-editable. Claude drafts; Justin moves things around.
+- No classifier, no runtime derivation from features.
+
+### Groups are named ordered selections, not a partition
+
+- Status: assessed, and this is the load-bearing constraint
+- A glyph appears in as many groups as it belongs to, with no primary home.
+- `◡` is a horizontal half-circle **and** a vertical space definer. Both, not either.
+- What would force a rewrite later is exclusive membership, group-owns-glyph. Avoiding
+  that is the entire cost of being tag-ready, and it costs nothing now.
+
+### Ordering becomes tagging later
+
+- Status: stated, not to be built now
+- Order is a property of a group. Tags will be properties of a glyph. Orthogonal, so
+  tagging arrives as an addition rather than a migration.
+
+### This data does not go to Tana
+
+- Status: stated
+- Too data-driven, and unfriendly to an everyday human reader.
+- Lives in the repository with the tools that consume it.
+
+### Name morphology drafts the easy cases only
+
+- Status: Claude's assessment, with its own limit established
+
+Unicode names encode **construction**, not **function**.
+
+- Construction parses well. Circle names yield shape, partition, axis and ink fraction
+  directly, and the half-circle set splits vertical from horizontal on the name alone.
+- It also surfaced members the current presets miss: `◖ ◗` vertical half-circles, `◚ ◛`
+  inverse-white horizontals, and `◠ ◡` as members of the horizontal set rather than orphans.
+- It also showed `◔` is a quarter and `◕` a three-quarter, so they are not a pair, though the
+  current grouping pairs them.
+
+Function does not parse at all, and this is the limit:
+
+- Vertical space definers span **seven blocks**: Geometric Shapes, Miscellaneous
+  Technical, General Punctuation, Basic Latin, CJK Compatibility Forms, Supplemental
+  Mathematical Operators, Combining Diacritical Marks.
+- `LOWER HALF CIRCLE`, `BOTTOM PARENTHESIS` and `LOW LINE` share no morpheme and do the
+  same job.
+- So a name parser cannot reach a functional family, by construction rather than by
+  needing more work.
+- Candidates found this way, for whenever the depth-filler question is picked up again:
+  `◡ ⌣ ⏝ ⏟ ⎵ ⏡ _ ︶` below, and `◠ ⌢ ⏜ ⏞ ⎴ ⏠ ‾ ︵` above.
