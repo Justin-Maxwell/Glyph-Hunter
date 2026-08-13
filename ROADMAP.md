@@ -270,3 +270,40 @@ Consequence for work happening now:
   - Python and fontTools: what a font file contains.
   - Terminal: how many cells a glyph occupies, which is the East Asian Width question,
     and the one neither of the others can test.
+
+## Set 7, 2026-08-13
+
+### Per-glyph table
+
+- Status: stated
+- Minimal block identifier per row, full name on hover.
+- `CLASS` gets an explicit title. It is East Asian Width and says so nowhere.
+- `FLAG` is opaque. It is a notdef-width guess.
+- `ALONE` and `IN RUN` only earn two columns if they can differ. They cannot until the
+  anchor works. Collapse to one, with a delta that appears only when non-zero.
+- Horizontal space matters. Glyphs are too small.
+
+### Not now, and not designed around. Justin's direction
+
+- Status: deferred by instruction, 2026-08-13
+
+Two-letter property classes came up: line-break behaviour, whether a glyph is paired,
+and others of that shape.
+
+**These are not to be built now, and the design is not to accommodate them.**
+
+- Too much complexity at this stage.
+- The work is still mostly human eye-work.
+- Designing for automation of something not yet seen repeatedly and directly is the thing
+  being avoided.
+
+Recorded so the question is not lost, and so a later session does not read the absence as
+an oversight and helpfully build it.
+
+Where they will belong when they arrive: the info box, not the table. Properties are
+per-glyph detail on demand, and the table is short of horizontal space.
+
+### TUI, correction
+
+- Justin has used TUIs and is aware of the limitations. The explanation was unnecessary.
+- For now the workflow is copy-paste out of the glyphs-under-test box, which works.

@@ -12,8 +12,13 @@ Status vocabulary: `unassessed` · `accepted` · `declined` · `superseded`.
 
 ## Bidi_Mirrored and General_Category columns
 
-- Status: unassessed
+- Status: declined as columns, deferred as content, 2026-08-13
 - Raised: 2026-08-13
+
+Declined in the form proposed. The table is short of horizontal space, and Justin has
+deferred property classes generally until the need is seen repeatedly and directly.
+
+If they arrive they belong in the info box as detail on demand, not as columns.
 
 A conforming renderer swaps mirrored characters in an RTL paragraph, which is fatal for
 a structural marker. Five members of the circled run carry the property, and it
