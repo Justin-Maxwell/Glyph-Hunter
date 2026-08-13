@@ -178,12 +178,14 @@ classifier could:
 ### small sets — currency, fullwidth, superscripts, number forms
 
 - **currency 33** — dropped entire.
-- **fullwidth and halfwidth 43** — the 29 ASCII duplicates dropped, identified by decomposition
-  rather than by eye: every one decomposes to a codepoint below U+0080. The remaining 14
-  dropped too.
+- **fullwidth and halfwidth 43 → 3.** The 29 ASCII duplicates dropped, identified by
+  decomposition rather than by eye: every one decomposes to a codepoint below U+0080. Then
+  dropped: fullwidth currency (U+FFE0, FFE1, FFE5, FFE6), fullwidth Latin-1 marks (U+FFE2 not
+  sign, FFE3 macron, FFE4 broken bar), halfwidth CJK punctuation (U+FF61–FF64). **Kept:** the
+  fullwidth white parentheses U+FF5F and U+FF60, and U+FFE8 halfwidth forms light vertical.
 - **superscripts and subscripts 27** — dropped entire.
 - **number forms 58** — only the Roman numerals kept: 16 uppercase U+2160–216F and 16 lowercase
-  U+2170–217F. The 19 vulgar fractions and the archaic and apostrophic forms go.
+  U+2170–217F. The 19 vulgar fractions dropped; the 7 archaic and apostrophic forms to extras.
 
 Deferred to the end, with the shape work: `rectangles` 7, `polygons` 11, `arcs, half shapes` 20,
 `geometric shapes, unshaped names` 2.
@@ -198,11 +200,22 @@ And they **case-map**: `Ⅰ`.lower() is `ⅰ`, `Ⅿ`.lower() is `ⅿ`. Keeping b
 pair that any case-folding pipeline will silently convert between. Same hazard as the circled
 Latin letters.
 
-**A halfwidth loose end.** U+FFE8 HALFWIDTH FORMS LIGHT VERTICAL is dropped with its group, but
-its siblings — halfwidth black square, white circle, the four halfwidth arrows and the katakana
-middle dot — live in `squares`, `circles`, `arrows` and `bullets, dots` and are not affected.
-Those eight are the only matched narrow/normal pairs in the inventory, EAW H against N, and
-nothing has yet looked at them as a set.
+**The halfwidth geometric forms are kept, and they are scattered.** U+FFE8 halfwidth forms
+light vertical is the only one inside this group; halfwidth black square, white circle, the four
+halfwidth arrows and the katakana middle dot live in `squares`, `circles`, `arrows` and
+`bullets, dots`. Those eight are the only matched narrow/normal pairs in the inventory, EAW H
+against N, with the pairing stated by Unicode through the decomposition. Nothing has yet looked
+at them as a set, and they should be gathered when the shape work comes round.
+
+## Extras — a fourth disposition
+
+Beside keep, compress and drop: **extras**, a bucket for members deliberately parked for later
+sorting rather than ruled on now.
+
+- The seven archaic and apostrophic Roman numerals, U+2180–2188.
+
+Distinct from `unsorted` (243), which is not a decision but a **defect** — those glyphs fell
+through every rule in `gen_groups.py` and have never been looked at.
 
 ## Compressed
 
