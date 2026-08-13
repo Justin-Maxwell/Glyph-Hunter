@@ -559,3 +559,20 @@ Function does not parse at all, and this is the limit:
 - But measure after the trim first: bitmap-only falls from 32.6% of the full inventory to
   12.1% once the drop candidates go, with nothing left uncovered. The residual concentrates
   in exactly the blocks being dropped.
+
+## Set 14, 2026-08-14
+
+### A browse view: every set, scrollable, nothing else
+
+- Status: stated
+- A second page alongside the bench. It shows **all the sets, in order, to be scrolled**.
+- **No font selection, no advance measurement, no spacing detail, no controls.** Those are the
+  bench's job and they get in the way here.
+- Purpose is **inspiration, not measurement**: seeing what exists, so a marker can be chosen
+  that is not a backslash and not a hex digit.
+- Rationale: MarkRight currently reaches for `\` and `0`–`F` to carry encoding information,
+  which is exactly the borrowed-ASCII habit the whole project exists to escape. Nothing in the
+  bench answers "what else could carry this", because the bench is built to interrogate a
+  candidate you already have.
+- Sits in the **glyph curation** workstream, not the app viewer one. It consumes the curated
+  sets; it does not measure anything.
