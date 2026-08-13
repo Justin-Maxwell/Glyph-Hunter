@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Glyph-Hunter tests</title>
+<style>
+  body { font: 13px/1.5 ui-monospace, monospace; margin: 1rem; background: #fff; color: #111; }
+  pre { white-space: pre-wrap; }
+</style>
+<h1 style="font-size:15px">Glyph-Hunter tests</h1>
+<p>Serve the repository and open this page. <code>python3 -m http.server</code> from the
+repository root, then <code>/tests/tests.html</code>. The data invariants need a served
+origin because they <code>fetch</code>.</p>
+<pre id="results">running…</pre>
+
+<script src="../vendor/jdenticon.min.js"></script>
+<script src="../src/core.js"></script>
+<script src="../src/sfnt.js"></script>
+<script src="../src/measure.js"></script>
+<script src="../src/fontguess.js"></script>
+<script src="harness.js"></script>
+<script src="core.test.js"></script>
+<script src="sfnt.test.js"></script>
+<script src="measure.test.js"></script>
+<script>
+  runAll().then(function (r) {
+    document.title = (r.failed ? "FAIL " : "PASS ") + r.passed + "/" + (r.passed + r.failed);
+  });
+</script>

@@ -1,0 +1,66 @@
+{
+ "LiberationSans-Regular.ttf": {
+  "glyphs": {
+   "0048": 722.17,
+   "0078": 500.0,
+   "10F59": null,
+   "1D990": null,
+   "1F78A": null,
+   "25CB": 604.0,
+   "25D0": 604.0,
+   "25F7": null,
+   "29B5": null,
+   "2B24": null
+  },
+  "source_path": "/usr/share/fonts/liberation-sans-fonts/LiberationSans-Regular.ttf",
+  "upem": 2048
+ },
+ "NotoSansMath-Regular.ttf": {
+  "glyphs": {
+   "0048": 741.0,
+   "0078": 529.0,
+   "10F59": null,
+   "1D990": null,
+   "1F78A": 838.0,
+   "25CB": 838.0,
+   "25D0": 838.0,
+   "25F7": 838.0,
+   "29B5": 1080.0,
+   "2B24": 928.0
+  },
+  "source_path": "/usr/share/fonts/google-noto/NotoSansMath-Regular.ttf",
+  "upem": 1000
+ },
+ "NotoSansSymbols2-Regular.ttf": {
+  "glyphs": {
+   "0048": null,
+   "0078": null,
+   "10F59": null,
+   "1D990": null,
+   "1F78A": 894.0,
+   "25CB": 894.0,
+   "25D0": 894.0,
+   "25F7": 720.0,
+   "29B5": null,
+   "2B24": 1114.0
+  },
+  "source_path": "/usr/share/fonts/google-noto/NotoSansSymbols2-Regular.ttf",
+  "upem": 1000
+ },
+ "Symbola.ttf": {
+  "glyphs": {
+   "0048": 722.66,
+   "0078": 577.64,
+   "10F59": null,
+   "1D990": null,
+   "1F78A": 778.32,
+   "25CB": 778.32,
+   "25D0": 778.32,
+   "25F7": 770.51,
+   "29B5": 1076.66,
+   "2B24": 1000.0
+  },
+  "source_path": "/usr/share/fonts/gdouros-symbola/Symbola.ttf",
+  "upem": 2048
+ }
+}

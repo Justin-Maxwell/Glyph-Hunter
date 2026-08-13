@@ -284,6 +284,26 @@ DESELECTED_BY_DEFAULT = {
 }
 
 
+# The font panel, categorised. Categories and reasons live in docs/fonts.md; this is only
+# the structure the UI needs. ROADMAP.md set 5 puts the panel in the config file, so it is
+# emitted here rather than hardcoded in the page — a user sets their own list.
+#
+# The four reference faces docs/fonts.md records as missing are deliberately NOT here.
+# Adding them is Justin's call, open at the foot of that file.
+FONT_PANEL = [
+    {"category": "Generic families", "open": True,
+     "families": ["monospace", "sans-serif", "serif", "system-ui"]},
+    {"category": "Symbol suppliers", "open": True,
+     "families": ["Noto Sans Symbols", "Noto Sans Symbols 2"]},
+    {"category": "Reference faces", "open": False,
+     "families": ["DejaVu Sans", "FreeSerif"]},
+    {"category": "Terminal faces", "open": False,
+     "families": ["DejaVu Sans Mono", "Cascadia Code", "JetBrains Mono", "Hack", "Iosevka"]},
+    {"category": "CJK", "open": False, "families": ["Noto Sans CJK JP"]},
+    {"category": "Platform UI", "open": False, "families": ["Roboto"]},
+]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--report", action="store_true", help="summarise, write nothing")
@@ -326,6 +346,7 @@ def main():
         "hue_domain": {"min": 350, "max": 1800},
         "defaults": {"font_family": "monospace", "size": 200, "anchor": "0",
                      "guide_opacity": 0.5},
+        "font_panel": FONT_PANEL,
         "groups": [
             {"name": g,
              "selected_by_default": g not in DESELECTED_BY_DEFAULT,

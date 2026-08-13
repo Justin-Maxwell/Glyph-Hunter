@@ -1,2 +1,8 @@
 __pycache__/
 *.pyc
+
+# Staged from the local system by tools/make_font_fixtures.py. Reproducible, and not
+# ours to redistribute. expected.json is committed; the binaries are not.
+tests/fixtures/*.ttf
+tests/fixtures/*.otf
+tests/fixtures/*.ttc

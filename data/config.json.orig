@@ -10,6 +10,59 @@
   "anchor": "0",
   "guide_opacity": 0.5
  },
+ "font_panel": [
+  {
+   "category": "Generic families",
+   "open": true,
+   "families": [
+    "monospace",
+    "sans-serif",
+    "serif",
+    "system-ui"
+   ]
+  },
+  {
+   "category": "Symbol suppliers",
+   "open": true,
+   "families": [
+    "Noto Sans Symbols",
+    "Noto Sans Symbols 2"
+   ]
+  },
+  {
+   "category": "Reference faces",
+   "open": false,
+   "families": [
+    "DejaVu Sans",
+    "FreeSerif"
+   ]
+  },
+  {
+   "category": "Terminal faces",
+   "open": false,
+   "families": [
+    "DejaVu Sans Mono",
+    "Cascadia Code",
+    "JetBrains Mono",
+    "Hack",
+    "Iosevka"
+   ]
+  },
+  {
+   "category": "CJK",
+   "open": false,
+   "families": [
+    "Noto Sans CJK JP"
+   ]
+  },
+  {
+   "category": "Platform UI",
+   "open": false,
+   "families": [
+    "Roboto"
+   ]
+  }
+ ],
  "groups": [
   {
    "name": "circles",

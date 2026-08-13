@@ -1,358 +1,352 @@
-<!DOCTYPE html>
-<html lang="en-NZ">
-<head>
+<!doctype html>
+<html lang="en-GB">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Glyph bench — advance, adjacency, width class</title>
+<title>Glyph-Hunter bench</title>
+
 <style>
-  :root{
-    --paper:#E6EBEF;
-    --panel:#FBFCFD;
-    --ink:#0E1A22;
-    --rule:#9DB1BE;
-    --rule-faint:#C6D3DB;
-    --label:#4A6675;
-    --dev:#B3261E;
-    --agree:#166B53;
-    --mono: ui-monospace,"SF Mono","Cascadia Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
-    --ui: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  :root {
+    --bg: #fff; --fg: #16181d; --dim: #5c6370; --line: #dfe3ea; --panel: #f6f7f9;
+    --accent: #2f6f9f;
+    --guide-green: #2f9e5e;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{
-    background:var(--paper);
-    background-image:
-      linear-gradient(var(--rule-faint) 1px, transparent 1px),
-      linear-gradient(90deg, var(--rule-faint) 1px, transparent 1px);
-    background-size:100% 28px, 28px 100%;
-    color:var(--ink);
-    font-family:var(--ui);
-    font-size:15px;
-    line-height:1.5;
-    padding:0 0 5rem;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --fg: #e6e8ec; --dim: #98a0ad; --line: #2b2f37; --panel: #1c1f25;
+      --accent: #6db3e2; --guide-green: #4ecb84;
+    }
   }
-  .wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 13px/1.45 ui-sans-serif, system-ui, sans-serif;
+  }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim);
+       margin: 0 0 .4rem; font-weight: 600; }
+  code { font-family: ui-monospace, monospace; font-size: .92em; }
+  .note { color: var(--dim); font-size: 11.5px; margin: .25rem 0; }
+  .note.warn { color: #b4690e; }
+  @media (prefers-color-scheme: dark) { .note.warn { color: #e0a458; } }
 
-  header{padding:2.75rem 0 1.5rem;border-bottom:2px solid var(--ink)}
-  .eyebrow{
-    font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
-    text-transform:uppercase;color:var(--label);margin:0 0 .75rem
+  /* ---- controls: a compact sticky bar. Results must be reachable without scrolling
+         past the controls, so the heavy pickers open as overlays and never push the
+         page down. ---- */
+  .bar {
+    position: sticky; top: 0; z-index: 40; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: .45rem .7rem;
+    display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
   }
-  h1{
-    font-size:clamp(1.9rem,5.5vw,3rem);line-height:1.02;margin:0 0 .9rem;
-    font-weight:800;letter-spacing:-.028em;max-width:22ch
+  .bar label { color: var(--dim); font-size: 11.5px; }
+  .bar input[type=text], .bar input[type=number] {
+    font: 12px ui-monospace, monospace; padding: .22rem .35rem;
+    border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--fg);
   }
-  .standfirst{margin:0;max-width:62ch;color:#2A3E4A}
-  .standfirst b{font-weight:650}
+  #family-input { width: 15rem; }
+  #anchor-input { width: 3.5rem; }
+  #size-input { width: 4.5rem; }
+  .disclosure {
+    font: 12px inherit; padding: .25rem .55rem; border: 1px solid var(--line);
+    border-radius: 4px; background: var(--panel); color: var(--fg); cursor: pointer;
+  }
+  .disclosure[aria-expanded=true] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .drawer {
+    position: absolute; left: 0; right: 0; z-index: 39; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: .6rem .7rem; max-height: 60vh;
+    overflow: auto; box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  }
+  .drawer[hidden] { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: .3rem; margin: .2rem 0 .5rem; }
+  .chip {
+    font: 11.5px inherit; padding: .2rem .45rem; border: 1px solid var(--line);
+    border-radius: 4px; background: var(--panel); color: var(--fg); cursor: pointer;
+  }
+  .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chip .n { color: var(--dim); margin-left: .3rem; font-size: 10px; }
+  .chip.on .n { color: #dbeaf6; }
+  /* three states, and `some` is common enough to need a look of its own */
+  .chip.g-all { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chip.g-all .n { color: #dbeaf6; }
+  .chip.g-some {
+    border-color: var(--accent); color: var(--fg);
+    background: repeating-linear-gradient(135deg, transparent 0 5px, rgba(47,111,159,.28) 5px 10px);
+  }
+  .fontcat summary { cursor: pointer; font-size: 11.5px; color: var(--dim); }
 
-  section{padding:2rem 0;border-bottom:1px solid var(--rule)}
-  h2{
-    font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--label);margin:0 0 1.1rem;font-weight:500
-  }
+  /* ---- results ---- */
+  main { padding: .7rem; display: grid; gap: 1rem; }
+  .card { border: 1px solid var(--line); border-radius: 6px; padding: .6rem .7rem; }
 
-  .controls{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-  label{display:block;font-size:.78rem;letter-spacing:.04em;color:var(--label);margin-bottom:.35rem}
-  input[type=text],input[type=number],textarea,select{
-    width:100%;font-family:var(--mono);font-size:.95rem;
-    background:var(--panel);color:var(--ink);
-    border:1px solid var(--rule);border-radius:0;padding:.55rem .6rem
-  }
-  textarea{min-height:5.5rem;resize:vertical;line-height:1.8}
-  input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{
-    outline:2px solid var(--ink);outline-offset:2px
-  }
-  .presets{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
-  button{
-    font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;
-    background:transparent;color:var(--label);
-    border:1px solid var(--rule);padding:.35rem .6rem;cursor:pointer
-  }
-  button:hover{color:var(--ink);border-color:var(--ink)}
-  .full{grid-column:1/-1}
+  #specimen { position: relative; overflow-x: auto; overflow-y: hidden; padding: .4rem 0; }
+  #specimen .run { white-space: pre; }
+  #specimen .guides { position: absolute; inset: 0; pointer-events: none; }
+  .guides > div { position: absolute; }
+  .g-cell { top: 0; bottom: 0; background: currentColor; color: var(--dim); }
+  .g-base { height: 2px; background: var(--guide-green); left: 0; }
+  .g-vmetric { height: 1px; background: var(--guide-green); left: 0;
+               border-top: 1px dashed var(--guide-green); background: none; }
+  .g-rowmid { height: 1px; left: 0; background: none; border-top: 1px dotted var(--accent); }
+  .g-ink { border: 1px solid var(--accent); }
+  .g-inkmid { height: 1px; background: var(--accent); }
+  .g-diverge { top: 0; bottom: 0; background: repeating-linear-gradient(45deg,
+      rgba(180,105,14,.18) 0 6px, transparent 6px 12px); }
 
-  /* specimen */
-  .specimen{
-    background:var(--panel);border:1px solid var(--rule);
-    padding:1.25rem;overflow-x:auto;white-space:nowrap;
-    font-size:clamp(2rem,7vw,3.4rem);line-height:1.35;letter-spacing:.08em
-  }
+  #ruler { position: relative; margin: .3rem 0 .2rem; }
+  #ruler .tick { position: absolute; top: 8px; width: 2px; height: 10px; transform: translateX(-1px); }
+  #ruler .tick.clamped { height: 6px; top: 12px; opacity: .5; }
+  #ruler .leader { position: absolute; top: 18px; width: 1px; opacity: .55; transform: translateX(-.5px); }
+  #ruler .tlabel { position: absolute; font: 11px ui-monospace, monospace;
+                   transform: translateX(-50%); white-space: nowrap; }
 
-  /* signature: the deviation rule */
-  .groups{display:grid;gap:.5rem}
-  .grp{
-    display:grid;grid-template-columns:7.5rem 1fr;gap:1rem;align-items:center;
-    background:var(--panel);border:1px solid var(--rule-faint);padding:.7rem .85rem
-  }
-  .grp .w{font-family:var(--mono);font-size:.95rem;color:var(--label)}
-  .grp .w b{color:var(--ink);font-size:1.15rem;font-weight:700}
-  .grp .gl{font-size:1.7rem;letter-spacing:.14em;word-break:break-all}
-  .grp.solo{border-left:3px solid var(--agree)}
-  .grp.many{border-left:3px solid var(--dev)}
+  #width-groups { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .wgroup { display: flex; gap: .5rem; border: 1px solid var(--line); border-radius: 6px;
+            padding: .4rem .5rem; cursor: pointer; min-width: 12rem; }
+  /* Width is functional: a near-identical hue is noise as a 3px stripe and legible as a
+     10px swatch. It is what makes sameness visible. */
+  .swatch { width: 10px; border-radius: 3px; flex: 0 0 10px; }
+  .swatch.sm { display: inline-block; width: 10px; height: 10px; vertical-align: middle; }
+  .wadv { font-size: 12px; }
+  .wglyphs { font-size: 20px; line-height: 1.25; max-width: 22rem; word-break: break-all; }
+  .wcount, .clamped { color: var(--dim); font-size: 11px; }
 
-  .ruler{position:relative;height:3.1rem;margin:.9rem 0 0;border-top:1px solid var(--rule)}
-  .tick{position:absolute;top:0;width:1px;height:11px;background:var(--ink)}
-  .tick span{
-    position:absolute;top:13px;left:50%;transform:translateX(-50%);
-    font-family:var(--mono);font-size:.62rem;color:var(--label);white-space:nowrap
-  }
-  .verdict{font-family:var(--mono);font-size:.8rem;margin:.9rem 0 0}
-  .verdict.ok{color:var(--agree)}
-  .verdict.no{color:var(--dev)}
+  /* Horizontal space matters and the glyph is the subject, so the table hugs its
+     content rather than stretching a handful of narrow columns across a wide screen. */
+  table { border-collapse: collapse; width: 100%; max-width: 58rem; }
+  th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em;
+       color: var(--dim); font-weight: 600; padding: .25rem .4rem; border-bottom: 1px solid var(--line); }
+  td { padding: .2rem .4rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  td.tag { width: 14px; padding: 0 0 0 .2rem; }
+  .rowtag { display: block; width: 10px; height: 22px; border-radius: 3px; }
+  td.g { font-size: 30px; line-height: 1.1; width: 2.2em; text-align: center; }
+  td.cp { font-family: ui-monospace, monospace; font-size: 11.5px; color: var(--dim); width: 6em; }
+  td.eaw { width: 3em; font-family: ui-monospace, monospace; }
+  td.adv { width: 7em; font-family: ui-monospace, monospace; }
+  td.adv .delta { color: var(--dim); margin-left: .35rem; font-size: 11px; }
+  td.flag { width: 11em; }
+  /* The identicon column sits right, away from the advance hues: two colour languages in
+     adjacent columns read as one and corrupt both. */
+  td.blk { width: 28px; text-align: right; }
+  td.blk svg, .blk-item svg { display: block; }
+  .f { font-size: 10.5px; padding: .05rem .3rem; border-radius: 3px; border: 1px solid var(--line);
+       color: var(--dim); cursor: help; }
+  tbody tr:hover { background: var(--panel); }
 
-  /* table */
-  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.83rem}
-  th{
-    text-align:right;font-weight:500;color:var(--label);
-    font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
-    padding:.4rem .55rem;border-bottom:1px solid var(--ink);white-space:nowrap
-  }
-  th:first-child,td:first-child{text-align:left}
-  td{padding:.42rem .55rem;text-align:right;border-bottom:1px solid var(--rule-faint);white-space:nowrap}
-  td.g{font-size:1.5rem;text-align:left;line-height:1}
-  .cls{display:inline-block;min-width:1.5rem;text-align:center;padding:0 .3rem;border:1px solid var(--rule)}
-  .cls.A{background:#F3E2C8;border-color:#C79A4E}
-  .cls.W,.cls.F{background:#E0D3EA;border-color:#8E6DA8}
-  .d0{color:var(--label)}
-  .dx{color:var(--dev);font-weight:700}
-  .notdef{color:var(--dev)}
+  #blocks-in-use { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .blk-item { display: flex; gap: .35rem; align-items: center; border: 1px solid var(--line);
+              border-radius: 5px; padding: .25rem .4rem; font-size: 11px; }
+  .blk-item code { color: var(--dim); }
 
-  .note{max-width:66ch;color:#2A3E4A;font-size:.92rem}
-  .note h3{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--label);margin:1.5rem 0 .5rem;font-weight:500}
-  .note code{font-family:var(--mono);font-size:.86rem;background:var(--panel);border:1px solid var(--rule-faint);padding:.08rem .3rem}
-  .note pre{font-family:var(--mono);font-size:.8rem;background:var(--panel);border:1px solid var(--rule);padding:.7rem .8rem;overflow-x:auto}
-  .note ul{padding-left:1.1rem}
-  .note li{margin:.3rem 0}
-
-  @media (max-width:600px){
-    .grp{grid-template-columns:1fr;gap:.35rem}
-    thead{display:none}
-    tr{display:grid;grid-template-columns:auto 1fr;gap:0 .6rem;padding:.55rem 0;border-bottom:1px solid var(--rule-faint)}
-    td{border:0;padding:.06rem 0;text-align:left}
-    td.g{grid-row:1/6;align-self:start;font-size:2rem;padding-right:.4rem}
-    td[data-l]::before{content:attr(data-l) " ";color:var(--label);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase}
+  /* ---- the hover contract (ROADMAP set 8) ---- */
+  .gh-hover {
+    position: absolute; z-index: 100; max-width: 26rem; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px; padding: .6rem .7rem .5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2); font-size: 12px;
   }
-  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  .gh-hover-close { position: absolute; top: .2rem; right: .3rem; border: 0; background: none;
+                    color: var(--dim); font-size: 16px; cursor: pointer; line-height: 1; }
+  .hi-glyph { font-size: 46px; line-height: 1.1; text-align: center; }
+  .hi-title { font-size: 12px; margin: .2rem 0 .4rem; }
+  .hi-block { display: flex; gap: .4rem; align-items: center; margin-bottom: .4rem; }
+  .hi-table td { padding: .1rem .35rem; border-bottom: 1px solid var(--line); font-size: 11.5px; }
+  .hi-table td:first-child { color: var(--dim); }
+  .hi-table td.g { font-size: 20px; width: 1.6em; }
+  .hi-guess { margin-top: .45rem; border-top: 1px solid var(--line); padding-top: .35rem; }
+  .hi-guess ul { margin: .2rem 0; padding-left: 1.1rem; color: var(--dim); font-size: 11px; }
+  .caveat { color: var(--dim); font-size: 10.5px; font-style: italic; }
+
+  .row { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+  details.envelope summary { color: var(--dim); font-size: 11.5px; cursor: pointer; }
+  pre { font: 11px ui-monospace, monospace; overflow-x: auto; color: var(--dim); }
+  button.act { font: 12px inherit; padding: .25rem .55rem; border: 1px solid var(--line);
+               border-radius: 4px; background: var(--panel); color: var(--fg); cursor: pointer; }
 </style>
-</head>
-<body>
-<div class="wrap">
 
-<header>
-  <p class="eyebrow">MarkRight · glyph metrology</p>
-  <h1>Measure the glyphs where they actually render.</h1>
-  <p class="standfirst">This measures advance width, adjacency shift and width class <b>in this browser, on this device, in the font you name</b> — not in whatever fonts a build container happens to ship. Open it on Fedora and on Android and compare.</p>
-  <p class="standfirst" style="margin-top:.8rem">It cannot tell you a font's <i>name</i> — no browser exposes that to script. Naming instructions are at the foot of the page.</p>
-</header>
+<div class="bar">
+  <label for="family-input">font</label>
+  <input id="family-input" type="text" spellcheck="false" autocapitalize="off">
+  <button class="disclosure" id="d-fonts" aria-expanded="false">fonts ▾</button>
 
-<section>
-  <h2>Test conditions</h2>
-  <div class="controls">
-    <div>
-      <label for="fam">Font family (CSS syntax)</label>
-      <input id="fam" type="text" value="monospace" spellcheck="false" autocapitalize="off">
-      <div class="presets" id="fampre"></div>
-    </div>
-    <div>
-      <label for="size">Measuring size (px)</label>
-      <input id="size" type="number" value="200" min="20" max="800" step="10">
-      <div class="presets"><button type="button" data-note>Widths report per 1000 em, so they compare directly to font tables.</button></div>
-    </div>
-    <div>
-      <label for="anchor">Adjacency anchor</label>
-      <input id="anchor" type="text" value="0" spellcheck="false" autocapitalize="off">
-      <div class="presets" id="anchpre"></div>
-    </div>
-    <div class="full">
-      <label for="set">Glyphs under test</label>
-      <textarea id="set" spellcheck="false" autocapitalize="off">○●◐◑◎◉◌◒◓◔◕◠◡◴◵◶◷◧◨◩◪◰◱◲◳⬤⊖⊗⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⬟⬠▱▰▭▬</textarea>
-      <div class="presets" id="setpre"></div>
-    </div>
-  </div>
-</section>
+  <label for="size-input">size</label>
+  <input id="size-input" type="number" min="20" max="800" step="10">
 
-<section>
-  <h2>Specimen</h2>
-  <div class="specimen" id="spec"></div>
-</section>
+  <label for="anchor-input">anchor</label>
+  <input id="anchor-input" type="text" spellcheck="false" autocapitalize="off">
 
-<section>
-  <h2>Width groups</h2>
-  <p class="note" style="margin:-.4rem 0 1.1rem">Glyphs sharing an advance are grouped. A single group means the set is uniform and will column-align. Green edge is a lone group; red edge means that group is one of several.</p>
-  <div class="ruler" id="ruler"></div>
-  <div class="groups" id="groups"></div>
-  <p class="verdict" id="verdict"></p>
-</section>
+  <button class="disclosure" id="d-groups" aria-expanded="false">groups ▾</button>
+  <button class="disclosure" id="d-glyphs" aria-expanded="false">glyphs ▾</button>
 
-<section>
-  <h2>Per glyph</h2>
-  <table>
-    <thead><tr>
-      <th>glyph</th><th>codepoint</th><th>class</th><th>alone</th><th>in run</th><th>shift</th><th>flag</th>
-    </tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <p class="note" style="margin-top:1rem"><b>Shift</b> is the advance beside the anchor minus the advance alone. Non-zero means the glyph is being drawn from a different font once it has a neighbour — the run got re-itemised. Kerning can also produce a small shift, so treat single-digit values as inconclusive and large ones as font substitution.</p>
-</section>
-
-<section>
-  <h2>Naming the font</h2>
-  <div class="note">
-    <h3>Chrome, either platform</h3>
-    <p>DevTools → Elements → select the text node → Computed pane → scroll to <b>Rendered Fonts</b>. It lists every font that supplied glyphs in that node, with a glyph count each. Two entries for one set of markers is the substitution you're chasing.</p>
-    <p>For Chrome on Android: connect by USB, open <code>chrome://inspect</code> in desktop Chrome, and you get the same DevTools against the phone. It's the only reliable per-glyph readout on Android.</p>
-    <h3>Firefox</h3>
-    <p>Inspector → <b>Fonts</b> panel. Shows "Fonts used" for the current selection, which is a cleaner readout than Chrome's.</p>
-    <h3>Fedora, command line</h3>
-    <pre>fc-list ':charset=25CB' family file    # every font holding U+25CB
-fc-match ':charset=25CB'               # what fontconfig picks
-fc-match -s ':charset=25CB' | head     # the sorted fallback chain</pre>
-    <p>Hex codepoint, no <code>U+</code>. Note fontconfig's answer is what it <i>would</i> pick — an application with its own fallback logic may differ, so treat it as a shortlist rather than a verdict.</p>
-    <h3>Android, system side</h3>
-    <pre>adb shell ls /system/fonts
-adb shell cat /system/etc/fonts.xml</pre>
-    <p><code>fonts.xml</code> is the fallback order itself, and will tell you where the symbol faces sit in the chain relative to the CJK and emoji faces.</p>
-    <p>For the U+29Bx circled run specifically, this is settled: the supplier is <code>NotoSansSymbols-Regular-Subsetted.ttf</code>, Android's reduced build of <b>Noto Sans Symbols</b> — not Symbols&nbsp;2, and not Noto Sans Math. Both of those were inferred and then retracted. The advance discriminates them: Noto Sans Math gives 836, the device gives 796.</p>
-  </div>
-</section>
-
+  <label for="guide-opacity">guides</label>
+  <input id="guide-opacity" type="range" min="0" max="1" step="0.05" style="width:6rem">
+  <span id="status" class="note" style="margin-left:auto"></span>
 </div>
 
+<div class="drawer" id="drawer-fonts" hidden>
+  <h2>Font panel</h2>
+  <p class="note">Categories and the reason each face is here: <code>docs/fonts.md</code>.
+     Four reference faces named there are deliberately absent — adding them is Justin's call.</p>
+  <div id="font-panel"></div>
+</div>
+
+<div class="drawer" id="drawer-groups" hidden>
+  <h2>Glyph groups</h2>
+  <p class="note">Additive: toggling combines sets rather than replacing them. State is
+     derived from the glyph box, so a hand edit is never out of step with the buttons.
+     Solid = all present, hatched = some.</p>
+  <div id="group-toggles" class="chips"></div>
+</div>
+
+<div class="drawer" id="drawer-glyphs" hidden>
+  <h2>Glyphs under test</h2>
+  <textarea id="glyph-set" rows="3" spellcheck="false" autocapitalize="off"
+            style="width:100%;font:16px ui-monospace,monospace"></textarea>
+  <div class="row" style="margin-top:.4rem">
+    <button class="act" id="copy-set">copy to clipboard</button>
+    <span id="copy-note" class="note"></span>
+  </div>
+</div>
+
+<main>
+  <section class="card">
+    <div class="row">
+      <h2 style="margin:0">Specimen</h2>
+      <span id="specimen-note" class="note"></span>
+      <button class="act" id="copy-specimen" style="margin-left:auto">copy glyphs</button>
+    </div>
+    <div id="specimen"></div>
+    <div id="vmetric-note" class="note"></div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <h2 style="margin:0">Advance ruler — logarithmic</h2>
+      <span id="ruler-note" class="note"></span>
+    </div>
+    <div id="ruler"></div>
+    <p class="note">Hue maps to advance, not to group rank, so two widths that are
+       effectively the same draw the same colour. The domain is pinned, so a given advance
+       is the same colour on every device.</p>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <h2 style="margin:0">Width groups</h2>
+      <span id="wgroup-note" class="note"></span>
+    </div>
+    <div id="width-groups" style="margin-top:.4rem"></div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <h2 style="margin:0">Blocks in use</h2>
+      <span id="blocks-count" class="note"></span>
+    </div>
+    <div id="blocks-in-use" style="margin-top:.4rem"></div>
+  </section>
+
+  <section class="card">
+    <h2>Per glyph</h2>
+    <div id="table-note" class="note"></div>
+    <table>
+      <thead><tr>
+        <th></th><th>glyph</th><th>codepoint</th>
+        <th title="East Asian Width, UAX #11">EA width</th>
+        <th>advance /1000em</th><th>flags</th><th>block</th>
+      </tr></thead>
+      <tbody id="glyph-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <details class="envelope">
+      <summary>Run envelope — provenance for this measurement set</summary>
+      <pre id="envelope"></pre>
+    </details>
+  </section>
+</main>
+
+<!-- Shims first: a file:// page cannot fetch a sibling, but a <script src> works. The
+     loader tries fetch and falls back to these, and says which path it used. -->
+<script src="data/glyphdata.js"></script>
+<script src="data/config.js"></script>
+<script src="vendor/jdenticon.min.js"></script>
+<script src="src/core.js"></script>
+<script src="src/sfnt.js"></script>
+<script src="src/measure.js"></script>
+<script src="src/fontguess.js"></script>
+<script src="src/hover.js"></script>
+<script src="src/ui.js"></script>
 <script>
-const EAW = [[161,161,"A"],[164,164,"A"],[167,168,"A"],[170,170,"A"],[173,174,"A"],[176,180,"A"],[182,186,"A"],[188,191,"A"],[198,198,"A"],[208,208,"A"],[215,216,"A"],[222,225,"A"],[230,230,"A"],[232,234,"A"],[236,237,"A"],[240,240,"A"],[242,243,"A"],[247,250,"A"],[252,252,"A"],[254,254,"A"],[257,257,"A"],[273,273,"A"],[275,275,"A"],[283,283,"A"],[294,295,"A"],[299,299,"A"],[305,307,"A"],[312,312,"A"],[319,322,"A"],[324,324,"A"],[328,331,"A"],[333,333,"A"],[338,339,"A"],[358,359,"A"],[363,363,"A"],[462,462,"A"],[464,464,"A"],[466,466,"A"],[468,468,"A"],[470,470,"A"],[472,472,"A"],[474,474,"A"],[476,476,"A"],[593,593,"A"],[609,609,"A"],[708,708,"A"],[711,711,"A"],[713,715,"A"],[717,717,"A"],[720,720,"A"],[728,731,"A"],[733,733,"A"],[735,735,"A"],[768,879,"A"],[913,929,"A"],[931,937,"A"],[945,961,"A"],[963,969,"A"],[1025,1025,"A"],[1040,1103,"A"],[1105,1105,"A"],[4352,4447,"W"],[8208,8208,"A"],[8211,8214,"A"],[8216,8217,"A"],[8220,8221,"A"],[8224,8226,"A"],[8228,8231,"A"],[8240,8240,"A"],[8242,8243,"A"],[8245,8245,"A"],[8251,8251,"A"],[8254,8254,"A"],[8308,8308,"A"],[8319,8319,"A"],[8321,8324,"A"],[8361,8361,"H"],[8364,8364,"A"],[8451,8451,"A"],[8453,8453,"A"],[8457,8457,"A"],[8467,8467,"A"],[8470,8470,"A"],[8481,8482,"A"],[8486,8486,"A"],[8491,8491,"A"],[8531,8532,"A"],[8539,8542,"A"],[8544,8555,"A"],[8560,8569,"A"],[8585,8585,"A"],[8592,8601,"A"],[8632,8633,"A"],[8658,8658,"A"],[8660,8660,"A"],[8679,8679,"A"],[8704,8704,"A"],[8706,8707,"A"],[8711,8712,"A"],[8715,8715,"A"],[8719,8719,"A"],[8721,8721,"A"],[8725,8725,"A"],[8730,8730,"A"],[8733,8736,"A"],[8739,8739,"A"],[8741,8741,"A"],[8743,8748,"A"],[8750,8750,"A"],[8756,8759,"A"],[8764,8765,"A"],[8776,8776,"A"],[8780,8780,"A"],[8786,8786,"A"],[8800,8801,"A"],[8804,8807,"A"],[8810,8811,"A"],[8814,8815,"A"],[8834,8835,"A"],[8838,8839,"A"],[8853,8853,"A"],[8857,8857,"A"],[8869,8869,"A"],[8895,8895,"A"],[8978,8978,"A"],[8986,8987,"W"],[9001,9002,"W"],[9193,9196,"W"],[9200,9200,"W"],[9203,9203,"W"],[9312,9449,"A"],[9451,9547,"A"],[9552,9587,"A"],[9600,9615,"A"],[9618,9621,"A"],[9632,9633,"A"],[9635,9641,"A"],[9650,9651,"A"],[9654,9655,"A"],[9660,9661,"A"],[9664,9665,"A"],[9670,9672,"A"],[9675,9675,"A"],[9678,9681,"A"],[9698,9701,"A"],[9711,9711,"A"],[9725,9726,"W"],[9733,9734,"A"],[9737,9737,"A"],[9742,9743,"A"],[9748,9749,"W"],[9756,9756,"A"],[9758,9758,"A"],[9792,9792,"A"],[9794,9794,"A"],[9800,9811,"W"],[9824,9825,"A"],[9827,9829,"A"],[9831,9834,"A"],[9836,9837,"A"],[9839,9839,"A"],[9855,9855,"W"],[9875,9875,"W"],[9886,9887,"A"],[9889,9889,"W"],[9898,9899,"W"],[9917,9918,"W"],[9919,9919,"A"],[9924,9925,"W"],[9926,9933,"A"],[9934,9934,"W"],[9935,9939,"A"],[9940,9940,"W"],[9941,9953,"A"],[9955,9955,"A"],[9960,9961,"A"],[9962,9962,"W"],[9963,9969,"A"],[9970,9971,"W"],[9972,9972,"A"],[9973,9973,"W"],[9974,9977,"A"],[9978,9978,"W"],[9979,9980,"A"],[9981,9981,"W"],[9982,9983,"A"],[9989,9989,"W"],[9994,9995,"W"],[10024,10024,"W"],[10045,10045,"A"],[10060,10060,"W"],[10062,10062,"W"],[10067,10069,"W"],[10071,10071,"W"],[10102,10111,"A"],[10133,10135,"W"],[10160,10160,"W"],[10175,10175,"W"],[11035,11036,"W"],[11088,11088,"W"],[11093,11093,"W"],[11094,11097,"A"],[11904,11929,"W"],[11931,12019,"W"],[12032,12245,"W"],[12272,12283,"W"],[12288,12288,"F"],[12289,12350,"W"],[12353,12438,"W"],[12441,12543,"W"],[12549,12591,"W"],[12593,12686,"W"],[12688,12771,"W"],[12784,12830,"W"],[12832,12871,"W"],[12872,12879,"A"],[12880,19903,"W"],[19968,42124,"W"],[42128,42182,"W"],[43360,43388,"W"],[44032,55203,"W"],[57344,63743,"A"],[63744,64255,"W"],[65024,65039,"A"],[65040,65049,"W"],[65072,65106,"W"],[65108,65126,"W"],[65128,65131,"W"],[65281,65376,"F"],[65377,65470,"H"],[65474,65479,"H"],[65482,65487,"H"],[65490,65495,"H"],[65498,65500,"H"],[65504,65510,"F"],[65512,65518,"H"],[65533,65533,"A"],[94176,94180,"W"],[94192,94193,"W"],[94208,100343,"W"],[100352,101589,"W"],[101632,101640,"W"],[110576,110579,"W"],[110581,110587,"W"],[110589,110590,"W"],[110592,110882,"W"],[110898,110898,"W"],[110928,110930,"W"],[110933,110933,"W"],[110948,110951,"W"],[110960,111355,"W"],[126980,126980,"W"],[127183,127183,"W"],[127232,127242,"A"],[127248,127277,"A"],[127280,127337,"A"],[127344,127373,"A"],[127374,127374,"W"],[127375,127376,"A"],[127377,127386,"W"],[127387,127404,"A"],[127488,127490,"W"],[127504,127547,"W"],[127552,127560,"W"],[127568,127569,"W"],[127584,127589,"W"],[127744,127776,"W"],[127789,127797,"W"],[127799,127868,"W"],[127870,127891,"W"],[127904,127946,"W"],[127951,127955,"W"],[127968,127984,"W"],[127988,127988,"W"],[127992,128062,"W"],[128064,128064,"W"],[128066,128252,"W"],[128255,128317,"W"],[128331,128334,"W"],[128336,128359,"W"],[128378,128378,"W"],[128405,128406,"W"],[128420,128420,"W"],[128507,128591,"W"],[128640,128709,"W"],[128716,128716,"W"],[128720,128722,"W"],[128725,128727,"W"],[128732,128735,"W"],[128747,128748,"W"],[128756,128764,"W"],[128992,129003,"W"],[129008,129008,"W"],[129292,129338,"W"],[129340,129349,"W"],[129351,129535,"W"],[129648,129660,"W"],[129664,129672,"W"],[129680,129725,"W"],[129727,129733,"W"],[129742,129755,"W"],[129760,129768,"W"],[129776,129784,"W"],[131072,196605,"W"],[196608,262141,"W"],[917760,917999,"A"],[983040,1048573,"A"],[1048576,1114109,"A"]];
-const FAM_PRESETS = ["monospace","sans-serif","serif","system-ui","Noto Sans Symbols","Noto Sans Symbols 2","DejaVu Sans","DejaVu Sans Mono","Cascadia Code","JetBrains Mono","Hack","Iosevka","Roboto","Noto Sans CJK JP","FreeSerif"];
-const ANCH_PRESETS = ["0","M","○","◉","◡"," "];
-const SET_PRESETS = {
-  "plain circles":"○●◐◑◎◉◌",
-  "quadrant circles":"◴◵◶◷",
-  "black-part circles":"◒◓◔◕",
-  "squares":"◧◨◩◪◰◱◲◳",
-  "U+29Bx full run":"⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⧂⧃",
-  "mirror-safe seven":"⦶⦷⦺⦼⦽⦾⦿",
-  "pentagons":"⬟⬠",
-  "circled operators":"⊖⊗⊘⊙⊚⊛⊜⊝",
-  "current spec markers":"▱▰▭▬",
-  "everything":"○●◐◑◎◉◌◒◓◔◕◠◡◴◵◶◷◧◨◩◪◰◱◲◳⬤⊖⊗⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⬟⬠▱▰▭▬"
-};
+(async function () {
+  var ui = GH.ui, state = GH.ui.state;
+  await ui.load();
 
-const cvs = document.createElement("canvas");
-const ctx = cvs.getContext("2d", {alpha:false});
+  var $ = function (id) { return document.getElementById(id); };
+  $("family-input").value = state.family;
+  $("size-input").value = state.sizePx;
+  $("anchor-input").value = state.anchor;
+  $("guide-opacity").value = state.guideOpacity;
+  $("glyph-set").value = state.text;
 
-const $ = id => document.getElementById(id);
-
-function eawOf(cp){
-  let lo=0, hi=EAW.length-1;
-  while(lo<=hi){
-    const m=(lo+hi)>>1, r=EAW[m];
-    if(cp<r[0]) hi=m-1;
-    else if(cp>r[1]) lo=m+1;
-    else return r[2];
+  function drawer(btnId, drawerId) {
+    var btn = $(btnId), dr = $(drawerId);
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      ["d-fonts", "d-groups", "d-glyphs"].forEach(function (id) {
+        $(id).setAttribute("aria-expanded", "false");
+      });
+      ["drawer-fonts", "drawer-groups", "drawer-glyphs"].forEach(function (id) {
+        $(id).hidden = true;
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        dr.hidden = false;
+        dr.style.top = document.querySelector(".bar").getBoundingClientRect().bottom + "px";
+      }
+    });
   }
-  return "N";
-}
+  drawer("d-fonts", "drawer-fonts");
+  drawer("d-groups", "drawer-groups");
+  drawer("d-glyphs", "drawer-glyphs");
 
-function chars(s){ return Array.from(s).filter(c => !/\s/.test(c) || c===" " ? c.codePointAt(0)>32 : false); }
+  $("family-input").addEventListener("input", function (e) {
+    state.family = e.target.value || "monospace"; ui.refresh();
+  });
+  $("size-input").addEventListener("input", function (e) {
+    state.sizePx = Math.max(20, Math.min(800, +e.target.value || 200)); ui.refresh();
+  });
+  $("anchor-input").addEventListener("input", function (e) {
+    state.anchor = e.target.value; ui.refresh();
+  });
+  $("glyph-set").addEventListener("input", function (e) {
+    state.text = e.target.value; ui.refresh();
+  });
+  $("guide-opacity").addEventListener("input", function (e) {
+    state.guideOpacity = +e.target.value; ui.refresh();
+  });
 
-function build(){
-  const fam = $("fam").value.trim() || "monospace";
-  const size = Math.max(20, Math.min(800, +$("size").value || 200));
-  const anchor = $("anchor").value || "0";
-  const glyphs = Array.from($("set").value).filter(c => c.codePointAt(0) > 32);
-
-  $("spec").style.fontFamily = fam;
-  $("spec").textContent = glyphs.join("");
-  document.querySelectorAll(".grp .gl, td.g").forEach(el => el.style.fontFamily = fam);
-
-  ctx.font = `${size}px ${fam}`;
-  const per1000 = w => Math.round(w / size * 1000);
-  const anchorW = ctx.measureText(anchor).width;
-  const notdef = per1000(ctx.measureText("\u{10FFFD}").width);
-
-  const rows = [];
-  for(const g of glyphs){
-    const cp = g.codePointAt(0);
-    const alone = per1000(ctx.measureText(g).width);
-    const inRun = per1000(ctx.measureText(anchor + g).width - anchorW);
-    rows.push({g, cp, cls:eawOf(cp), alone, inRun, shift:inRun - alone, nd: alone === notdef && notdef > 0});
+  // navigator.clipboard needs a secure context and may fail on a local file. Surface the
+  // failure rather than swallowing it.
+  async function copy(text, noteEl) {
+    try {
+      await navigator.clipboard.writeText(text);
+      noteEl.textContent = "copied " + Array.from(text).length + " characters";
+    } catch (err) {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+      ta.remove();
+      noteEl.textContent = ok
+        ? "copied via fallback (clipboard API unavailable here)"
+        : "copy failed: " + err.name + ". Select the box and copy manually.";
+    }
   }
+  $("copy-set").addEventListener("click", function () { copy(state.text, $("copy-note")); });
+  $("copy-specimen").addEventListener("click", function () {
+    copy(state.text, $("specimen-note"));
+  });
 
-  // groups by measured advance
-  const map = new Map();
-  for(const r of rows){
-    if(!map.has(r.alone)) map.set(r.alone, []);
-    map.get(r.alone).push(r.g);
-  }
-  const widths = [...map.keys()].sort((a,b)=>a-b);
-
-  const gEl = $("groups"); gEl.innerHTML = "";
-  for(const w of widths){
-    const d = document.createElement("div");
-    d.className = "grp " + (widths.length===1 ? "solo" : "many");
-    d.innerHTML = `<div class="w"><b>${w}</b> /1000em</div><div class="gl" style="font-family:${CSS.escape ? fam : fam}">${map.get(w).join("")}</div>`;
-    d.querySelector(".gl").style.fontFamily = fam;
-    gEl.appendChild(d);
-  }
-
-  // ruler
-  const rEl = $("ruler"); rEl.innerHTML = "";
-  const min = widths[0], max = widths[widths.length-1], span = (max-min) || 1;
-  for(const w of widths){
-    const t = document.createElement("div");
-    t.className = "tick";
-    t.style.left = (widths.length===1 ? 50 : 4 + (w-min)/span*92) + "%";
-    t.innerHTML = `<span>${w}</span>`;
-    rEl.appendChild(t);
-  }
-
-  const v = $("verdict");
-  if(widths.length === 1){
-    v.className = "verdict ok";
-    v.textContent = `Uniform — all ${rows.length} glyphs measure ${widths[0]}/1000em. This set column-aligns in this font.`;
-  } else {
-    v.className = "verdict no";
-    v.textContent = `${widths.length} distinct advances across ${rows.length} glyphs — spread ${min} to ${max}, ${(max/min).toFixed(3)}×. This set will not column-align in this font.`;
-  }
-
-  const clsMix = new Set(rows.map(r=>r.cls));
-  if(clsMix.size > 1){
-    v.textContent += `  Width classes present: ${[...clsMix].join(", ")} — mixed classes break fixed-cell alignment in terminals regardless of the numbers above.`;
-  }
-
-  const tb = $("rows"); tb.innerHTML = "";
-  for(const r of rows){
-    const tr = document.createElement("tr");
-    const hex = r.cp.toString(16).toUpperCase().padStart(4,"0");
-    tr.innerHTML =
-      `<td class="g">${r.g}</td>` +
-      `<td data-l="cp">U+${hex}</td>` +
-      `<td data-l="class"><span class="cls ${r.cls}">${r.cls}</span></td>` +
-      `<td data-l="alone">${r.alone}</td>` +
-      `<td data-l="in run">${r.inRun}</td>` +
-      `<td data-l="shift" class="${r.shift===0?"d0":"dx"}">${r.shift>0?"+":""}${r.shift}</td>` +
-      `<td data-l="flag" class="${r.nd?"notdef":"d0"}">${r.nd?"notdef width":"—"}</td>`;
-    tr.querySelector("td.g").style.fontFamily = fam;
-    tb.appendChild(tr);
-  }
-}
-
-function chips(host, items, apply){
-  for(const it of items){
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = typeof it === "string" ? it : it[0];
-    b.addEventListener("click", () => { apply(it); build(); });
-    host.appendChild(b);
-  }
-}
-chips($("fampre"), FAM_PRESETS, v => $("fam").value = v);
-chips($("anchpre"), ANCH_PRESETS, v => $("anchor").value = v);
-chips($("setpre"), Object.entries(SET_PRESETS), ([,v]) => $("set").value = v);
-document.querySelectorAll("#setpre button").forEach((b,i) => b.textContent = Object.keys(SET_PRESETS)[i]);
-
-for(const id of ["fam","size","anchor","set"]) $(id).addEventListener("input", build);
-document.querySelectorAll("button[data-note]").forEach(b => { b.style.cursor="default"; b.style.textAlign="left"; b.style.whiteSpace="normal"; });
-
-build();
+  ui.render();
+})();
 </script>
-</body>
 </html>

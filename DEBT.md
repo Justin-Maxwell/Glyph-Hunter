@@ -23,47 +23,49 @@ Tana node IDs in brackets point at the session record that raised the item.
 
 ## glyph-bench.html
 
-- **Verdict is binary**
-  - Uniform or not-uniform, with no largest-uniform-subset.
-  - Same shape as the sysfont defect above.
-- **Ruler tick labels collide**
-  - Observed in Justin's screencap: `594`/`604` overprint, and `836`/`838` overprint.
-  - Labels are absolutely positioned from the advance value with no collision handling.
-  - Worst exactly where it matters most, since near-equal advances are the interesting case.
-- **Zero and single-value advances break a log scale**
-  - A missing glyph can report a zero advance, and `log(0)` is negative infinity.
-  - A set with one width group gives a zero log span, so the position divides by zero.
-  - The linear code guards the second case with `(max-min) || 1`; the log form needs both.
+Cleared by the rebuild of 2026-08-13. Kept, struck through, so the same defects are not
+reintroduced and so the record of what the old build got wrong survives.
+
+- ~~**Verdict is binary**~~ — verdicts are gone entirely (ROADMAP set 3). The
+  largest-uniform-subset it lacked exists as `core.largestUniformSubset` and is tested, but
+  is deliberately **not surfaced**: nothing in the build spec asks for it on screen.
+- ~~**Ruler tick labels collide**~~ — labels stagger downward on collision, ticks keep
+  their true positions, and the depth of the stagger sets the ruler height.
+- ~~**Zero and single-value advances break a log scale**~~ — both guarded in
+  `core.logPosition`, both tested.
+- ~~**No Bidi_Mirrored data**~~ / ~~**No General_Category data**~~ — both in the info box,
+  with Bidi_Class and East Asian Width beside them.
+- ~~**`chars()` is dead code**~~ / ~~**`CSS.escape ? fam : fam`**~~ — neither survives the
+  rebuild.
+- ~~**Unquoted family names silently drop one preset**~~ — quoting happens in
+  `core.cssFamily`, in the reader, so the authored config never has to know. The test
+  asserts both that a quoted family applies and that an unquoted one is still dropped.
+- ~~**Adjacency shift is measured with the wrong instrument**~~ — measured in the DOM with
+  a Range per character. Settled in `docs/findings.md` 0.1.
+
+Still open:
+
 - **notdef detection is heuristic**
   - Compares each advance against the advance of U+10FFFD.
   - A glyph legitimately sharing that advance reads as missing.
-- **No Bidi_Mirrored data**
-  - Five members of the circled run are mirrored, which disqualifies them as
-    structural markers, and no measurement surfaces it.
-- **No General_Category data**
-  - The Sm-versus-So question `[p198idbJ6rvc]` is not visible in the readout.
-- **`chars()` is dead code**
-  - Defined, never called, and its filter expression is incoherent.
-- **`CSS.escape ? fam : fam`**
-  - Both branches identical; the guard does nothing.
-  - Family is set again via `style.fontFamily` on the next line anyway.
-  - Evidently an attempt at the quoting defect below, abandoned half-written.
-- **Unquoted family names silently drop one preset**
-  - `Noto Sans Symbols 2` is invalid CSS unquoted: an identifier may not begin with a
-    digit, so the whole declaration is dropped.
-  - Affects `ctx.font` at line 266 and `style.fontFamily` at lines 262, 292 and 333.
-  - Consequence: selecting that preset measures the *previously selected* font under the
-    new font's label. One of fifteen presets; the rest are unaffected.
-  - Verified against the bench's own assignments. See `docs/findings.md`.
-- **Adjacency shift is measured with the wrong instrument**
-  - `measureText(anchor + g).width - anchorW` cannot separate re-itemisation from kerning,
-    and canvas resolves fallback differently from DOM layout in at least one case, so it
-    can report a width the page never draws.
-  - Settled in `docs/findings.md` §0.1; the rebuild measures it in the DOM.
+  - Not fixed, but no longer silent: the flag reads `notdef?` and its tooltip says it is a
+    guess and why. There is no better test available in a browser.
+- **Width groups shatter on sub-pixel noise if advances are not rounded**
+  - Found during the rebuild: measuring to two decimals turned 576 width groups into 662,
+    with `151.02` and `151.03` reading as distinct widths.
+  - Fixed by rounding to whole units per 1000 em, which is 0.2px at the default size.
+  - Recorded because the fix is one `Math.round` and its absence is invisible — the display
+    looks precise rather than wrong.
 
 ## Both
 
 - **No export**
   - Cross-platform comparison `[FKOJuVo1r5JH]` is done by eye.
 - **Candidate sets drift between the two tools**
-  - Each carries its own hardcoded default.
+  - `glyph-bench.html` now reads `data/config.json`; `sysfont.py` still carries its own
+    hardcoded default. The drift is now one-sided rather than mutual.
+- **No supplying-font fingerprint data**
+  - The browser-independent arm of the font guesser needs a committed advance table from
+    `sysfont.py`, which does not emit one. Until it does, that evidence source reports
+    itself unavailable — correctly, but it is the arm that has to carry every browser
+    without the Local Font Access API.
