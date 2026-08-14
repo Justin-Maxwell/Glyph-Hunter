@@ -140,3 +140,26 @@ Honest limits:
 On Android, per-glyph font readout otherwise needs a USB cable and desktop DevTools. An
 in-page identification would make the bench the only font-naming instrument available on
 the device — which is a stronger justification for the tool than metrology alone.
+
+## Rename `unsorted` to `script symbols`
+
+- Status: unassessed
+- Raised: 2026-08-14
+
+`unsorted` is not a mixed bag. All 243 members are symbols — So 181, Sk 44, Sc 13, Sm 5 — that
+passed the inventory rule, failed every shape rule, and then fell outside the block table's
+~70 named blocks. So they reached the final fallback for one systematic reason.
+
+That is the exact counterpart of `script punctuation`, which catches punctuation from the same
+unnamed blocks by the same route. Naming it `script symbols` makes the pair symmetric and turns
+a bucket that reads as a defect into a category with a stated membership rule.
+
+It also inherits the same open question: obscure stays, everyday goes.
+
+Two things inside it may not belong in that category at all, and would need lifting out first:
+
+- **Ideographic Description Characters**, 12 — dashed-box layout operators (⿰⿱⿲ and the rest).
+  Not script content; they describe composition. Closest thing in the inventory to a
+  structural marker.
+- **Khmer Symbols**, 32 — two parallel 16-member lunar-date runs. Enumerable, so compressible
+  rather than sortable.

@@ -516,16 +516,24 @@ Function does not parse at all, and this is the limit:
   session could not — canvas additivity behind the dead adjacency anchor, identicon
   legibility at table size, and whether x-height probing survives a symbol font.
 
-## Set 13, 2026-08-13
+---
+
+From here the record forks. Curation set 13 below declares the two workstreams separate,
+and from that point each numbers its own sets. Sets 1 to 12 above precede the split and
+belong to both.
+
+## App viewer
+
+### Set 13, 2026-08-13
 
 Justin's responses to the verification findings in `docs/findings.md`.
 
-### Identicons are 20px
+#### Identicons are 20px
 
 - Status: stated
 - Settles build-spec 0.2.
 
-### The DOM is definitive
+#### The DOM is definitive
 
 - Status: stated
 - Where the two measurement paths disagree about which face drew a glyph, the DOM is the
@@ -535,13 +543,13 @@ Justin's responses to the verification findings in `docs/findings.md`.
   everything visible is DOM. The direction stands regardless, and on stronger ground —
   Chrome's own `CSS.getPlatformFontsForNode` agrees with the DOM.
 
-### The large specimen glyphs stay
+#### The large specimen glyphs stay
 
 - Status: stated
 - Described as very helpful. They are DOM text at the measuring size, not a canvas
   rendering, so nothing about the measurement change threatens them.
 
-### Build a best-guesser for the supplying font, and say that it is a guess
+#### Build a best-guesser for the supplying font, and say that it is a guess
 
 - Status: stated, conditional and the condition holds
 - Justin: if there is no browser-accessible character-to-font detection outside DevTools,
@@ -558,9 +566,9 @@ Justin's responses to the verification findings in `docs/findings.md`.
   browsers expose `queryLocalFonts()` now only decides how often the enhanced path is the
   one actually taken.
 
-## Set 14, 2026-08-13
+### Set 14, 2026-08-13
 
-### A group split needs a reason, or it gets combined
+#### A group split needs a reason, or it gets combined
 
 - Status: stated, and it is a standing rule rather than a one-off
 - Justin on the `plain circles` / `black-part circles` split: there was no reason for it,
@@ -588,7 +596,7 @@ Flagged, not acted on, because they are placements rather than splits:
 - Counting Rod Numerals are in `historic and religious`. They are historic, so there is a
   reason; they are also numerals, and there are three numeral groups.
 
-### Block boundaries are a weak reason, and they are still a reason
+#### Block boundaries are a weak reason, and they are still a reason
 
 - Status: Claude's assessment, following from the above
 - Thirty-five of the groups are cut on Unicode block. A block boundary is a fact about
@@ -598,9 +606,9 @@ Flagged, not acted on, because they are placements rather than splits:
 - But it is the weakest reason in the file, and it is where the next unjustified split will
   be found. `misc math symbols` against `math operators` is the clearest candidate.
 
-## Set 15, 2026-08-13
+### Set 15, 2026-08-13
 
-### The tool is general. MarkRight is its first test, not its purpose
+#### The tool is general. MarkRight is its first test, not its purpose
 
 - Status: stated, and it corrects how Claude had been reading the whole project
 - Justin built this because no equivalent appears to exist, after many hours on Unicode
@@ -615,7 +623,7 @@ Flagged, not acted on, because they are placements rather than splits:
   using it as one — reporting an East Asian Width change as unimportant because the
   characters were not circles. Recorded in `CLAUDE.md` so it is read first.
 
-### Almost nothing is selected by default
+#### Almost nothing is selected by default
 
 - Status: stated
 - Either zero groups, or just some circle groups.
@@ -625,7 +633,7 @@ Flagged, not acted on, because they are placements rather than splits:
   5,083-glyph default now sits dormant, which is where it belongs — those caps are for
   when something large is pasted in, not for the resting state.
 
-### Cross-font stability is for later, and saying otherwise is a hazard
+#### Cross-font stability is for later, and saying otherwise is a hazard
 
 - Status: stated, and it is a correction
 - Justin told the session that wrote the build spec that this was a **for later**
@@ -638,14 +646,14 @@ Flagged, not acted on, because they are placements rather than splits:
 - `core.largestUniformSubset` exists and is tested. It is a single-run fact and clears a
   `DEBT.md` item; it is **not** cross-font machinery and nothing surfaces it.
 
-### Grouping returns next turn
+#### Grouping returns next turn
 
 - Status: deferred by instruction
 - Set 14's merges stand. No further grouping work until Justin reopens it.
 
-## Set 16, 2026-08-13
+### Set 16, 2026-08-13
 
-### The pattern: each tool is born from the frustration of the one above it
+#### The pattern: each tool is born from the frustration of the one above it
 
 - Status: stated
 - Tana Paste frustrated Justin, so MarkRight is being born out of that. Hand-copying
@@ -659,7 +667,7 @@ Flagged, not acted on, because they are placements rather than splits:
 - Practical effect: never scope a decision to the immediate irritant. It is the least
   durable thing in the room.
 
-### `width group` is excised
+#### `width group` is excised
 
 - Status: stated, with reservation
 - Justin, having flagged the term twice: *"I almost want to excise that term completely.
@@ -679,7 +687,7 @@ Flagged, not acted on, because they are placements rather than splits:
 - `ROADMAP.md` sets 3 and 4 keep the old term. They are a record of what was said at the
   time and are not rewritten.
 
-### Thirty glyphs, not a group
+#### Thirty glyphs, not a group
 
 - Status: stated
 - *"'hunter' not 'smörgåsbord'."* 162 was still too many.
@@ -688,3 +696,90 @@ Flagged, not acted on, because they are placements rather than splits:
   size by accident.
 - Thirty circles across six blocks: five advance sets, six block identicons, everything on
   one screen with nothing rationed.
+
+## Glyph curation
+
+### Set 13, 2026-08-13
+
+#### Two workstreams, deliberately separate
+
+- Status: stated
+- **Glyph curation** — the inventory, its grouping, and the naming of groups.
+- **App viewer** — the bench, its measurement, and its UI.
+- These now run apart. A change in one is not a change in the other, and neither waits on
+  the other.
+- Consequence: `docs/build-spec.md` remains the viewer's spec. Curation gets its own.
+
+#### Groups become a two-level hierarchy
+
+- Status: stated
+- Reverses the flat-groups non-goal in `CLAUDE.md`, and settles the "see 47 chips before
+  deciding whether to nest" question left open in `docs/build-spec.md` §8. Justin has seen
+  it and decided.
+- Sections at the top, leaves beneath. **Target 20-25 members per leaf. Not a hard limit.**
+- Measured starting point: 9,800 glyphs in 47 flat groups, median 102, largest 1,275.
+  42 of the 47 exceed 25 and hold 9,748 of the glyphs.
+
+#### Leaf names come from looking, not from name morphology
+
+- Status: stated
+- Justin's direction: leaf naming is LLM work, not hand work, and not mechanical.
+- Blocks, name stems, and contiguous codepoint runs are **guides, not authorities**.
+- Rationale, measured: name stems over-fragment (arrows yield 226 two-token stems),
+  blocks leave whales (squares' largest block is 193), runs help unevenly.
+
+#### Grouping is a fuzzy, multi-pass, visual process
+
+- Status: stated
+- Claude renders contact sheets, looks at the glyphs, and reallocates.
+- Verified this session: 40 glyphs per sheet is comfortable; the eye finds families the
+  Unicode names blur, and surfaces foreign members sitting inside a name-derived group.
+- **Not single-pass.** A misfit is not a reject: it goes to a pool, and a home for it may
+  only become apparent in a later shuffle.
+- No leaf is closed until a confirmation sheet of that leaf alone reads as one family.
+
+#### Judgement needs a durable layer of its own
+
+- Status: stated
+- Problem: `gen_groups.py` regenerates `config.json`, so LLM and hand judgement cannot
+  live there.
+- An overlay keyed by codepoint carries `leaf`, provenance (`rule` / `visual` / `justin`),
+  the sheet the call was made from, and an explicit `unsure` state.
+- The mechanical pass proposes; the overlay wins.
+- Consequence: re-running the generator stops being destructive.
+
+#### Inventory trims back, interactively
+
+- Status: stated
+- "Include rather than exclude" was right for completeness. That phase is over.
+- Trimming happens **set by set, after show-and-tell**, never as a bulk list.
+- Dropped means dropped **from the inventory entirely**, as Latin alphabetics already are —
+  not merely deselected in the UI.
+- Settled this session: braille is a script; emoji are not appropriate here. Both go.
+
+#### Rendering source
+
+- Status: stated
+- Justin asked whether Noto is the right source. It is, and it is now in use for the
+  sheets: Symbols2, Symbols, Math, Music, SignWriting, fetched from the notofonts repo.
+- Vector coverage for the bitmap-fallback remainder is worth pursuing for resolution.
+- But measure after the trim first: bitmap-only falls from 32.6% of the full inventory to
+  12.1% once the drop candidates go, with nothing left uncovered. The residual concentrates
+  in exactly the blocks being dropped.
+
+### Set 14, 2026-08-14
+
+#### A browse view: every set, scrollable, nothing else
+
+- Status: stated
+- A second page alongside the bench. It shows **all the sets, in order, to be scrolled**.
+- **No font selection, no advance measurement, no spacing detail, no controls.** Those are the
+  bench's job and they get in the way here.
+- Purpose is **inspiration, not measurement**: seeing what exists, so a marker can be chosen
+  that is not a backslash and not a hex digit.
+- Rationale: MarkRight currently reaches for `\` and `0`–`F` to carry encoding information,
+  which is exactly the borrowed-ASCII habit the whole project exists to escape. Nothing in the
+  bench answers "what else could carry this", because the bench is built to interrogate a
+  candidate you already have.
+- Sits in the **glyph curation** workstream, not the app viewer one. It consumes the curated
+  sets; it does not measure anything.

@@ -1,0 +1,333 @@
+# Curation record
+
+Justin's trim rulings, set by set, with the counts they were made against. This file
+records **decisions already taken**, never proposals. Proposals live in `PROPOSALS.md`;
+direction lives in `ROADMAP.md`.
+
+Every number here is generated from `data/config.json` and `data/glyphdata.json`, not
+typed by hand. Regenerate rather than edit.
+
+## Method
+
+Trimming is interactive, set by set, after a rendered show-and-tell sheet. Three states:
+
+- **keep** — all members stay
+- **compress** — the family collapses to a few representatives, its total count retained
+- **drop** — removed from the inventory entirely, as Latin alphabetics already are
+
+Sampling rules that emerged:
+
+- A **sequence family** varies only in one enumerable position, so first and last suffice
+  regardless of size. Losslessly described by range plus style plus count, so it compresses
+  at **inventory level**.
+- A **heterogeneous family** varies unpredictably, so the sample must grow with the family,
+  and around six is the working figure. The sample is a judgement, so it compresses at
+  **group level** and stays reversible.
+- Compressed exemplars from sibling subgroups **pool into one shared leaf** rather than each
+  becoming a leaf of two.
+
+## Tally
+
+| | count |
+| --- | --- |
+| Starting inventory | 9800 |
+| Dropped so far | 3817 |
+| Remaining | 5983 |
+| Styled alphanumerics pulled in | 247 |
+| **Projected** | **6230** |
+
+## Dropped entire
+
+| set | count | reason |
+| --- | --- | --- |
+| braille | 256 | a script |
+| emoji and pictographs | 1275 | not appropriate here |
+| sign writing | 490 | a script notation |
+| script numerals | 894 | script digits; no other script's general numerics were kept |
+
+Cuneiform numerals went with `script numerals`. They were considered separately on their
+looks and dropped on consistency. Worth recording why keeping them would not have opened a
+door: Egyptian Hieroglyphs (1072), Anatolian Hieroglyphs (583), Cuneiform signs proper (922)
+and Early Dynastic Cuneiform (196) are **all General_Category Lo** and so were never in the
+inventory at all. The boundary is category, not taste.
+
+## Dropped in part
+
+### cjk radicals and strokes — 382 dropped
+
+Kangxi radical, CJK radical and Yi radical go. Kept:
+
+- **CJK stroke**, 36 members — bare line primitives: a diagonal, a hook, a corner, a
+  right angle, an ellipse. Not script content in the ordinary sense.
+- **ideographic annotation**, 16 members.
+
+### music — 520 dropped, 88 kept
+
+Byzantine Musical Symbols, Ancient Greek Musical Notation and Znamenny Musical Notation go
+entire. Within Musical Symbols, dropped: clefs and tablature, notes with stems, rests,
+mensural note values, accidentals, octave and directives, and the unclassified remainder
+(mostly Gregorian and Kievan neume names).
+
+The first music ruling was made against a sheet covering only the twelve largest families,
+which was two thirds of the set. Justin caught it. The unseen third held barlines, staff
+lines and noteheads — geometric, not notational. **Show the whole set or state the coverage
+plainly.**
+
+Grouping here is **functional**, not by name stem, block or codepoint run. It is the first
+case where the leaves fell inside the 20–25 band with no further splitting:
+
+| family | count |
+| --- | --- |
+| barlines and repeats | 16 |
+| ornaments | 15 |
+| time signatures | 10 |
+| noteheads | 10 |
+| dynamics and hairpins | 7 |
+| articulations | 6 |
+| staff and system lines | 6 |
+| pedals | 5 |
+| analytics | 4 |
+| stems, flags, beams, dots | 3 |
+| braces and brackets | 2 |
+| wavy and glissando | 2 |
+| kievan notation | 2 |
+
+### games — 324 → 153, nothing dropped
+
+Almost entirely enumerable runs, so compression alone removes 171.
+
+| compressed set | members | range | exemplars |
+| --- | --- | --- | --- |
+| playing cards | 56 | U+1F0A1–U+1F0DE | U+1F0D1, U+1F0BE |
+| mahjong numbered suits | 27 | U+1F007–U+1F021 | U+1F007, U+1F021 |
+| domino horizontal | 50 | U+1F030–U+1F061 | four random, seeded |
+| domino vertical | 50 | U+1F062–U+1F093 | four random, seeded |
+
+Everything else stays intact: chess rotated (23 neutral, 23 white, 23 black), card trumps 21,
+xiangqi red 7 and black 7, chess upright neutral 7, white 4, black 4, mahjong winds 4,
+dragons 3, flowers 4, seasons 4, joker and back 2, card joker, fool and back 5. Every one is
+already inside the size band.
+
+Two defects found while building it:
+
+- The **nine mahjong circle tiles are in the `circles` group, not `games`**, because the shape
+  rule matches CIRCLE in the name. Same failure mode as the arrows precedence rule.
+- **Xiangqi pieces are circled Han characters** — red outlined, black knocked out of a filled
+  circle. They belong visually with `circled ideograph` and `negative circled`.
+
+## Exemplars are not range bounds
+
+Established on the playing cards. "First and last" had silently meant *first and last by
+codepoint*, because that was mechanical and unarguable. Cards broke it: the block runs spades,
+hearts, diamonds, clubs, so the codepoint endpoints are ace of spades and king of clubs —
+**both black**. A pair that hides half the deck being red is a bad representative of the family.
+
+So the exemplars are ace of clubs and king of hearts, which are the wrong way round in
+codepoint terms: U+1F0BE sits 19 codepoints before U+1F0D1.
+
+The rule that follows:
+
+- **Exemplars are chosen for visual coverage of the family**, not as bounds. They should span
+  whatever dimension actually varies — colour here, weight or fill elsewhere.
+- **The range and count are recorded separately**, and they are what makes inventory-level
+  compression lossless and regenerable.
+- A compressed set must therefore state both, and must not assume the exemplars delimit it.
+
+Mahjong keeps codepoint order, where the run is already characters, bamboos, circles.
+
+### legacy computing — 189 → 75
+
+All one block, fully covered by Noto Sans Symbols2.
+
+| disposition | n | result |
+| --- | --- | --- |
+| block sextants | 60 | six seeded-random — a combination enumeration, 2⁶ less the four already in Block Elements |
+| diagonals and triangles | 59 | six seeded-random |
+| stick figures | 5 | intact |
+| sorted remainder | 58 | intact, 13 families |
+| dropped | 7 | composites, below |
+
+**Dropped: glyphs that are fragments of a picture split across cells.** Left and right half
+running man (U+1FBB2, U+1FBB3), the three thirds of the white right pointing index
+(U+1FBC1–U+1FBC3), and left and right half folder (U+1FBB9, U+1FBBA). None is usable alone.
+
+The remainder was sorted **by eye**, not by name. Two things that sort could see and no
+classifier could:
+
+- the fills sort by **density and placement**, so the shaded triangles belong with the
+  half-cell shades rather than with the plain triangles
+- the vertical, horizontal and corner rules are one construction at three orientations — kept
+  separate because that is how they are scanned, not because they are different things
+
+| family | n |
+| --- | --- |
+| solid blocks, notched | 4 |
+| half-cell triangles | 6 |
+| vertical rules, 8th positions | 6 |
+| horizontal rules, 8th pos. | 6 |
+| corner rules, 4 ways | 4 |
+| multi-line rules | 2 |
+| upper fractional blocks | 5 |
+| right fractional blocks | 5 |
+| quarter bands | 1 |
+| shaded shapes | 9 |
+| shade against solid | 3 |
+| hatch and checkerboard | 4 |
+| singletons | 3 |
+
+### small sets — currency, fullwidth, superscripts, number forms
+
+- **currency 33** — dropped entire.
+- **fullwidth and halfwidth 43 → 3.** The 29 ASCII duplicates dropped, identified by
+  decomposition rather than by eye: every one decomposes to a codepoint below U+0080. Then
+  dropped: fullwidth currency (U+FFE0, FFE1, FFE5, FFE6), fullwidth Latin-1 marks (U+FFE2 not
+  sign, FFE3 macron, FFE4 broken bar), halfwidth CJK punctuation (U+FF61–FF64). **Kept:** the
+  fullwidth white parentheses U+FF5F and U+FF60, and U+FFE8 halfwidth forms light vertical.
+- **superscripts and subscripts 27** — dropped entire.
+- **number forms 58** — only the Roman numerals kept: 16 uppercase U+2160–216F and 16 lowercase
+  U+2170–217F. The 19 vulgar fractions dropped; the 7 archaic and apostrophic forms to extras.
+
+Deferred to the end, with the shape work: `rectangles` 7, `polygons` 11, `arcs, half shapes` 20,
+`geometric shapes, unshaped names` 2.
+
+**Two hazards attached to keeping the Roman numerals.**
+
+They are General_Category **Nl**, which means they are ID_Start and Alphabetic — identifier
+characters, and word-interior for segmentation. They are not symbols in the sense the rest of
+the marker set is.
+
+And they **case-map**: `Ⅰ`.lower() is `ⅰ`, `Ⅿ`.lower() is `ⅿ`. Keeping both cases means keeping a
+pair that any case-folding pipeline will silently convert between. Same hazard as the circled
+Latin letters.
+
+**The halfwidth geometric forms are kept, and they are scattered.** U+FFE8 halfwidth forms
+light vertical is the only one inside this group; halfwidth black square, white circle, the four
+halfwidth arrows and the katakana middle dot live in `squares`, `circles`, `arrows` and
+`bullets, dots`. Those eight are the only matched narrow/normal pairs in the inventory, EAW H
+against N, with the pairing stated by Unicode through the decomposition. Nothing has yet looked
+at them as a set, and they should be gathered when the shape work comes round.
+
+## Extras — a fourth disposition
+
+Beside keep, compress and drop: **extras**, a bucket for members deliberately parked for later
+sorting rather than ruled on now.
+
+- The seven archaic and apostrophic Roman numerals, U+2180–2188.
+
+Distinct from `unsorted` (243), which is not a decision but a **defect** — those glyphs fell
+through every rule in `gen_groups.py` and have never been looked at.
+
+## Compressed
+
+### enclosed sets
+
+- **CJK months** stay, compressed to first and last. Telegraph day and hour follow the same
+  rule as the same construction.
+- **Latin digit and alphabetic sequences** compress to first and last.
+- **Syllabary sequences** — circled katakana, circled hangul, parenthesized hangul — compress
+  the same way. They read as "label" by name but are the syllabary in script order.
+- **Weekday cycles** — exactly two exist in the whole inventory, both in Enclosed CJK Letters
+  and Months. Compressed to first and last.
+- **Tortoise shell** and **rounded symbol** keep every member.
+- Heterogeneous remainders — circled ideograph, parenthesized ideograph, squared CJK — take a
+  representative sample.
+
+## Pulled back in
+
+Five styled alphanumeric families from Mathematical Alphanumeric Symbols: **script, bold
+script, fraktur, bold fraktur, double-struck**. Subgroups are capitals, lowercase, and digits
+where digits exist — only double-struck has digits.
+
+This revises the inventory rule, which excludes letters and digits of every script. The
+exception is warranted because first and last make a full alphabet run cost two exemplars.
+
+Two findings attached to it:
+
+- The odd member counts (41, 47, 52, 52, 55) are not an error. The missing members were
+  already encoded in **Letterlike Symbols** before the maths block existed, so Unicode did
+  not encode them twice. Script caps lack B E F H I L M R; script smalls lack e g o;
+  double-struck caps lack C H N P Q R Z; fraktur caps lack C H I R Z — and those five are
+  named **BLACK-LETTER**, not FRAKTUR, which is why a naive stem match misses them.
+- So three compressed pairs **straddle two blocks**: double-struck capitals run U+1D538 to
+  U+2124, fraktur capitals U+1D504 to U+2128. A leaf built this way cannot assume block
+  contiguity.
+
+## Standing rules from Justin
+
+- **Obscure punctuation stays in; everyday punctuation goes.** This cuts within sets, not
+  between them, so the tractable form is to enumerate the *everyday* set explicitly — the
+  short list — and keep the rest.
+- Blocks are a hint for grouping only. Proved twice: by the Letterlike borrowing above, and
+  by cuneiform numerals showing 69 distinct advance widths from 0.43 em to 4.64 em within one
+  block.
+
+## Open
+
+- The everyday-punctuation exclusion list is not yet enumerated.
+- `script punctuation` (426) needs that enumeration plus a harvest of its bare vertical
+  bars and dandas, not a yes/no ruling.
+- `unsorted` (243) is a **defect, not a set**: those glyphs fell through every rule in
+  `gen_groups.py`.
+- Unruled candidates: games, divination, alchemy and astrology, historic and religious,
+  legacy computing, cjk punctuation, fullwidth and halfwidth, standalone accents.
+- Arabic Mathematical Alphabetic Symbols (143, 2 currently in) poses the same question as the
+  styled Latin families.
+
+## Combination enumerations — four seeded-random exemplars
+
+**Scoped to combination enumerations.** The general rule stays first-and-last with hand-picked
+overrides.
+
+A **combination enumeration** is a family whose members exhaust a combination space rather than
+running through a positional sequence. Three qualify:
+
+| family | space | n |
+| --- | --- | --- |
+| hexagram | binary, 2⁶ | 64 |
+| tetragram | ternary, 3⁴ | 81 |
+| domino, each orientation | 7×7 pip grid, plus a back tile | 50 |
+
+A positional sequence — an alphabet run, a card suit, a numbered mahjong suit — varies by one
+predictable position, so its ends describe it. A combination enumeration does not: its ends are
+the corners of the space.
+
+Endpoints fail badly on these, because their first members are the degenerate ones: the first
+hexagram is all-solid, the first tetragram is all-solid, the first domino is the tile back. All
+corners of a space, and nothing of what lies within it.
+
+- **Four exemplars, drawn at random**, plus the total count. The count implies the permutation
+  space; the four show what a member looks like.
+- **Seeded on the family name**, so the same four return on every regeneration. An unseeded
+  draw would churn the config every run and make diffs meaningless.
+- The range and count stay recorded separately, as everywhere else.
+
+Structure: 165 glyphs across five line-depths, spread over three of our groups.
+
+| depth | n | disposition |
+| --- | --- | --- |
+| monogram, 1 line | 3 | intact |
+| digram, 2 lines | 9 | intact |
+| trigram, 3 lines | 8 | intact |
+| tetragram, 4 lines | 81 | four random |
+| hexagram, 6 lines | 64 | four random |
+
+**165 → 28.**
+
+Two regroupings required: 14 members sit in `misc symbols` (2 monograms, 4 digrams, all 8
+trigrams) and U+1D307 TETRAGRAM FOR FULL CIRCLE sits in `circles`, pulled out by the shape rule.
+
+The Yijing is binary, 2⁶ = 64. The Tai Xuan Jing is ternary — solid, once-broken,
+twice-broken — 3⁴ = 81. It needs 3 monograms and 9 digrams, but 2 and 4 of those already
+existed in Miscellaneous Symbols as the binary yin-yang forms, so Unicode added only the new
+ones. Third instance of a family split across blocks because Unicode declined to encode twice,
+after the Letterlike borrowing and the mahjong circles.
+
+Advances in Noto Sans Symbols2: trigram 940, tetragram 940, hexagram 1043, all EAW N. Uniform
+within a depth, not across the system.
+
+### Note on random sampling, for wherever it is used next
+
+Random samples the typical, so a visually distinct minority can vanish. A trial draw of four
+playing cards produced four pip cards and no court card — roughly a one-in-three chance — and
+the court cards are the interesting ones. Where a family has a distinct minority, override by
+hand or stratify the draw.
