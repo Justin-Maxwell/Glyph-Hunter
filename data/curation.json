@@ -1,0 +1,212 @@
+{
+ "_note": "Authored judgement. The rulings recorded in prose in docs/curation.md, expressed as data so the browse view can apply them. Justin edits this; nothing generates it. Counts under 'expect' are assertions - tools/gen_browse.py checks every one and reports mismatches rather than silently drifting.",
+ "_source": "docs/curation.md",
+ "_provenance_values": {
+  "justin": "Justin ruled on it, against a rendered sheet",
+  "visual": "Claude ruled on it by looking, and Justin has not seen it",
+  "reconstructed": "docs/curation.md states the ruling but not its members; this is a pattern fitted to the prose, and it may be wrong",
+  "rule": "no ruling exists; the mechanical pass proposed it"
+ },
+
+ "drop_groups": [
+  {"group": "braille", "expect": 256, "reason": "a script"},
+  {"group": "emoji and pictographs", "expect": 1275, "reason": "not appropriate here"},
+  {"group": "sign writing", "expect": 490, "reason": "a script notation"},
+  {"group": "script numerals", "expect": 894, "reason": "script digits; no other script's general numerics were kept"},
+  {"group": "currency", "expect": 33, "reason": "dropped entire"},
+  {"group": "superscripts and subscripts", "expect": 27, "reason": "dropped entire"}
+ ],
+
+ "_drop_blocks_why": "The blocks behind the dropped groups. A shape rule claims glyphs by name, so a SignWriting circle sits in `circles` and an emoji circle in `circles` too, while their own group is dropped entire. docs/curation.md rules that dropped means dropped from the inventory, not merely deselected, so the block goes wherever it landed. This removes strays the group-by-group tally in that file never counted, so the totals here run slightly below it - deliberately, and reported separately.",
+ "drop_blocks": [
+  "Braille Patterns",
+  "Sutton SignWriting",
+  "Emoticons",
+  "Miscellaneous Symbols and Pictographs",
+  "Supplemental Symbols and Pictographs",
+  "Symbols and Pictographs Extended-A",
+  "Transport and Map Symbols"
+ ],
+
+ "regroup": [
+  {"cps": ["1F019-1F021"], "to": "games",
+   "why": "the nine mahjong circle tiles were pulled out by the CIRCLE shape rule; they are a numbered suit"},
+  {"cps": ["1D307"], "to": "divination",
+   "why": "TETRAGRAM FOR FULL CIRCLE was pulled out by the CIRCLE shape rule"}
+ ],
+
+ "auto_compress": ["enclosed alphanumerics"],
+
+ "rulings": [
+  {
+   "group": "cjk radicals and strokes",
+   "expect_kept": 52,
+   "leaves": [
+    {"disposition": "drop", "expect": 382, "provenance": "justin",
+     "select": [{"block": "Kangxi Radicals"}, {"block": "CJK Radicals Supplement"}, {"block": "Yi Radicals"}]},
+    {"leaf": "cjk stroke", "disposition": "keep", "expect": 36, "provenance": "justin",
+     "note": "bare line primitives - a diagonal, a hook, a corner, an ellipse. Not script content in the ordinary sense.",
+     "select": [{"block": "CJK Strokes"}]},
+    {"leaf": "ideographic annotation", "disposition": "keep", "expect": 16, "provenance": "justin",
+     "select": [{"block": "Kanbun"}]}
+   ]
+  },
+
+  {
+   "group": "music",
+   "expect_kept": 88,
+   "leaves": [
+    {"disposition": "drop", "expect": 429, "provenance": "justin",
+     "select": [{"block": "Byzantine Musical Symbols"}, {"block": "Znamenny Musical Notation"}, {"block": "Ancient Greek Musical Notation"}]},
+    {"disposition": "drop", "expect": 91, "provenance": "reconstructed", "unsure": true,
+     "note": "docs/curation.md names the dropped categories but not their members. This pattern is fitted to that prose and has not been checked against the sheet Justin ruled from.",
+     "select": [
+      {"name": "CLEF|FRETBOARD|TABLATURE|STRING|FINGERING|BOW|PLECTRUM|THUMB POSITION", "not_name": "KIEVAN"},
+      {"name": "\\bREST\\b"},
+      {"name": "\\bNOTE\\b|BREVE|LONGA|MAXIMA|SEMIBREVIS|MINIMA|SEMIMINIMA|FUSA"},
+      {"name": "MENSURAL|LIGATURE|COLORATION|PROLATION|TEMPUS|MODUS"},
+      {"name": "SHARP|FLAT|NATURAL|QUARTER TONE"},
+      {"name": "OTTAVA|QUINDICESIMA|\\bLOCO\\b"},
+      {"name": "GREGORIAN|PUNCTUM|VIRGA|PODATUS|CLIVIS|SCANDICUS|CLIMACUS|TORCULUS|PORRECTUS|PES |FLEXA|STROPHICUS|QUILISMA|ORISCUS|LIQUESCEN"}
+     ]}
+   ]
+  },
+
+  {
+   "group": "games",
+   "expect_kept": 324,
+   "leaves": [
+    {"leaf": "playing cards", "disposition": "compress", "expect": 56, "provenance": "justin",
+     "note": "exemplars are ace of clubs and king of hearts - chosen for colour coverage, not as range bounds. See docs/curation.md.",
+     "exemplar_cps": ["1F0BE", "1F0D1"],
+     "select": [{"cps": ["1F0A1-1F0DE"], "not_name": "JOKER"}]},
+    {"leaf": "mahjong numbered suits", "disposition": "compress", "expect": 27, "provenance": "justin",
+     "note": "characters, bamboos, circles - codepoint order is already the run order.",
+     "exemplar_cps": ["1F007", "1F021"],
+     "select": [{"cps": ["1F007-1F021"]}]},
+    {"leaf": "domino horizontal", "disposition": "compress", "expect": 50, "provenance": "justin",
+     "exemplars": "random", "exemplar_n": 4,
+     "note": "a combination enumeration - a 7x7 pip grid plus a back tile. Its ends are corners of the space, so four seeded-random exemplars stand in for it.",
+     "select": [{"cps": ["1F030-1F061"]}]},
+    {"leaf": "domino vertical", "disposition": "compress", "expect": 50, "provenance": "justin",
+     "exemplars": "random", "exemplar_n": 4,
+     "select": [{"cps": ["1F062-1F093"]}]}
+   ]
+  },
+
+  {
+   "group": "divination",
+   "expect_kept": 165,
+   "leaves": [
+    {"leaf": "tetragram", "disposition": "compress", "expect": 81, "provenance": "justin",
+     "exemplars": "random", "exemplar_n": 4,
+     "note": "Tai Xuan Jing, ternary, 3^4. A combination enumeration: the first member is the degenerate all-solid one.",
+     "select": [{"name": "TETRAGRAM"}]},
+    {"leaf": "hexagram", "disposition": "compress", "expect": 64, "provenance": "justin",
+     "exemplars": "random", "exemplar_n": 4,
+     "note": "Yijing, binary, 2^6. Same reasoning as the tetragrams.",
+     "select": [{"name": "HEXAGRAM"}]},
+    {"leaf": "trigram", "disposition": "keep", "expect": 8, "provenance": "justin",
+     "select": [{"name": "TRIGRAM"}]},
+    {"leaf": "digram", "disposition": "keep", "expect": 9, "provenance": "justin",
+     "select": [{"name": "DIGRAM"}]},
+    {"leaf": "monogram", "disposition": "keep", "expect": 3, "provenance": "justin",
+     "select": [{"name": "MONOGRAM"}]}
+   ]
+  },
+
+  {
+   "group": "legacy computing",
+   "expect_kept": 182,
+   "leaves": [
+    {"disposition": "drop", "expect": 7, "provenance": "justin",
+     "note": "fragments of a picture split across cells - half running man, thirds of the pointing index, half folder. None is usable alone.",
+     "select": [{"cps": ["1FBB2-1FBB3", "1FBB9-1FBBA", "1FBC1-1FBC3"]}]},
+    {"leaf": "block sextants", "disposition": "compress", "expect": 60, "provenance": "justin",
+     "exemplars": "random", "exemplar_n": 6,
+     "note": "a combination enumeration - 2^6 less the four already in Block Elements.",
+     "select": [{"name": "SEXTANT"}]},
+    {"leaf": "diagonals and triangles", "disposition": "compress", "expect": 59,
+     "provenance": "reconstructed", "unsure": true,
+     "exemplars": "random", "exemplar_n": 6,
+     "note": "docs/curation.md gives the count but not the members; this pattern is fitted to it.",
+     "select": [{"name": "DIAGONAL|TRIANGL|WEDGE"}]},
+    {"leaf": "stick figures", "disposition": "keep", "expect": 5, "provenance": "justin",
+     "select": [{"name": "STICK FIGURE"}]}
+   ]
+  },
+
+  {
+   "group": "number forms",
+   "expect_kept": 39,
+   "leaves": [
+    {"leaf": "roman numerals, capital", "disposition": "keep", "expect": 16, "provenance": "justin",
+     "note": "General_Category Nl, so ID_Start and Alphabetic, and they case-map to the small forms. Not symbols in the sense the rest of the set is.",
+     "select": [{"cps": ["2160-216F"]}]},
+    {"leaf": "roman numerals, small", "disposition": "keep", "expect": 16, "provenance": "justin",
+     "select": [{"cps": ["2170-217F"]}]},
+    {"leaf": "archaic and apostrophic", "disposition": "extras", "expect": 7, "provenance": "justin",
+     "note": "parked for later sorting rather than ruled on.",
+     "select": [{"cps": ["2180-2188"]}]},
+    {"disposition": "drop", "expect": 19, "provenance": "justin",
+     "note": "vulgar fractions.",
+     "select": [{}]}
+   ]
+  },
+
+  {
+   "group": "math alphanumerics",
+   "expect_kept": 282,
+   "_why": "Exemplars are given by codepoint here rather than taken from the ends, because three of these families straddle two blocks: their missing members were encoded in Letterlike Symbols before the maths block existed, so the alphabetical last is not the numerical last. docs/curation.md states two of the pairs outright - double-struck capitals U+1D538 to U+2124, fraktur capitals U+1D504 to U+2128 - and they are reproduced exactly.",
+   "leaves": [
+    {"leaf": "script", "disposition": "compress", "expect": 52, "provenance": "justin",
+     "exemplar_cps": ["1D49C", "1D4B5", "1D4B6", "1D4CF"],
+     "note": "capitals and lowercase, pooled into one leaf. Caps lack B E F H I L M R and smalls lack e g o, which live in Letterlike Symbols.",
+     "select": [{"cps": ["1D49C-1D4CF", "212C", "2130", "2131", "210B", "2110", "2112", "2133", "211B", "212F", "210A", "2134"]}]},
+    {"leaf": "bold script", "disposition": "compress", "expect": 52, "provenance": "justin",
+     "exemplar_cps": ["1D4D0", "1D4E9", "1D4EA", "1D503"],
+     "select": [{"cps": ["1D4D0-1D503"]}]},
+    {"leaf": "fraktur", "disposition": "compress", "expect": 52, "provenance": "justin",
+     "exemplar_cps": ["1D504", "2128", "1D51E", "1D537"],
+     "note": "the five borrowed capitals are named BLACK-LETTER, not FRAKTUR, which is why a naive stem match misses them.",
+     "select": [{"cps": ["1D504-1D537", "212D", "210C", "2111", "211C", "2128"]}]},
+    {"leaf": "bold fraktur", "disposition": "compress", "expect": 52, "provenance": "justin",
+     "exemplar_cps": ["1D56C", "1D585", "1D586", "1D59F"],
+     "select": [{"cps": ["1D56C-1D59F"]}]},
+    {"leaf": "double-struck", "disposition": "compress", "expect": 62, "provenance": "justin",
+     "exemplar_cps": ["1D538", "2124", "1D552", "1D56B", "1D7D8", "1D7E1"],
+     "note": "the only one of the five with digits. Capitals lack C H N P Q R Z.",
+     "select": [{"cps": ["1D538-1D56B", "2102", "210D", "2115", "2119", "211A", "211D", "2124", "1D7D8-1D7E1"]}]}
+   ]
+  },
+
+  {
+   "group": "fullwidth and halfwidth",
+   "expect_kept": 3,
+   "leaves": [
+    {"leaf": "fullwidth white parentheses", "disposition": "keep", "expect": 2, "provenance": "justin",
+     "select": [{"cps": ["FF5F-FF60"]}]},
+    {"leaf": "halfwidth forms light vertical", "disposition": "keep", "expect": 1, "provenance": "justin",
+     "select": [{"cps": ["FFE8"]}]},
+    {"disposition": "drop", "expect": 40, "provenance": "justin",
+     "note": "the 29 ASCII duplicates, identified by decomposing below U+0080; then fullwidth currency, fullwidth Latin-1 marks, halfwidth CJK punctuation.",
+     "select": [{}]}
+   ]
+  }
+ ],
+
+ "pull_in": [
+  {
+   "group": "math alphanumerics",
+   "why": "Five styled alphanumeric families from Mathematical Alphanumeric Symbols. This revises the inventory rule, which excludes letters and digits of every script: first and last make a full alphabet run cost two exemplars, so the exception is cheap. The odd member counts are not an error - the missing members were encoded in Letterlike Symbols before the maths block existed, so three of these families straddle two blocks.",
+   "cps": [
+    "1D49C-1D4CF", "1D4D0-1D503", "1D504-1D537", "1D538-1D56B", "1D56C-1D59F",
+    "1D7D8-1D7E1",
+    "212C", "2130", "2131", "210B", "2110", "2112", "2133", "211B",
+    "212F", "210A", "2134",
+    "2102", "210D", "2115", "2119", "211A", "211D", "2124",
+    "212D", "210C", "2111", "211C", "2128"
+   ]
+  }
+ ]
+}

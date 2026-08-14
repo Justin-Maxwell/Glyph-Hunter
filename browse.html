@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glyph Hunter - browse</title>
+<style>
+:root {
+  --bg: #14151a;
+  --panel: #1b1d24;
+  --edge: #2c2f3a;
+  --ink: #e6e8ef;
+  --dim: #8b90a0;
+  --dimmer: #5d6272;
+  --accent: #7fb3ff;
+  --ruled: #6fd48a;
+  --guess: #b98cff;
+  --unsure: #ffb454;
+  --cell: 3.4rem;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fbfbfd; --panel: #fff; --edge: #e2e4ec; --ink: #1a1c22;
+    --dim: #666c7e; --dimmer: #9299ac; --accent: #2b6fd4;
+    --ruled: #1c7f42; --guess: #6b3fc0; --unsure: #a05c00;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.5 system-ui, sans-serif;
+}
+main { max-width: 1180px; margin: 0 auto; padding: 1.5rem 1rem 6rem; }
+
+/* ---------------------------------------------------------------- masthead */
+header.top { border-bottom: 1px solid var(--edge); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+h1 { font-size: 1.3rem; margin: 0 0 .35rem; font-weight: 600; }
+.blurb { color: var(--dim); max-width: 62ch; margin: 0 0 .8rem; }
+.blurb strong { color: var(--ink); font-weight: 600; }
+.totals { display: flex; flex-wrap: wrap; gap: 1.4rem; font-variant-numeric: tabular-nums; }
+.totals div { font-size: .82rem; color: var(--dim); }
+.totals b { display: block; font-size: 1.15rem; color: var(--ink); font-weight: 600; }
+
+/* ---------------------------------------------------------------- index */
+nav.index {
+  display: flex; flex-wrap: wrap; gap: .3rem .5rem;
+  margin: 1rem 0 2rem; padding: .8rem;
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 6px;
+}
+nav.index a {
+  color: var(--dim); text-decoration: none; font-size: .8rem;
+  padding: .1rem .35rem; border-radius: 3px;
+}
+nav.index a:hover { color: var(--ink); background: var(--edge); }
+nav.index a i { font-style: normal; color: var(--dimmer); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- groups */
+section.group { margin: 0 0 2.6rem; scroll-margin-top: 1rem; }
+h2 {
+  font-size: 1.05rem; margin: 0 0 .1rem; font-weight: 600;
+  display: flex; align-items: baseline; gap: .6rem;
+}
+h2 .n { font-size: .78rem; color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+h2 a.top-link { margin-left: auto; font-size: .72rem; color: var(--dimmer); text-decoration: none; }
+h2 a.top-link:hover { color: var(--accent); }
+.group-rule { height: 1px; background: var(--edge); margin: .5rem 0 1rem; }
+
+/* ---------------------------------------------------------------- leaves */
+.leaf { margin: 0 0 1.3rem; }
+h3 {
+  font-size: .85rem; font-weight: 600; margin: 0 0 .1rem;
+  display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap;
+}
+h3 .count { color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+h3 .range { color: var(--dimmer); font-weight: 400; font-size: .75rem; font-family: ui-monospace, monospace; }
+.badge {
+  font-size: .62rem; text-transform: uppercase; letter-spacing: .06em;
+  padding: .1rem .3rem; border-radius: 3px; border: 1px solid currentColor;
+  font-weight: 600;
+}
+.badge.justin { color: var(--ruled); }
+.badge.visual { color: var(--ruled); }
+.badge.rule { color: var(--guess); }
+.badge.reconstructed { color: var(--unsure); }
+.badge.unsure { color: var(--unsure); }
+.badge.extras { color: var(--dim); }
+.note { color: var(--dim); font-size: .78rem; margin: .15rem 0 .4rem; max-width: 74ch; }
+.folded {
+  color: var(--dim); font-size: .75rem; margin: .3rem 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- cells */
+.cells { display: flex; flex-wrap: wrap; gap: 2px; margin-top: .35rem; }
+.cell {
+  width: var(--cell); height: var(--cell);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 3px;
+  font-size: 1.9rem; line-height: 1;
+  font-family: "Noto Sans Symbols 2", "Noto Sans Symbols", "Noto Sans Math",
+               "Noto Music", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  overflow: hidden; cursor: default;
+}
+.cell:hover { border-color: var(--accent); }
+.cells.compressed .cell { border-style: dashed; }
+.ellipsis {
+  width: 1.6rem; height: var(--cell); display: flex; align-items: center;
+  justify-content: center; color: var(--dimmer); font-size: 1.1rem;
+}
+
+/* ---------------------------------------------------------------- dropped */
+.dropped { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--edge); }
+.dropped h2 { color: var(--dim); }
+.dropped ul { margin: .5rem 0 0; padding-left: 1.1rem; color: var(--dim); font-size: .82rem; }
+.dropped li { margin: .2rem 0; }
+.dropped b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--edge);
+         color: var(--dimmer); font-size: .75rem; }
+footer code { font-family: ui-monospace, monospace; }
+.warn { color: var(--unsure); }
+</style>
+</head>
+<body>
+<main>
+<header class="top">
+  <h1>Glyph Hunter &mdash; browse</h1>
+  <p class="blurb">
+    Every set, in order, to be scrolled. <strong>Nothing here measures anything</strong> &mdash;
+    no font selection, no advance, no spacing. This page is for seeing what exists, so a
+    marker can be chosen that is not a backslash and not a hex digit. Take a candidate to
+    <a href="glyph-bench.html">the bench</a> to interrogate it.
+  </p>
+  <div class="totals" id="totals"></div>
+</header>
+
+<nav class="index" id="index"></nav>
+<div id="groups"></div>
+<div class="dropped" id="dropped"></div>
+
+<footer id="footer"></footer>
+</main>
+
+<script src="data/browse.js"></script>
+<script>
+(function () {
+  const D = window.BROWSE_DATA;
+  const el = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  };
+  const slug = s => s.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+  const num = n => n.toLocaleString("en-GB");
+
+  // -- totals
+  const t = D.provenance.totals;
+  const totals = document.getElementById("totals");
+  [["inventory", t.inventory], ["kept", t.kept], ["cells on this page", t.cells],
+   ["sets", D.groups.length]].forEach(([label, v]) => {
+    const d = el("div");
+    d.appendChild(el("b", null, num(v)));
+    d.appendChild(document.createTextNode(label));
+    totals.appendChild(d);
+  });
+
+  // -- index
+  const index = document.getElementById("index");
+  D.groups.forEach(g => {
+    const a = el("a", null, g.name + " ");
+    a.href = "#" + slug(g.name);
+    a.appendChild(el("i", null, num(g.shown)));
+    index.appendChild(a);
+  });
+
+  // -- groups
+  const host = document.getElementById("groups");
+  D.groups.forEach(g => {
+    const sec = el("section", "group");
+    sec.id = slug(g.name);
+
+    const h2 = el("h2");
+    h2.appendChild(document.createTextNode(g.name));
+    let sub = num(g.n) + " in the set";
+    if (g.dropped) sub += ", " + num(g.dropped) + " dropped";
+    if (g.shown !== g.kept) sub += ", " + num(g.shown) + " shown";
+    h2.appendChild(el("span", "n", sub));
+    const up = el("a", "top-link", "top");
+    up.href = "#";
+    h2.appendChild(up);
+    sec.appendChild(h2);
+    sec.appendChild(el("div", "group-rule"));
+
+    g.leaves.forEach(leaf => {
+      const box = el("div", "leaf");
+      const h3 = el("h3");
+      h3.appendChild(document.createTextNode(leaf.name));
+      h3.appendChild(el("span", "count", num(leaf.n)));
+      if (leaf.range) {
+        h3.appendChild(el("span", "range",
+          leaf.range[0] === leaf.range[1]
+            ? "U+" + leaf.range[0]
+            : "U+" + leaf.range[0] + "–" + leaf.range[1]));
+      }
+      // Provenance is on the page because a family Justin ruled on and one this
+      // build guessed at must not look alike.
+      h3.appendChild(el("span", "badge " + leaf.provenance,
+        leaf.provenance === "rule" ? "proposed" : leaf.provenance));
+      if (leaf.unsure) h3.appendChild(el("span", "badge unsure", "unsure"));
+      if (leaf.disposition === "extras") h3.appendChild(el("span", "badge extras", "extras"));
+      box.appendChild(h3);
+
+      if (leaf.note) box.appendChild(el("p", "note", leaf.note));
+
+      const cells = el("div", "cells" + (leaf.disposition === "compress" ? " compressed" : ""));
+      leaf.cells.forEach((c, i) => {
+        if (i > 0 && leaf.disposition === "compress") {
+          cells.appendChild(el("span", "ellipsis", "…"));
+        }
+        const d = el("div", "cell", c.c);
+        d.title = "U+" + c.cp + "  " + c.name + "\n" + c.block + "  ·  " +
+                  c.gc + "  ·  EAW " + c.eaw;
+        cells.appendChild(d);
+      });
+      box.appendChild(cells);
+
+      if (leaf.shown < leaf.n) {
+        box.appendChild(el("p", "folded",
+          leaf.shown + " of " + num(leaf.n) + " shown — the family is enumerable, " +
+          "so its range and count describe the rest"));
+      }
+      sec.appendChild(box);
+    });
+    host.appendChild(sec);
+  });
+
+  // -- dropped, listed but not rendered: they are out of the inventory
+  const dz = document.getElementById("dropped");
+  if (D.dropped_groups.length) {
+    dz.appendChild(el("h2", null, "Dropped from the inventory"));
+    const ul = el("ul");
+    D.dropped_groups.forEach(d => {
+      const li = el("li");
+      li.appendChild(el("b", null, num(d.n)));
+      li.appendChild(document.createTextNode(" " + d.group + " — " + d.reason));
+      ul.appendChild(li);
+    });
+    dz.appendChild(ul);
+  }
+
+  // -- footer
+  const f = document.getElementById("footer");
+  f.appendChild(document.createTextNode(
+    "Generated by tools/gen_browse.py from data/config.json, data/glyphdata.json and " +
+    "data/curation.json. UCD " + D.provenance.ucd + ". Rulings recorded in " +
+    D.provenance.rulings_source + "."));
+  const m = D.provenance.mismatches || [];
+  if (m.length) {
+    const p = el("p", "warn", m.length + " count mismatch(es) against the rulings: " + m.join("; "));
+    f.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
