@@ -124,6 +124,52 @@ Some tofu remains regardless — Zanabazar Square is the visible case — becaus
 face covers those blocks. A coverage pass belongs with the vector-coverage work curation set
 13 parked, and this page is a good instrument for spotting where it is needed.
 
+## The info box
+
+Hovering or tapping a cell opens the glyph's info box. This is **not a second hover
+implementation**: it is `src/hover.js`, the one component roadmap set 8 defines, and only
+the skin lives in `browse.html`. So it opens on a delay, autocloses after a period outside,
+carries a close button, closes on Escape, opens on tap, and closes on a tap outside.
+
+It carries:
+
+- the glyph, large
+- `U+XXXX` and the official Unicode name
+- the **block identicon**, plus the block's display name and **both official aliases** —
+  the short form and the canonical long form. The short alias is there for propagation:
+  anyone using this learns that an official abbreviation already exists, so the tool
+  spreads the standard rather than only consuming it.
+- `General_Category`, `East_Asian_Width`, `Bidi_Class`. These are the two-letter property
+  classes `CLAUDE.md` rules out as table columns and explicitly allows in the info box.
+  East_Asian_Width earns its place here more than anywhere: it is the only width Unicode
+  itself specifies, and EAW uniformity is the hard constraint in the MarkRight case.
+- where the glyph sits — its set and leaf — and, if its family is compressed, that it is
+  one of N with the range, so a folded family is still navigable from any member.
+
+It deliberately carries **no advance, no ink extents and no supplying-font guess**. Those
+are the bench's answers and this page measures nothing; the box says so.
+
+The identicon hashes `block_canonical`, the official long alias in underscored form, never
+a display string. That is what makes the icon portable: any other tool hashing the same
+alias draws the same shape with nothing agreed between implementations. Padding is 0, per
+`docs/findings.md` 0.2 — the default 0.08 is what makes small icons indistinguishable, far
+more than the size does.
+
+**Block-derived leaves carry the identicon in their heading**, at 20px, because set 9 asks
+for it wherever a block appears so the association is reinforced rather than taught once.
+There are 92 such headings, and the icon in the heading is the same icon that appears in
+the info box of every glyph beneath it.
+
+## A limit worth knowing about, in dark mode
+
+The page follows the system colour scheme, and glyphs are drawn in the text colour. On a
+dark background **BLACK CIRCLE renders as a filled light disc and WHITE CIRCLE as an
+outline**, so filled-against-hollow survives but the ink words in the names stop matching
+what is on screen. Nothing is wrong with the rendering; it is what drawing monochrome
+glyphs in the foreground colour means. Forcing a permanently light cell background would
+fix the names and break the page's fit with the system, and that is Justin's call rather
+than one to make silently.
+
 ## Deliberately absent
 
 No controls, per set 14. The one navigation aid is an index of set names at the top, which

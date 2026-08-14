@@ -205,14 +205,19 @@ def make_leaf(name, recs, *, disposition, provenance, unsure=False, note=None,
 
 
 def cell(rec):
+    # block_canonical is the identicon's hash input, and roadmap set 8 is the reason it is
+    # carried rather than derived from the display name: the icon is portable only because
+    # every tool hashes the same official long alias.
     return {
         "cp": f"{rec['cp']:04X}",
         "c": chr(rec["cp"]),
         "name": rec["name"],
         "gc": rec["gc"],
         "eaw": rec["eaw"],
+        "bidi": rec.get("bidi", ""),
         "block": rec["block"],
         "block_short": rec.get("block_short", rec["block"]),
+        "block_canonical": rec.get("block_canonical", ""),
     }
 
 
@@ -224,7 +229,12 @@ def build(config, glyphdata, curation, warn):
         cp = int(g["cp"], 16)
         by_cp[cp] = {"cp": cp, "name": g["name"], "gc": g["gc"], "eaw": g["eaw"],
                      "bidi": g.get("bidi", ""), "block": g["block"],
-                     "block_short": g.get("block_short", g["block"])}
+                     "block_short": g.get("block_short", g["block"]),
+                     "block_canonical": g.get("block_canonical", "")}
+
+    # Display name -> the official aliases, so a glyph pulled in below gets the same
+    # canonical hash input as one that came through gen_data.py.
+    alias = {b["display"]: b for b in glyphdata["blocks"].values()}
 
     group_of = {}
     order = []
@@ -247,9 +257,13 @@ def build(config, glyphdata, curation, warn):
             except ValueError:
                 continue
             if cp not in by_cp:
+                blk = ucd_block(ch)
+                a = alias.get(blk, {})
                 by_cp[cp] = {"cp": cp, "name": name, "gc": u.category(ch),
                              "eaw": u.east_asian_width(ch), "bidi": u.bidirectional(ch),
-                             "block": ucd_block(ch), "block_short": ucd_block(ch)}
+                             "block": blk,
+                             "block_short": a.get("short", blk),
+                             "block_canonical": a.get("canonical", blk.replace(" ", "_"))}
             group_of[cp] = target
 
     # -- regroups. docs/curation.md records these as defects found while looking: a shape
@@ -336,10 +350,16 @@ def build(config, glyphdata, curation, warn):
         if unplaced:
             named, rest = split_by_block(unplaced)
             for blk, rs in named:
-                leaves.append(make_leaf(blk.lower(), rs,
-                                        disposition="keep", provenance="rule",
-                                        note="grouped by block only - no shape rule and "
-                                             "no name run reached these"))
+                leaf = make_leaf(blk.lower(), rs,
+                                 disposition="keep", provenance="rule",
+                                 note="grouped by block only - no shape rule and "
+                                      "no name run reached these")
+                # Set 9: the identicon must appear everywhere a block appears, so the
+                # association gets reinforced rather than taught once. A leaf that *is* a
+                # block is one of those places.
+                leaf["block_canonical"] = rs[0].get("block_canonical", "")
+                leaf["block_short"] = rs[0].get("block_short", "")
+                leaves.append(leaf)
             if rest:
                 leaves.append(make_leaf("unplaced", rest,
                                         disposition="keep", provenance="rule"))

@@ -121,6 +121,45 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--edge);
          color: var(--dimmer); font-size: .75rem; }
 footer code { font-family: ui-monospace, monospace; }
 .warn { color: var(--unsure); }
+
+/* ---------------------------------------------------------------- the hover contract
+   ROADMAP set 8 defines `hover` as a term and src/hover.js is the one component that
+   implements it. Only the skin lives here. */
+.gh-hover {
+  position: absolute; z-index: 100; max-width: 25rem;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--edge); border-radius: 8px;
+  padding: .6rem .7rem .5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35); font-size: 12px;
+}
+.gh-hover-close {
+  position: absolute; top: .2rem; right: .35rem; border: 0; background: none;
+  color: var(--dim); font-size: 16px; cursor: pointer; line-height: 1;
+}
+.gh-hover-close:hover { color: var(--ink); }
+.hi-glyph {
+  font-size: 52px; line-height: 1.15; text-align: center; margin-bottom: .2rem;
+  font-family: "Noto Sans Symbols 2", "Noto Sans Symbols", "Noto Sans Math",
+               "Noto Music", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+}
+.hi-title { font-size: 12px; margin: .1rem 1rem .5rem 0; }
+.hi-title code { font-family: ui-monospace, monospace; color: var(--accent); }
+.hi-block { display: flex; gap: .45rem; align-items: center; margin-bottom: .45rem; }
+.hi-block code { font-family: ui-monospace, monospace; color: var(--dim); font-size: 10.5px; }
+.hi-block svg { flex: none; border-radius: 3px; }
+.hi-table { border-collapse: collapse; width: 100%; }
+.hi-table td { padding: .12rem .35rem; border-bottom: 1px solid var(--edge); font-size: 11.5px; }
+.hi-table td:first-child { color: var(--dim); white-space: nowrap; }
+.hi-where {
+  margin-top: .45rem; border-top: 1px solid var(--edge); padding-top: .35rem;
+  color: var(--dim); font-size: 11px;
+}
+.hi-where b { color: var(--ink); font-weight: 600; }
+.caveat { color: var(--dimmer); font-size: 10.5px; font-style: italic; margin-top: .3rem; }
+
+h3 .ident { display: inline-flex; vertical-align: -4px; }
+h3 .ident svg { border-radius: 3px; }
+.cell[data-hover]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 </style>
 </head>
 <body>
@@ -143,6 +182,8 @@ footer code { font-family: ui-monospace, monospace; }
 <footer id="footer"></footer>
 </main>
 
+<script src="vendor/jdenticon.min.js"></script>
+<script src="src/hover.js"></script>
 <script src="data/browse.js"></script>
 <script>
 (function () {
@@ -155,6 +196,52 @@ footer code { font-family: ui-monospace, monospace; }
   };
   const slug = s => s.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
   const num = n => n.toLocaleString("en-GB");
+  const esc = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  // The hash input is the official canonical block alias, never the display string.
+  // That is what makes the icon portable: any tool hashing the same alias draws the same
+  // shape, with nothing agreed between implementations. ROADMAP set 8.
+  const identCache = new Map();
+  function identicon(canonical, size) {
+    if (!canonical) return "";
+    const key = canonical + "@" + size;
+    if (!identCache.has(key)) {
+      // padding 0 — docs/findings.md 0.2 found the default 0.08 is what makes icons
+      // indistinguishable at small sizes, far more than the size itself does.
+      identCache.set(key, jdenticon.toSvg(canonical, size, { padding: 0 }));
+    }
+    return identCache.get(key);
+  }
+
+  // The info box. No advance, no spacing, no supplying-font guess — this page measures
+  // nothing, and those belong to the bench.
+  function infoBox(c, leaf, group) {
+    let where = "<b>" + esc(group.name) + "</b> → " + esc(leaf.name);
+    if (leaf.disposition === "compress") {
+      where += "<br>one of " + num(leaf.n) + " in a family folded to " +
+               leaf.shown + ", U+" + leaf.range[0] + "–" + leaf.range[1];
+    }
+    return '<div class="hi-glyph">' + esc(c.c) + "</div>" +
+      '<div class="hi-title"><code>U+' + esc(c.cp) + "</code> · " +
+        esc(c.name || "unnamed") + "</div>" +
+      '<div class="hi-block">' + identicon(c.block_canonical, 24) +
+        "<div><b>" + esc(c.block) + "</b><br>" +
+        // Both aliases, for propagation: anyone using this learns that an official
+        // abbreviation already exists. The tool spreads the standard rather than only
+        // consuming it. ROADMAP set 9.
+        "<code>" + esc(c.block_short) + "</code> · <code>" +
+        esc(c.block_canonical) + "</code></div></div>" +
+      '<table class="hi-table">' +
+        "<tr><td>General_Category</td><td>" + esc(c.gc || "—") + "</td></tr>" +
+        "<tr><td>East_Asian_Width</td><td>" + esc(c.eaw || "—") + "</td></tr>" +
+        "<tr><td>Bidi_Class</td><td>" + esc(c.bidi || "—") + "</td></tr>" +
+      "</table>" +
+      '<div class="hi-where">' + where + "</div>" +
+      '<div class="caveat">Advance and itemisation are the bench\'s to answer, ' +
+      "not this page's.</div>";
+  }
 
   // -- totals
   const t = D.provenance.totals;
@@ -197,6 +284,14 @@ footer code { font-family: ui-monospace, monospace; }
     g.leaves.forEach(leaf => {
       const box = el("div", "leaf");
       const h3 = el("h3");
+      // A leaf that is a block carries the block's identicon: set 9 asks for it wherever
+      // a block appears, so the association is reinforced rather than taught once.
+      if (leaf.block_canonical) {
+        const ic = el("span", "ident");
+        ic.innerHTML = identicon(leaf.block_canonical, 20);
+        ic.title = leaf.block_short + " · " + leaf.block_canonical;
+        h3.appendChild(ic);
+      }
       h3.appendChild(document.createTextNode(leaf.name));
       h3.appendChild(el("span", "count", num(leaf.n)));
       if (leaf.range) {
@@ -221,8 +316,9 @@ footer code { font-family: ui-monospace, monospace; }
           cells.appendChild(el("span", "ellipsis", "…"));
         }
         const d = el("div", "cell", c.c);
-        d.title = "U+" + c.cp + "  " + c.name + "\n" + c.block + "  ·  " +
-                  c.gc + "  ·  EAW " + c.eaw;
+        // No title attribute: a native tooltip racing the hover panel is worse than
+        // either alone. src/hover.js is the one component, per the set 8 contract.
+        GH.hover.attach(d, () => infoBox(c, leaf, g), c.cp);
         cells.appendChild(d);
       });
       box.appendChild(cells);
