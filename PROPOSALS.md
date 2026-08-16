@@ -163,3 +163,43 @@ Two things inside it may not belong in that category at all, and would need lift
   structural marker.
 - **Khmer Symbols**, 32 — two parallel 16-member lunar-date runs. Enumerable, so compressible
   rather than sortable.
+
+## A "computing load" annotation, to sit beside the UCD's prose-load properties
+
+- Status: unassessed
+- Raised: 2026-08-16
+
+Set 20 established that the UCD records which characters already carry a **prose** role —
+`Sentence_Terminal`, `Terminal_Punctuation`, `Quotation_Mark`, `Dash`, bidi bracket type —
+and that those properties are Unicode's machine-readable trace of punctuation as a
+pre-computer encoding standard. They are filters on the browse page now.
+
+It also established that this is only half the picture. `/` carries no prose role by the
+UCD and is nonetheless entirely unavailable, because computing claimed it for paths, URLs,
+protocols and regex. The same is true of all seventeen ASCII characters with no recorded
+prose role. **The property that decides availability for a structural marker is therefore
+one the UCD does not publish.**
+
+The proposal is a small authored table — codepoint to a short "what already claims this"
+note — covering at least the 32 printable non-alphanumeric ASCII characters, and shown in
+the info box beside the UCD properties. It would be Claude-authored data of the same
+standing as `data/property-notes.json`, and clearly marked so, because unlike everything
+else the filters draw on there is no published source to read it from.
+
+Three reasons to be wary of it, which is why this is a proposal and not a plan:
+
+- **It is opinion wearing the clothes of data.** Every other value on the page is read from
+  a published file. This one would be asserted, and it would sit in the same info box,
+  which is exactly the confusion `docs/curation.md` exists to prevent elsewhere.
+- **It dates.** "`@` is email and decorators" is a 2026 statement. The UCD properties do not
+  rot in this way.
+- **It is unbounded.** ASCII is 32 characters and tractable. The inventory is 6,018, and the
+  same question applies to every one of them — `⟨` and `⟩` are claimed by several notations,
+  `†` by footnotes, `¶` by paragraph marks. Scoping it to ASCII keeps it honest but leaves
+  it answering only the legacy case rather than the one the tool is pointed at.
+
+A narrower version that avoids all three: annotate nothing, and instead note in the info box
+where a glyph is `Pattern_Syntax`, which is the standard's own statement that a character is
+*available* to be given syntactic meaning. That is published, it does not date, and it
+already covers the whole inventory — 2,420 of the 4,832 drawn cells. It answers a weaker
+question than the one above, but it answers it from a source.

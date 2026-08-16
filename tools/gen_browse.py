@@ -34,8 +34,12 @@ try:
 except ImportError:
     sys.exit("fontTools is missing.  pip install fonttools")
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ucd_props  # noqa: E402  - needs the path above
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
+NOTES = "property-notes.json"
 
 # A run of consecutive codepoints whose names share a word-boundary prefix this long is
 # taken to be one family. Both figures were set by looking at what they produce on
@@ -204,13 +208,21 @@ def make_leaf(name, recs, *, disposition, provenance, unsure=False, note=None,
     return leaf
 
 
+# The UCD property reader, and the bit each binary property occupies in a cell's mask.
+# Module-level because cell() is three calls deep and threading a context object through
+# make_leaf would obscure more than it explains. Set once, in main(), before build() runs.
+PROPS = None
+BITS = {}
+
+
 def cell(rec):
     # block_canonical is the identicon's hash input, and roadmap set 8 is the reason it is
     # carried rather than derived from the display name: the icon is portable only because
     # every tool hashes the same official long alias.
-    return {
-        "cp": f"{rec['cp']:04X}",
-        "c": chr(rec["cp"]),
+    cp = rec["cp"]
+    out = {
+        "cp": f"{cp:04X}",
+        "c": chr(cp),
         "name": rec["name"],
         "gc": rec["gc"],
         "eaw": rec["eaw"],
@@ -219,6 +231,42 @@ def cell(rec):
         "block_short": rec.get("block_short", rec["block"]),
         "block_canonical": rec.get("block_canonical", ""),
     }
+    if PROPS is None:
+        return out
+
+    # Enumerated properties. A cell that holds the default does not store the field at
+    # all - the page supplies the default when it filters. gc, eaw and bidi are written
+    # unconditionally above because the info box reads them for every cell.
+    vals = PROPS.enum_values(cp)
+    for key, _prop, _section, default in ucd_props.ENUMS:
+        if key in ("gc", "eaw", "bidi"):
+            continue
+        v = vals.get(key)
+        if key in ucd_props.SET_VALUED:
+            if v and v != [default]:
+                out[key] = v
+        elif v is not None and v != default:
+            out[key] = v
+
+    # Binary properties as one bitmask, hex. Fifty-one of the seventy hold somewhere on
+    # this page, and a field each would cost more than the glyph data itself.
+    mask = 0
+    for name in PROPS.binary_values(cp):
+        bit = BITS.get(name)
+        if bit is not None:
+            mask |= 1 << bit
+    if mask:
+        out["b"] = f"{mask:x}"
+
+    # Script_Extensions only where it says something Script does not.
+    scx = PROPS.scx(cp)
+    if scx != [vals["sc"]]:
+        out["scx"] = scx
+    # A mapping rather than a class, so not filterable - but the info box shows it.
+    mirror = PROPS.mirroring_glyph(cp)
+    if mirror:
+        out["bmg"] = mirror
+    return out
 
 
 # ---------------------------------------------------------------- the pass
@@ -385,6 +433,157 @@ def check(warn, what, got, expect):
         warn(f"{what}: expected {expect}, got {got}")
 
 
+# ---------------------------------------------------------------- filter definitions
+
+def all_cells(groups):
+    for g in groups:
+        for leaf in g["leaves"]:
+            for c in leaf["cells"]:
+                yield c
+
+
+def version_key(v):
+    """Sort "1.1", "3.2", "10.0" as versions rather than as strings."""
+    try:
+        return [int(x) for x in v.split(".")]
+    except ValueError:
+        return [999]
+
+
+def build_filters(groups, props, notes, warn):
+    """Every filter the page offers, with the value vocabulary actually drawn.
+
+    Counts are of **cells on the page**, not of glyphs kept: a compressed family
+    contributes its exemplars and not its members. That is what the filter acts on, so it
+    is what the dropdown must say.
+
+    Nothing here invents a name or a grouping. Value labels come from the vendored
+    PropertyValueAliases file, property labels from PropertyAliases, script names from
+    fontTools' ISO 15924 data, and the script grouping from CLDR's published UAX #31
+    identifier usage. Only the prose in data/property-notes.json is authored.
+    """
+    cells = list(all_cells(groups))
+    total = len(cells)
+    enum_notes = notes.get("enums", {})
+    bin_notes = notes.get("binary", {})
+    out = []
+
+    for key, prop, section, default in ucd_props.ENUMS:
+        # A set-valued property counts each member separately: a codepoint restricted as
+        # both Technical and Limited_Use belongs under both.
+        set_valued = key in ucd_props.SET_VALUED
+        counts = {}
+        for c in cells:
+            v = c.get(key, default)
+            for one in (v if set_valued and isinstance(v, list) else [v]):
+                counts[one] = counts.get(one, 0) + 1
+        counts.pop(None, None)
+        note = enum_notes.get(key, {})
+        # Loose-matched, because the value as a data file writes it and the value as prose
+        # names it need not agree on case: unicodedata reports the decomposition tag as
+        # "circle" where the property notes call it "Circle".
+        vnotes = {ucd_props.loose(k): v for k, v in note.get("values", {}).items()}
+        vnote = lambda v: vnotes.get(ucd_props.loose(v), "")  # noqa: E731
+        entry = {"key": key, "prop": prop, "section": section,
+                 "kind": "set" if set_valued else "enum",
+                 "name": props.long_property(prop) if prop else ucd_props.LOCAL_NAMES[key],
+                 "gloss": note.get("gloss", ""), "note": note.get("note", ""),
+                 "default": default}
+
+        if key == "age":
+            # "Not after" is a threshold, so each option carries the running total rather
+            # than its own count: what the reader wants is how much of the page survives.
+            entry["kind"] = "age"
+            run = 0
+            values = []
+            for v in sorted(counts, key=version_key):
+                run += counts[v]
+                values.append({"v": v, "label": v, "n": counts[v], "cum": run})
+            entry["values"] = values
+        elif key == "sc":
+            entry["kind"] = "script"
+            entry["groups"] = script_groups(counts, props, vnote)
+            entry["scx_note"] = ("Script_Extensions widens the match to every script a "
+                                 "character is used in rather than the one it is filed "
+                                 "under. It differs from Script for "
+                                 f"{sum(1 for c in cells if 'scx' in c)} cells here.")
+        else:
+            values = []
+            for v in sorted(counts):
+                # UTS #39's two properties are not in the UCD's alias file at all, so the
+                # published value name is the value itself. Not a resolution failure.
+                label = props.long_value(prop, v) if prop else v
+                if label is None:
+                    warn(f"{entry['name']}: no alias for value {v!r}")
+                    label = v
+                values.append({"v": v, "label": label, "n": counts[v],
+                               "note": vnote(v)})
+            entry["values"] = values
+            # One value across the whole page is not a filter, for the same reason a
+            # constant binary is not. Drawn anyway, disabled, with the count as the reason.
+            if not values:
+                entry["inert"] = "no cell on this page has a value"
+            elif len(values) == 1:
+                entry["inert"] = ("every cell on this page has the same value, "
+                                  + values[0]["v"])
+        out.append(entry)
+
+    # -- binary properties, by bit
+    for name in props.binary_names:
+        bit = BITS[name]
+        n = sum(1 for c in cells if int(c.get("b", "0"), 16) >> bit & 1)
+        section = "other"
+        for sec, members in ucd_props.BINARY_SECTIONS.items():
+            if name in members:
+                section = sec
+                break
+        entry = {"key": name, "section": section, "kind": "binary", "bit": bit,
+                 "name": name, "n": n, "gloss": bin_notes.get(name, "")}
+        # An inert control is still worth drawing: that a property holds for nothing, or
+        # for everything, is a finding about the inventory rather than a reason to hide it.
+        if n == 0:
+            entry["inert"] = "no cell on this page carries it"
+        elif n == total:
+            entry["inert"] = "every cell on this page carries it"
+        out.append(entry)
+
+    return out
+
+
+def script_groups(counts, props, vnote):
+    """Scripts present, collapsed by the UAX #31 identifier usage CLDR publishes.
+
+    Justin asked for "ancient / rare / common or something???". This is that question's
+    published answer, so the grouping is read rather than invented - see ucd_props.
+    Common and Inherited are lifted out of their usage bucket because they are not a
+    script anyone writes in, and because Common alone is four cells in five.
+    """
+    order = ["Zyyy", "Zinh", "RECOMMENDED", "LIMITED_USE", "EXCLUSION", "UNKNOWN"]
+    labels = {"Zyyy": "Common - no single script",
+              "Zinh": "Inherited - takes the script of its base",
+              "RECOMMENDED": "Widely used modern scripts",
+              "LIMITED_USE": "Limited modern use",
+              "EXCLUSION": "Historic and obsolete scripts",
+              "UNKNOWN": "Unclassified"}
+    buckets = {k: [] for k in order}
+    for code, n in counts.items():
+        bucket = code if code in ("Zyyy", "Zinh") else props.script_usage(code)
+        buckets.setdefault(bucket, []).append((code, n))
+
+    out = []
+    for key in order:
+        members = buckets.get(key) or []
+        if not members:
+            continue
+        values = [{"v": code, "label": ucd_props.ucd_script_name(code), "n": n}
+                  for code, n in sorted(members, key=lambda kv: (-kv[1], kv[0]))]
+        out.append({"g": key, "label": labels[key],
+                    "n": sum(n for _, n in members),
+                    "note": vnote(key if key.startswith("Z") else "@" + key),
+                    "values": values})
+    return out
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -397,9 +596,22 @@ def main():
             return json.load(fh)
 
     config, glyphdata, curation = load("config.json"), load("glyphdata.json"), load("curation.json")
+    notes = load(NOTES)
+
+    # Set before build(), because cell() reads them for every glyph it writes. Bits are
+    # assigned in sorted order so a regeneration does not silently renumber the mask.
+    global PROPS, BITS
+    PROPS = ucd_props.Properties()
+    BITS = {name: i for i, name in enumerate(sorted(PROPS.binary_names))}
 
     warnings = []
     groups, dropped, leaked = build(config, glyphdata, curation, warnings.append)
+    # Kept apart from `warnings`: those are count mismatches against docs/curation.md and
+    # the page footer says so. An unresolved alias is a different complaint.
+    alias_warnings = []
+    props = build_filters(groups, PROPS, notes, alias_warnings.append)
+
+    missing_notes = [p["key"] for p in props if not p.get("gloss")]
 
     total = sum(g["n"] for g in groups) + sum(d["n"] for d in dropped) + leaked
     kept = sum(g["kept"] for g in groups)
@@ -416,9 +628,35 @@ def main():
         for d in dropped:
             print(f"  {d['n']:>6}  {d['group']} - {d['reason']}")
 
+    enums = [p for p in props if p["kind"] != "binary"]
+    bins = [p for p in props if p["kind"] == "binary"]
+    print(f"\n{len(enums)} enumerated filters, over {shown} cells drawn:")
+    for p in enums:
+        if p["kind"] == "script":
+            print(f"  {p['name']:24}"
+                  + ", ".join(f"{g['label'].split(' -')[0]}:{g['n']}" for g in p["groups"]))
+        else:
+            vs = p["values"]
+            print(f"  {p['name']:24}{len(vs):>3}  "
+                  + ", ".join(f"{v['v']}:{v['n']}" for v in vs[:10])
+                  + (" ..." if len(vs) > 10 else ""))
+    live = [p for p in bins if not p.get("inert")]
+    inert = [p for p in bins if p.get("inert")]
+    print(f"\n{len(bins)} binary filters: {len(live)} live, {len(inert)} inert")
+    print("  live: " + ", ".join(f"{p['key']}:{p['n']}"
+                                 for p in sorted(live, key=lambda p: -p["n"])[:12]) + " ...")
+    print("  inert: " + ", ".join(p["key"] for p in inert))
+    if missing_notes:
+        print(f"\n{len(missing_notes)} filters with no info text in data/{NOTES}:")
+        print("  " + ", ".join(missing_notes))
+
     if warnings:
         print(f"\n{len(warnings)} count mismatches against docs/curation.md:")
         for w in warnings:
+            print(f"  ! {w}")
+    if alias_warnings:
+        print(f"\n{len(alias_warnings)} unresolved property value aliases:")
+        for w in alias_warnings:
             print(f"  ! {w}")
 
     if args.report:
@@ -430,9 +668,19 @@ def main():
             "from": ["data/config.json", "data/glyphdata.json", "data/curation.json"],
             "rulings_source": curation.get("_source", "docs/curation.md"),
             "ucd": glyphdata["provenance"]["ucd_unicodedata"],
+            "ucd_properties": ucd_props.UCD_VERSION,
+            "property_files": "data/ucd-16.0.0/, data/cldr/scriptMetadata.txt",
+            "info_text": f"data/{NOTES}, authored",
             "totals": {"inventory": total, "kept": kept, "cells": shown,
                        "strays_removed": leaked},
             "mismatches": warnings,
+        },
+        "filters": {
+            "sections": [{"key": k, "name": n, "note": d}
+                         for k, n, d in ucd_props.SECTIONS],
+            "props": props,
+            "excluded": [{"heading": h, "names": ns, "why": w}
+                         for h, ns, w in ucd_props.EXCLUDED],
         },
         "dropped_groups": dropped,
         "groups": groups,

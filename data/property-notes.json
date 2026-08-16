@@ -1,0 +1,334 @@
+{
+  "_note": "Authored prose, first pass by Claude. Justin edits. This is the text behind every filter's info button on browse.html: what the property means, and where the value set is small and finite, what each value means. Nothing here is derived - the counts and the value lists come from the UCD files, and only the explanation is written. Where a note characterises rendering behaviour rather than restating the UCD definition, it says so.",
+
+  "enums": {
+    "age": {
+      "gloss": "The Unicode version in which this codepoint was assigned a character.",
+      "note": "Filtered as 'not after', because that is the direction that matters: a font built in 2012 cannot contain a character added in 2020. Age is the single strongest predictor of whether a glyph will be present at all, which makes it the first filter to reach for when hunting something that renders consistently. It says nothing about whether a font that could have the glyph does have it.",
+      "values": {}
+    },
+    "sc": {
+      "gloss": "The writing system the codepoint belongs to, as an ISO 15924 script code.",
+      "note": "Grouped by the UAX #31 identifier usage that CLDR publishes in scriptMetadata.txt, rather than by a grouping invented here. That published classification is what 'common, rare, ancient' actually resolves to. Four cells in five on this page are Common - they belong to no single script - so the grouping exists mainly to make the remaining fifth navigable.",
+      "values": {
+        "Zyyy": "Common. Belongs to no one script: the punctuation, symbols, digits and marks shared across writing systems. Most of this page.",
+        "Zinh": "Inherited. Takes its script from the character it combines with - most combining marks.",
+        "@RECOMMENDED": "Widely used modern scripts. UAX #31 recommends them for identifiers, and font coverage is correspondingly broad.",
+        "@LIMITED_USE": "In modern use, but by small communities. Coverage outside specialist fonts is patchy.",
+        "@EXCLUSION": "Historic and obsolete scripts, kept for scholarly use. UAX #31 excludes them from identifiers; expect coverage only in dedicated fonts.",
+        "@UNKNOWN": "Not classified by CLDR."
+      }
+    },
+    "gc": {
+      "gloss": "General_Category - the broadest classification the UCD makes of a codepoint.",
+      "note": "Two letters: the first is the major class (Letter, Mark, Number, Punctuation, Symbol, Separator, Other), the second the subclass. Every codepoint has exactly one.",
+      "values": {
+        "Ll": "Lowercase letter.",
+        "Lm": "Modifier letter - a letter-like character that modifies the one before it, such as a raised ring or a tone letter.",
+        "Lu": "Uppercase letter.",
+        "Nd": "Decimal digit - a digit that takes part in ordinary positional notation.",
+        "Nl": "Letter-like number, such as a Roman numeral or a counting rod.",
+        "No": "Other number - fractions, circled and superscript digits, numerals that are not decimal digits.",
+        "Pc": "Connector punctuation - joins other characters, such as the low line.",
+        "Pd": "Dash punctuation - hyphens and dashes of every length.",
+        "Pe": "Closing bracket of a pair.",
+        "Pf": "Final quotation mark - the closing half of a directional quote pair.",
+        "Pi": "Initial quotation mark - the opening half of a directional quote pair.",
+        "Po": "Other punctuation - everything punctuation-like that is not a bracket, dash or quote.",
+        "Ps": "Opening bracket of a pair.",
+        "Sc": "Currency symbol.",
+        "Sk": "Modifier symbol - a free-standing accent or similar, spacing rather than combining.",
+        "Sm": "Mathematical symbol - operators, relations, arrows used mathematically.",
+        "So": "Other symbol - the large residual class holding most pictographs, geometric shapes and dingbats."
+      }
+    },
+    "eaw": {
+      "gloss": "East_Asian_Width - how much horizontal room a codepoint is expected to take in a legacy East Asian context.",
+      "note": "The only width Unicode itself specifies. Advance width lives in the font, not in the UCD, so this is the property a terminal uses to decide how many cells a glyph occupies - and the one that has to be uniform across a candidate set if a marker is to hold its column. Ambiguous is the trap: its width depends on the context the terminal thinks it is in, so the same glyph occupies one cell for one user and two for another.",
+      "values": {
+        "A": "Ambiguous. One cell or two depending on context and terminal configuration. The value most likely to break a column.",
+        "F": "Fullwidth. Two cells; a compatibility variant of a narrow character.",
+        "H": "Halfwidth. One cell; a compatibility variant of a wide character.",
+        "N": "Neutral. Not used in legacy East Asian encodings; conventionally one cell.",
+        "Na": "Narrow. One cell, with an explicit wide counterpart elsewhere.",
+        "W": "Wide. Two cells."
+      }
+    },
+    "bidi": {
+      "gloss": "Bidi_Class - the role this codepoint plays in the bidirectional algorithm.",
+      "note": "Determines how the character reorders when mixed with right-to-left text. A neutral character between two runs takes its direction from its surroundings, which is a way a marker glyph can move without the font changing.",
+      "values": {
+        "AL": "Arabic letter. Strongly right-to-left.",
+        "AN": "Arabic-Indic number.",
+        "CS": "Common number separator, such as the comma and full stop between digits.",
+        "EN": "European number - ordinary digits.",
+        "ES": "European number separator - plus and minus between digits.",
+        "ET": "European number terminator - currency signs, per cent, degree.",
+        "L": "Strongly left-to-right.",
+        "ON": "Other neutral. Takes direction from its surroundings. Most symbols and punctuation are here.",
+        "R": "Strongly right-to-left, other than Arabic."
+      }
+    },
+    "lb": {
+      "gloss": "Line_Break - how a line-breaking algorithm may break around this codepoint.",
+      "note": "Deferred earlier in this project as too complex for a table column; offered here as a filter because the value set turned out to be one of the better-spread on the page. It describes where text may wrap, not how the glyph is drawn.",
+      "values": {
+        "AI": "Ambiguous - alphabetic or ideographic depending on context.",
+        "AL": "Ordinary alphabetic character. The default for most symbols here.",
+        "B2": "May break either side, and binds the two lines together - the em dash.",
+        "BA": "May break after.",
+        "BB": "May break before.",
+        "CB": "Contingent break - the surrounding context decides, as for an inline object.",
+        "CL": "Closing punctuation; no break before it.",
+        "CP": "Closing parenthesis, treated slightly differently from other closers.",
+        "EB": "Emoji base - may take a skin-tone modifier.",
+        "EX": "Exclamation or question mark; no break before.",
+        "GL": "Non-breaking glue - forbids a break on either side.",
+        "HY": "The hyphen-minus specifically.",
+        "ID": "Ideographic. May break on either side, which is how CJK text wraps.",
+        "IN": "Inseparable - a run such as an ellipsis that must not be split.",
+        "IS": "Infix numeric separator, such as the colon or comma inside a number.",
+        "NS": "Non-starter - may not begin a line.",
+        "NU": "Numeric.",
+        "OP": "Opening punctuation; no break after it.",
+        "PO": "Postfix numeric, such as a per-cent sign after a number.",
+        "PR": "Prefix numeric, such as a currency sign before a number.",
+        "QU": "Quotation mark, ambiguous as to which end it is.",
+        "RI": "Regional indicator - the letters that pair into flags.",
+        "SA": "Complex context - a South East Asian script needing dictionary line-breaking.",
+        "SY": "Symbol allowing a break after, chiefly the solidus."
+      }
+    },
+    "bpt": {
+      "gloss": "Bidi_Paired_Bracket_Type - whether this codepoint is one half of a bracket pair the bidi algorithm should keep matched.",
+      "note": "Deferred earlier in this project alongside Line_Break, and offered here on the same reasoning. A narrow property: only 118 cells on this page are either half of a pair. The partner codepoint itself is a mapping rather than a class, so it is not filterable and appears in the info box instead.",
+      "values": {
+        "n": "Not a paired bracket.",
+        "o": "Opening half of a bidi bracket pair.",
+        "c": "Closing half of a bidi bracket pair."
+      }
+    },
+    "vo": {
+      "gloss": "Vertical_Orientation - how the glyph is oriented when the text is set vertically.",
+      "note": "UAX #50. Only bites in vertical CJK layout, but it is not marginal on this inventory: 1,922 cells are upright against 2,771 rotated. A candidate set mixing the two would look coherent horizontally and broken the moment it was set vertically, which is the kind of failure that only shows up in someone else's document.",
+      "values": {
+        "U": "Upright. Drawn as-is in vertical text.",
+        "R": "Rotated 90° clockwise in vertical text. The default for most characters.",
+        "Tu": "Transformed to an upright variant - a different glyph, not a rotation.",
+        "Tr": "Transformed to a rotated variant - a different glyph, then rotated."
+      }
+    },
+    "dt": {
+      "gloss": "Decomposition_Type - what kind of decomposition the codepoint has, if any.",
+      "note": "More useful than the mapping itself, because the tag says why the character is unstable. Sup is what folds an ordinal away under NFKC; Enc and Sqr would fold an enclosed or squared shape; Wide and Nar are the fullwidth and halfwidth compatibility forms. Canonical decomposition is a different matter - it round-trips, so it is not a hazard in the same way.",
+      "values": {
+        "None": "No decomposition. The codepoint stands on its own under every normalisation form.",
+        "Canonical": "Canonically equivalent to a sequence. Round-trips under NFC, so not a compatibility hazard.",
+        "Compat": "A compatibility variant with no more specific tag.",
+        "Circle": "An enclosed form - a character inside a circle.",
+        "Square": "A squared form, typically a CJK abbreviation set in one cell.",
+        "Super": "A superscript form. This is what makes an ordinal fold away under NFKC.",
+        "Sub": "A subscript form.",
+        "Fraction": "A vulgar fraction.",
+        "Wide": "A fullwidth compatibility variant.",
+        "Narrow": "A halfwidth compatibility variant.",
+        "Small": "A small form variant, from the CJK small-form block.",
+        "Vertical": "A glyph variant used in vertical text.",
+        "Font": "A font variant - the styled mathematical alphanumerics are here.",
+        "NoBreak": "A non-breaking variant of another character.",
+        "Initial": "The initial contextual form of an Arabic letter.",
+        "Medial": "The medial contextual form of an Arabic letter.",
+        "Final": "The final contextual form of an Arabic letter.",
+        "Isolated": "The isolated contextual form of an Arabic letter."
+      }
+    },
+    "ccc": {
+      "gloss": "Canonical_Combining_Class - the reordering weight a combining mark carries during normalisation.",
+      "note": "Zero for anything that is not a combining mark, which on this page is very nearly everything. Worth having as an assertion rather than a sift: a non-zero value would mean the character reorders under normalisation, which for a structural marker is disqualifying.",
+      "values": {
+        "0": "Not reordered. The character is not a combining mark, or is one that keeps its place."
+      }
+    },
+    "idst": {
+      "gloss": "Identifier_Status - UTS #39's verdict on whether the codepoint is safe in a security-sensitive identifier.",
+      "note": "Not a UCD property; it comes from Unicode's security mechanisms, vendored separately. Almost every symbol is Restricted, which is expected rather than alarming - these are not characters anyone should be writing identifiers with. Its use here is as a cross-check that a candidate is not secretly a letter.",
+      "values": {
+        "Allowed": "Permitted in identifiers under UTS #39.",
+        "Restricted": "Not permitted. The reason is in Identifier_Type."
+      }
+    },
+    "idt": {
+      "gloss": "Identifier_Type - UTS #39's reason for a codepoint's identifier status. A codepoint may carry more than one.",
+      "note": "The more interesting half of the pair, because the reasons are quiet warnings about a character's standing that no other property surfaces. Technical in particular flags characters that exist for legacy systems rather than for text. Set-valued, so the filter asks whether a codepoint carries a reason, not whether that is its only one.",
+      "values": {
+        "Not_Character": "Unassigned, or not a character at all.",
+        "Not_XID": "Simply not identifier-legal; the ordinary case for a symbol.",
+        "Not_NFKC": "Excluded because it does not survive compatibility normalisation.",
+        "Recommended": "Positively recommended for identifiers.",
+        "Inclusion": "Included by explicit exception.",
+        "Technical": "Exists for legacy or specialised technical use rather than for running text. Worth avoiding in a format meant to last.",
+        "Obsolete": "No longer in current use.",
+        "Deprecated": "Its use is discouraged by the standard.",
+        "Uncommon_Use": "In use, but rarely.",
+        "Limited_Use": "Used by a small community.",
+        "Exclusion": "From a historic or obsolete script.",
+        "Default_Ignorable": "Renders as nothing when unsupported."
+      }
+    },
+    "nt": {
+      "gloss": "Numeric_Type - whether the codepoint has a numeric value, and of what kind.",
+      "values": {
+        "None": "No numeric value.",
+        "Decimal": "A digit usable in ordinary positional decimal notation.",
+        "Digit": "Digit-like but not usable positionally - superscripts, circled digits.",
+        "Numeric": "Has a numeric value that is not a plain digit: fractions, Roman numerals, counting rods."
+      }
+    },
+    "gcb": {
+      "gloss": "Grapheme_Cluster_Break - the codepoint's role in finding user-perceived character boundaries.",
+      "note": "Nearly constant across this page: 4,830 of 4,832 cells are Other. That is itself the finding - the inventory is almost entirely made of standalone characters that form a cluster on their own, which is what you would want of a marker.",
+      "values": {
+        "Other": "Forms a grapheme cluster on its own.",
+        "Regional_Indicator": "One of the 26 letters that pair to make a flag; two of them join into one cluster."
+      }
+    },
+    "wb": {
+      "gloss": "Word_Break - the codepoint's role in finding word boundaries.",
+      "note": "Decides where a double-click selects to, and where a word-wise cursor movement stops.",
+      "values": {
+        "Other": "Not part of a word; a boundary falls on both sides.",
+        "ALetter": "Behaves as a letter for word-boundary purposes.",
+        "Double_Quote": "The straight double quote, which has its own rule.",
+        "ExtendNumLet": "Extends a word or number across itself, as the low line does.",
+        "Katakana": "Katakana, which forms words without spaces.",
+        "MidLetter": "May appear inside a word between letters, such as the apostrophe.",
+        "MidNum": "May appear inside a number between digits, such as the comma.",
+        "MidNumLet": "May appear inside either a word or a number, such as the full stop.",
+        "Numeric": "Behaves as a digit for word-boundary purposes.",
+        "Regional_Indicator": "One of the flag-forming letters.",
+        "Single_Quote": "The straight single quote, which has its own rule."
+      }
+    },
+    "sb": {
+      "gloss": "Sentence_Break - the codepoint's role in finding sentence boundaries.",
+      "values": {
+        "Other": "Plays no part in sentence boundaries.",
+        "ATerm": "Ambiguous terminator - the full stop, which may also be a decimal point or an abbreviation.",
+        "Close": "A closing bracket or quote, which may follow a terminator before the sentence really ends.",
+        "Lower": "Lowercase letter; its appearance after a full stop suggests the sentence did not end.",
+        "Numeric": "A digit.",
+        "OLetter": "A letter in a script without case distinction.",
+        "SContinue": "Continues the sentence despite following a terminator, such as a comma.",
+        "STerm": "Unambiguous sentence terminator, such as the question mark.",
+        "Upper": "Uppercase letter."
+      }
+    },
+    "nfc_qc": {
+      "gloss": "NFC_Quick_Check - whether the codepoint is already in Normalization Form C.",
+      "note": "A value of No means normalising the text will replace this codepoint with something else. Anything that survives a round trip through other software unchanged must be Yes here.",
+      "values": {
+        "Y": "Already in NFC; normalisation leaves it alone.",
+        "N": "Not in NFC; normalisation will replace it.",
+        "M": "May be, depending on what precedes it."
+      }
+    },
+    "nfd_qc": {
+      "gloss": "NFD_Quick_Check - whether the codepoint is already in Normalization Form D, the fully decomposed form.",
+      "values": {
+        "Y": "Already decomposed.",
+        "N": "Will decompose into other codepoints.",
+        "M": "May decompose, depending on context."
+      }
+    },
+    "nfkc_qc": {
+      "gloss": "NFKC_Quick_Check - whether the codepoint survives compatibility normalisation to form KC.",
+      "note": "The most consequential of the four for glyph hunting. A No here means the character is a compatibility variant that NFKC will fold away into a plainer one - which is exactly what happens to fullwidth forms, circled letters and most styled alphanumerics. 628 cells on this page are No. If software anywhere in the chain normalises, those markers do not survive it.",
+      "values": {
+        "Y": "Survives compatibility normalisation unchanged.",
+        "N": "Compatibility normalisation folds this away into another character.",
+        "M": "May fold, depending on context."
+      }
+    },
+    "nfkd_qc": {
+      "gloss": "NFKD_Quick_Check - whether the codepoint survives compatibility decomposition to form KD.",
+      "values": {
+        "Y": "Survives compatibility decomposition unchanged.",
+        "N": "Compatibility decomposition replaces this with other characters.",
+        "M": "May decompose, depending on context."
+      }
+    }
+  },
+
+  "binary": {
+    "Alphabetic": "Counts as a letter for general text processing, including many letter-like symbols.",
+    "ASCII_Hex_Digit": "One of 0-9, A-F, a-f.",
+    "Bidi_Control": "An invisible control that changes bidirectional layout.",
+    "Bidi_Mirrored": "The glyph should be mirrored when drawn in right-to-left context. Note this is not the same as having a mirrored partner: 542 cells here are mirrored, but only 416 have another codepoint listed as their mirror in BidiMirroring.txt - the rest are expected to be flipped by the renderer with no separate character to flip to.",
+    "Case_Ignorable": "Ignored when deciding the case context of surrounding letters.",
+    "Cased": "Has a case distinction.",
+    "Changes_When_Casefolded": "Case folding alters this codepoint.",
+    "Changes_When_Casemapped": "Any of the case mappings alters this codepoint.",
+    "Changes_When_Lowercased": "Lowercasing alters this codepoint.",
+    "Changes_When_NFKC_Casefolded": "The combination of compatibility normalisation and case folding alters this codepoint. A broad marker of 'this character is a variant of a plainer one'.",
+    "Changes_When_Titlecased": "Titlecasing alters this codepoint.",
+    "Changes_When_Uppercased": "Uppercasing alters this codepoint.",
+    "Dash": "A dash or hyphen of some kind, by shape and function rather than by category alone.",
+    "Default_Ignorable_Code_Point": "Should be rendered as nothing at all if the renderer does not support it, rather than as a missing-glyph box. No cell on this page carries it, which follows from the inventory being built of things that draw.",
+    "Deprecated": "Its use is discouraged by the standard. It will not be removed, but nothing new should rely on it.",
+    "Diacritic": "Modifies the letter it applies to, whether combining or free-standing.",
+    "Emoji": "May be presented as emoji. Not the same as being drawn in colour by default - see Emoji_Presentation. Worth holding the tension in mind: emoji are among the most reliably *present* characters in Unicode, which by a pure coverage test makes them excellent, and among the worst candidates for carrying encoding, because they are semantically loud and already common in the content being marked up.",
+    "Emoji_Component": "A piece that only appears inside a larger emoji sequence, such as a skin tone or a tag character.",
+    "Emoji_Modifier": "A skin-tone modifier.",
+    "Emoji_Modifier_Base": "Can take a skin-tone modifier.",
+    "Emoji_Presentation": "Drawn as a colour emoji by default, with no variation selector needed. The sharpest rendering hazard on this page: a colour emoji font will claim these characters, so their advance, colour and often their shape come from a font you did not choose. 91 cells here carry it. The distinction that resolves the apparent paradox - these render very consistently in one sense and not at all in another - is that coverage and metrics are consistent while the drawing is not: the same codepoint is a different picture on Apple, Google and Microsoft platforms. Consistent presence is not consistent appearance.",
+    "Expands_On_NFC": "Normalising to form C makes this codepoint longer than it was.",
+    "Expands_On_NFD": "Decomposing this codepoint yields more than one character.",
+    "Expands_On_NFKC": "Compatibility normalisation to form C expands this codepoint.",
+    "Expands_On_NFKD": "Compatibility decomposition expands this codepoint.",
+    "Extended_Pictographic": "Pictographic in the sense the segmentation algorithms use - a superset of Emoji that includes many symbols never treated as emoji. 550 cells here carry it, so dropping the emoji blocks from the inventory did not remove pictographs from the page.",
+    "Extender": "Extends the value of the character before it, such as a length mark.",
+    "Full_Composition_Exclusion": "Excluded from recomposition, so decomposing and recomposing does not give back the original.",
+    "Grapheme_Base": "Can stand on its own as the base of a grapheme cluster. True of every cell on this page, which is what an inventory of standalone glyphs should look like.",
+    "Grapheme_Extend": "Extends the grapheme cluster of the character before it - a combining mark.",
+    "Grapheme_Link": "A virama or similar, joining two consonants.",
+    "Hex_Digit": "A hexadecimal digit, in either the ASCII or the fullwidth form.",
+    "Hyphen": "A hyphen in the narrow sense. Superseded by Dash but still published.",
+    "ID_Compat_Math_Continue": "Permitted inside an identifier by the mathematical-notation profile of UAX #31.",
+    "ID_Compat_Math_Start": "Permitted to begin an identifier under the same profile.",
+    "ID_Continue": "May appear after the first character of a programming identifier.",
+    "ID_Start": "May begin a programming identifier.",
+    "IDS_Binary_Operator": "An ideographic description operator taking two arguments.",
+    "IDS_Trinary_Operator": "An ideographic description operator taking three arguments.",
+    "IDS_Unary_Operator": "An ideographic description operator taking one argument.",
+    "Ideographic": "An ideograph in the CJK sense.",
+    "Join_Control": "Forces or forbids a cursive join - the zero-width joiner and non-joiner.",
+    "Logical_Order_Exception": "Typed in a different order from the one it is stored in.",
+    "Lowercase": "Lowercase, in the derived sense that includes letter-like symbols.",
+    "Math": "Used in mathematical notation. Broader than the Sm category: it takes in brackets, arrows and letter-like operators that categorise elsewhere.",
+    "Modifier_Combining_Mark": "A combining mark that participates in Arabic-style mark ordering.",
+    "Noncharacter_Code_Point": "Permanently reserved as a non-character; never a glyph.",
+    "Other_Alphabetic": "Contributes to Alphabetic without being a letter by category.",
+    "Other_Default_Ignorable_Code_Point": "Contributes to Default_Ignorable_Code_Point beyond the derived cases.",
+    "Other_Grapheme_Extend": "Contributes to Grapheme_Extend beyond the derived cases.",
+    "Other_ID_Continue": "Contributes to ID_Continue beyond the derived cases, for backward compatibility.",
+    "Other_ID_Start": "Contributes to ID_Start beyond the derived cases, for backward compatibility.",
+    "Other_Lowercase": "Contributes to Lowercase without being a lowercase letter by category.",
+    "Other_Math": "Contributes to Math without being a mathematical symbol by category.",
+    "Other_Uppercase": "Contributes to Uppercase without being an uppercase letter by category.",
+    "Pattern_Syntax": "Reserved by UAX #31 for use as syntax in formal languages, and therefore never permitted in an identifier. Half this page carries it - which is the point for marker hunting, because it means these characters are the ones a language is free to give meaning to, and the ones most likely to already have one.",
+    "Pattern_White_Space": "Reserved by UAX #31 as whitespace in formal languages.",
+    "Prepended_Concatenation_Mark": "A prefix that applies to the whole sequence following it, such as the Arabic number sign.",
+    "Quotation_Mark": "A quotation mark of some kind, straight or directional.",
+    "Radical": "A CJK radical, in the Kangxi or supplemental radical sense.",
+    "Regional_Indicator": "One of the 26 letters that combine in pairs to make flags.",
+    "Sentence_Terminal": "Ends a sentence - full stop, question mark, exclamation mark and their equivalents in other scripts.",
+    "Soft_Dotted": "Loses its dot when an accent is applied above, as i and j do.",
+    "Terminal_Punctuation": "Terminates a textual unit; broader than Sentence_Terminal, taking in commas and colons.",
+    "Unified_Ideograph": "A CJK unified ideograph proper, as opposed to a compatibility or radical form.",
+    "Uppercase": "Uppercase, in the derived sense that includes letter-like symbols.",
+    "Variation_Selector": "Selects between glyph variants of the preceding character.",
+    "White_Space": "Whitespace of some kind.",
+    "XID_Continue": "ID_Continue, adjusted so that normalising an identifier keeps it a valid identifier.",
+    "XID_Start": "ID_Start, adjusted so that normalising an identifier keeps it a valid identifier."
+  }
+}

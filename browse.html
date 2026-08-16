@@ -26,6 +26,9 @@
   }
 }
 * { box-sizing: border-box; }
+/* .cell and friends set display, which beats the UA sheet's [hidden] rule. The filter
+   hides by the hidden attribute, so it has to win. */
+[hidden] { display: none !important; }
 body {
   margin: 0;
   background: var(--bg);
@@ -43,6 +46,105 @@ h1 { font-size: 1.3rem; margin: 0 0 .35rem; font-weight: 600; }
 .totals div { font-size: .82rem; color: var(--dim); }
 .totals b { display: block; font-size: 1.15rem; color: var(--ink); font-weight: 600; }
 
+/* ---------------------------------------------------------------- filters
+   The one exception to set 14's "no controls". They select among cells already drawn;
+   nothing is fetched, nothing is measured, and reset returns the page to set 14's state.
+   Set 16 took the count from three to ninety, which is why the controls live in a
+   panel and only the active ones show on the bar. */
+.filters {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem;
+  margin: 1rem 0 .4rem; padding: .55rem .7rem;
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 6px;
+}
+.filters button {
+  font: inherit; font-size: .78rem; cursor: pointer;
+  background: none; color: var(--dim);
+  border: 1px solid var(--edge); border-radius: 4px; padding: .2rem .55rem;
+}
+.filters button:hover { color: var(--ink); border-color: var(--accent); }
+.filters button[disabled] { opacity: .4; cursor: default; }
+.filters button.open { color: var(--ink); border-color: var(--accent); }
+.filters .state {
+  margin-left: auto; font-size: .78rem; color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+.filters .state.on { color: var(--accent); }
+
+/* An active filter shows as a chip, so what is being applied stays visible once the
+   panel is shut. Clicking one clears that filter alone. */
+.chip {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .74rem; padding: .12rem .3rem .12rem .45rem;
+  border: 1px solid var(--accent); border-radius: 10px; color: var(--accent);
+  background: none; cursor: pointer;
+}
+.chip:hover { background: var(--edge); }
+.chip b { font-weight: 600; }
+.chip i { font-style: normal; opacity: .7; }
+
+/* ---------------------------------------------------------------- filter panel */
+.scrim { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.45); }
+.fpanel {
+  position: fixed; z-index: 91; left: 50%; transform: translateX(-50%);
+  top: 3.5rem; width: min(1080px, calc(100vw - 2rem));
+  max-height: calc(100vh - 5rem); overflow: auto;
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5); padding: 1rem 1.1rem 1.4rem;
+}
+.fpanel > header {
+  display: flex; align-items: baseline; gap: .8rem;
+  position: sticky; top: -1rem; z-index: 2; margin: -1rem -1.1rem .8rem;
+  padding: .8rem 1.1rem; background: var(--panel); border-bottom: 1px solid var(--edge);
+}
+.fpanel > header h2 { font-size: 1rem; margin: 0; display: block; }
+.fpanel > header .state { margin-left: auto; }
+.fsec { margin: 0 0 1.1rem; }
+.fsec > h3 {
+  font-size: .82rem; margin: 0 0 .1rem; color: var(--ink); font-weight: 600;
+  display: flex; align-items: baseline; gap: .5rem;
+}
+.fsec > p { margin: 0 0 .5rem; font-size: .74rem; color: var(--dimmer); max-width: 74ch; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: .3rem .9rem; }
+.fgrid.bin { grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.fctl {
+  display: flex; align-items: center; gap: .35rem;
+  font-size: .76rem; color: var(--dim); padding: .1rem 0;
+}
+.fctl > span.nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fctl.set > span.nm { color: var(--accent); }
+.fctl.inert { opacity: .45; }
+.fctl select {
+  font: inherit; font-size: .74rem; max-width: 11rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--edge); border-radius: 4px; padding: .12rem .2rem;
+}
+.fctl select:disabled { cursor: not-allowed; }
+.fctl .cnt { color: var(--dimmer); font-variant-numeric: tabular-nums; font-size: .7rem; }
+/* The info affordance. Same hover component as the glyph cells, per the set 8 contract:
+   one popup mechanism on the page, not two racing each other. */
+.i-btn {
+  flex: none; width: 1.05rem; height: 1.05rem; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--edge); border-radius: 50%;
+  background: none; color: var(--dim); font-size: .68rem; cursor: help; padding: 0;
+}
+.i-btn:hover { color: var(--accent); border-color: var(--accent); }
+.scx-row { display: flex; align-items: center; gap: .4rem; font-size: .74rem; color: var(--dim); margin-top: .35rem; }
+.filter-note { color: var(--dimmer); font-size: .72rem; margin: 0 0 .6rem; max-width: 92ch; }
+.empty { color: var(--dim); font-size: .85rem; margin: 2rem 0; }
+
+/* Info-popup internals, rendered inside the shared hover panel. */
+/* Line_Break lists 24 values with a note each, which is taller than any anchor has room
+   for. The popup scrolls rather than running off the screen. */
+.hi-prop { font-size: .78rem; color: var(--ink); line-height: 1.45; max-height: 62vh; overflow: auto; }
+.hi-prop code { color: var(--accent); }
+.hi-prop .why { color: var(--dim); margin-top: .4rem; }
+.hi-prop table { border-collapse: collapse; margin-top: .5rem; width: 100%; font-size: .72rem; }
+.hi-prop td { border-top: 1px solid var(--edge); padding: .18rem .3rem .18rem 0; vertical-align: top; }
+.hi-prop td.v { color: var(--accent); white-space: nowrap; font-family: ui-monospace, monospace; }
+.hi-prop td.n { color: var(--dimmer); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 /* ---------------------------------------------------------------- index */
 nav.index {
   display: flex; flex-wrap: wrap; gap: .3rem .5rem;
@@ -57,12 +159,16 @@ nav.index a:hover { color: var(--ink); background: var(--edge); }
 nav.index a i { font-style: normal; color: var(--dimmer); font-variant-numeric: tabular-nums; }
 
 /* ---------------------------------------------------------------- groups */
-section.group { margin: 0 0 2.6rem; scroll-margin-top: 1rem; }
+/* Clears the sticky filter bar, so an index jump does not land the heading under it. */
+section.group { margin: 0 0 2.6rem; scroll-margin-top: 4rem; }
 h2 {
   font-size: 1.05rem; margin: 0 0 .1rem; font-weight: 600;
   display: flex; align-items: baseline; gap: .6rem;
 }
 h2 .n { font-size: .78rem; color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+h2 .match, h3 .match { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
+h2 .match { font-size: .78rem; }
+h3 .match { font-size: .8rem; }
 h2 a.top-link { margin-left: auto; font-size: .72rem; color: var(--dimmer); text-decoration: none; }
 h2 a.top-link:hover { color: var(--accent); }
 .group-rule { height: 1px; background: var(--edge); margin: .5rem 0 1rem; }
@@ -175,7 +281,12 @@ h3 .ident svg { border-radius: 3px; }
   <div class="totals" id="totals"></div>
 </header>
 
+<div class="filters" id="filters"></div>
+<p class="filter-note" id="filter-note"></p>
+<div class="fpanel" id="fpanel" hidden></div>
+
 <nav class="index" id="index"></nav>
+<p class="empty" id="empty" hidden>Nothing on the page carries that combination.</p>
 <div id="groups"></div>
 <div class="dropped" id="dropped"></div>
 
@@ -234,9 +345,18 @@ h3 .ident svg { border-radius: 3px; }
         "<code>" + esc(c.block_short) + "</code> · <code>" +
         esc(c.block_canonical) + "</code></div></div>" +
       '<table class="hi-table">' +
+        "<tr><td>Age</td><td>" + esc(c.age || "—") + "</td></tr>" +
+        "<tr><td>Script</td><td>" + esc(c.sc || "—") +
+          (c.scx ? " <span>(+" + esc(c.scx.filter(s => s !== c.sc).join(" ")) + ")</span>" : "") +
+          "</td></tr>" +
         "<tr><td>General_Category</td><td>" + esc(c.gc || "—") + "</td></tr>" +
         "<tr><td>East_Asian_Width</td><td>" + esc(c.eaw || "—") + "</td></tr>" +
         "<tr><td>Bidi_Class</td><td>" + esc(c.bidi || "—") + "</td></tr>" +
+        // A mapping rather than a class, so it cannot be a filter - the info box is
+        // where set 16 puts it instead.
+        (c.bmg ? "<tr><td>Bidi_Mirroring_Glyph</td><td>" +
+                 esc(String.fromCodePoint(parseInt(c.bmg, 16))) +
+                 " <code>U+" + esc(c.bmg) + "</code></td></tr>" : "") +
       "</table>" +
       '<div class="hi-where">' + where + "</div>" +
       '<div class="caveat">Advance and itemisation are the bench\'s to answer, ' +
@@ -254,13 +374,26 @@ h3 .ident svg { border-radius: 3px; }
     totals.appendChild(d);
   });
 
+  // One view record per set, filled in by the index pass and the group pass, so the
+  // filter can reach every piece of a set without walking the DOM.
+  const views = new Map();
+  const view = name => {
+    if (!views.has(name)) views.set(name, { leaves: [] });
+    return views.get(name);
+  };
+
   // -- index
   const index = document.getElementById("index");
   D.groups.forEach(g => {
     const a = el("a", null, g.name + " ");
     a.href = "#" + slug(g.name);
-    a.appendChild(el("i", null, num(g.shown)));
+    const count = el("i", null, num(g.shown));
+    a.appendChild(count);
     index.appendChild(a);
+    const v = view(g.name);
+    v.link = a;
+    v.linkCount = count;
+    v.shown = g.shown;
   });
 
   // -- groups
@@ -275,6 +408,11 @@ h3 .ident svg { border-radius: 3px; }
     if (g.dropped) sub += ", " + num(g.dropped) + " dropped";
     if (g.shown !== g.kept) sub += ", " + num(g.shown) + " shown";
     h2.appendChild(el("span", "n", sub));
+    const gMatch = el("span", "match");
+    h2.appendChild(gMatch);
+    const gv = view(g.name);
+    gv.sec = sec;
+    gv.match = gMatch;
     const up = el("a", "top-link", "top");
     up.href = "#";
     h2.appendChild(up);
@@ -306,32 +444,409 @@ h3 .ident svg { border-radius: 3px; }
         leaf.provenance === "rule" ? "proposed" : leaf.provenance));
       if (leaf.unsure) h3.appendChild(el("span", "badge unsure", "unsure"));
       if (leaf.disposition === "extras") h3.appendChild(el("span", "badge extras", "extras"));
+      const lMatch = el("span", "match");
+      h3.appendChild(lMatch);
       box.appendChild(h3);
 
       if (leaf.note) box.appendChild(el("p", "note", leaf.note));
 
+      const lv = { box: box, match: lMatch, cells: [] };
       const cells = el("div", "cells" + (leaf.disposition === "compress" ? " compressed" : ""));
       leaf.cells.forEach((c, i) => {
+        let sep = null;
         if (i > 0 && leaf.disposition === "compress") {
-          cells.appendChild(el("span", "ellipsis", "…"));
+          sep = el("span", "ellipsis", "…");
+          cells.appendChild(sep);
         }
         const d = el("div", "cell", c.c);
         // No title attribute: a native tooltip racing the hover panel is worse than
         // either alone. src/hover.js is the one component, per the set 8 contract.
         GH.hover.attach(d, () => infoBox(c, leaf, g), c.cp);
         cells.appendChild(d);
+        lv.cells.push({ node: d, sep: sep, rec: c });
       });
       box.appendChild(cells);
 
       if (leaf.shown < leaf.n) {
-        box.appendChild(el("p", "folded",
+        lv.folded = el("p", "folded",
           leaf.shown + " of " + num(leaf.n) + " shown — the family is enumerable, " +
-          "so its range and count describe the rest"));
+          "so its range and count describe the rest");
+        box.appendChild(lv.folded);
       }
+      gv.leaves.push(lv);
       sec.appendChild(box);
     });
     host.appendChild(sec);
   });
+
+  // -- filters. The one exception to curation set 14's "no controls": they select among
+  // cells that are already drawn, so nothing is fetched and nothing is measured, and
+  // `reset` returns the page to exactly the state set 14 describes.
+  //
+  // Curation set 16 took this from three properties to ninety. Nothing about the
+  // vocabulary is invented here: value names come from PropertyValueAliases.txt, property
+  // names from PropertyAliases.txt, script names from ISO 15924 and the script grouping
+  // from the UAX #31 identifier usage CLDR publishes. Only the explanatory prose is
+  // authored, and it lives in data/property-notes.json.
+  const F = D.filters || { sections: [], props: [], excluded: [] };
+  const props = F.props;
+  const chosen = Object.create(null);        // filter key -> selected value, "" for any
+  let scxOn = false;                         // widen Script to Script_Extensions
+  const bar = document.getElementById("filters");
+  const panel = document.getElementById("fpanel");
+  const controls = [];                       // {p, node, row}
+
+  // Age is a threshold rather than an equality: "not after 3.2" keeps everything that
+  // existed by 3.2. Rank by position in the generator's version-sorted list.
+  const ageProp = props.find(p => p.kind === "age");
+  const ageRank = Object.create(null);
+  if (ageProp) ageProp.values.forEach((v, i) => { ageRank[v.v] = i; });
+
+  // Which usage bucket each script code falls in, so a group selection can be tested
+  // against a cell without walking the group list every time.
+  const scProp = props.find(p => p.kind === "script");
+  const scGroup = Object.create(null);
+  if (scProp) scProp.groups.forEach(g => g.values.forEach(v => { scGroup[v.v] = g.g; }));
+
+  // Binary properties are one hex bitmask per cell. Bit indices run past 31, so this
+  // reads the mask a hex digit at a time rather than using JS bitwise ops, which would
+  // silently truncate to 32 bits.
+  function hasBit(hex, bit) {
+    if (!hex) return false;
+    const idx = hex.length - 1 - (bit >> 2);
+    if (idx < 0) return false;
+    return (parseInt(hex[idx], 16) >> (bit & 3)) & 1 ? true : false;
+  }
+
+  function scriptsOf(rec) {
+    return scxOn ? (rec.scx || [rec.sc]) : [rec.sc];
+  }
+
+  function hits(rec, p) {
+    const want = chosen[p.key];
+    if (p.kind === "binary") {
+      return hasBit(rec.b, p.bit) === (want === "y");
+    }
+    if (p.kind === "age") {
+      const v = rec.age;
+      return v !== undefined && ageRank[v] <= ageRank[want];
+    }
+    if (p.kind === "script") {
+      return scriptsOf(rec).some(s =>
+        want.charAt(0) === "@" ? scGroup[s] === want.slice(1) : s === want);
+    }
+    if (p.kind === "set") {
+      // Identifier_Type is several reasons at once, so the filter asks "is this one of
+      // them" rather than "is this the value".
+      const vs = rec[p.key] !== undefined ? rec[p.key] : [p.default];
+      return vs.indexOf(want) >= 0;
+    }
+    const v = rec[p.key] !== undefined ? rec[p.key] : p.default;
+    return v === want;
+  }
+
+  // -- the info popups. Reuses the glyph cells' hover component rather than adding a
+  // second popup mechanism, per the set 8 contract.
+  function propInfo(p) {
+    let h = '<div class="hi-prop"><b>' + esc(p.name.replace(/_/g, " ")) + "</b>";
+    if (p.prop && p.prop !== p.name) h += ' <code>' + esc(p.prop) + "</code>";
+    h += "<br>" + esc(p.gloss || "No note written for this property yet.");
+    if (p.note) h += '<div class="why">' + esc(p.note) + "</div>";
+    if (p.inert) h += '<div class="why">Nothing to select: ' + esc(p.inert) + ".</div>";
+    if (p.kind === "binary") {
+      h += '<div class="why">' + num(p.n) + " of " +
+           num(D.provenance.totals.cells) + " cells carry it.</div>";
+    }
+    // Per-value notes, where the value set is small and finite. Age is excluded: its
+    // values are version numbers and a gloss on each would say nothing.
+    const rows = [];
+    if (p.kind === "script") {
+      p.groups.forEach(g => rows.push([g.label, g.n, g.note]));
+    } else if (p.kind === "enum" || p.kind === "set") {
+      p.values.forEach(v => rows.push([v.v + " · " + v.label.replace(/_/g, " "),
+                                       v.n, v.note]));
+    } else if (p.kind === "age") {
+      h += '<div class="why">Choosing a version keeps every cell assigned in that ' +
+           "version or earlier. The counts on the options are cumulative for that " +
+           "reason.</div>";
+    }
+    if (rows.length) {
+      h += "<table>";
+      rows.forEach(([label, n, note]) => {
+        h += '<tr><td class="v">' + esc(label) + "</td><td>" + esc(note || "") +
+             '</td><td class="n">' + num(n) + "</td></tr>";
+      });
+      h += "</table>";
+    }
+    return h + "</div>";
+  }
+
+  function infoButton(content) {
+    const b = el("button", "i-btn", "i");
+    b.type = "button";
+    b.setAttribute("aria-label", "what this filter means");
+    GH.hover.attach(b, content, b);
+    return b;
+  }
+
+  // -- one control
+  function makeControl(p) {
+    const row = el("div", "fctl" + (p.inert ? " inert" : ""));
+    const name = el("span", "nm", p.name.replace(/_/g, " "));
+    row.appendChild(name);
+    row.appendChild(infoButton(() => propInfo(p)));
+
+    const s = document.createElement("select");
+    s.setAttribute("aria-label", p.name);
+    const any = el("option", null, "any");
+    any.value = "";
+    s.appendChild(any);
+
+    if (p.kind === "binary") {
+      [["y", "yes · " + num(p.n)], ["n", "no · " + num(D.provenance.totals.cells - p.n)]]
+        .forEach(([v, t]) => { const o = el("option", null, t); o.value = v; s.appendChild(o); });
+    } else if (p.kind === "age") {
+      p.values.forEach(v => {
+        const o = el("option", null, "not after " + v.v + " · " + num(v.cum));
+        o.value = v.v;
+        s.appendChild(o);
+      });
+    } else if (p.kind === "script") {
+      p.groups.forEach(g => {
+        const og = document.createElement("optgroup");
+        og.label = g.label + " · " + num(g.n);
+        // The group itself is selectable, which is the collapse Justin asked for; the
+        // individual scripts stay reachable underneath it.
+        if (g.values.length > 1) {
+          const all = el("option", null, "any of these · " + num(g.n));
+          all.value = "@" + g.g;
+          og.appendChild(all);
+        }
+        g.values.forEach(v => {
+          const o = el("option", null, v.label + " · " + num(v.n));
+          o.value = v.v;
+          og.appendChild(o);
+        });
+        s.appendChild(og);
+      });
+    } else {
+      p.values.forEach(v => {
+        const same = v.v === v.label;
+        const o = el("option", null,
+          (same ? v.v.replace(/_/g, " ")
+                : v.v + " · " + v.label.replace(/_/g, " ")) + " · " + num(v.n));
+        o.value = v.v;
+        s.appendChild(o);
+      });
+    }
+
+    // An inert control is drawn but not operable, whichever kind it is: a property that
+    // holds for nothing, for everything, or takes one value across the page cannot select.
+    if (p.inert) s.disabled = true;
+    s.addEventListener("change", () => { chosen[p.key] = s.value; apply(); });
+    row.appendChild(s);
+    controls.push({ p: p, node: s, row: row, name: name });
+    return row;
+  }
+
+  // -- the panel
+  const scrim = el("div", "scrim");
+  scrim.hidden = true;
+  document.body.appendChild(scrim);
+
+  function buildPanel() {
+    const head = el("header");
+    head.appendChild(el("h2", null, "Filters"));
+    head.appendChild(el("span", null, props.length + " properties"));
+    const panelState = el("span", "state");
+    head.appendChild(panelState);
+    const done = el("button", null, "close");
+    done.type = "button";
+    done.addEventListener("click", closePanel);
+    head.appendChild(done);
+    panel.appendChild(head);
+    panelStates.push(panelState);
+
+    F.sections.forEach(sec => {
+      const mine = props.filter(p => p.section === sec.key);
+      if (!mine.length) return;
+      const box = el("div", "fsec");
+      const h = el("h3");
+      h.appendChild(document.createTextNode(sec.name));
+      h.appendChild(el("span", "cnt", mine.length));
+      box.appendChild(h);
+      if (sec.note) box.appendChild(el("p", null, sec.note));
+      const grid = el("div", "fgrid" + (mine[0].kind === "binary" ? " bin" : ""));
+      mine.forEach(p => {
+        grid.appendChild(makeControl(p));
+        // Script_Extensions is not a filter of its own: it widens the Script one. A
+        // separate dropdown would imply you could ask for both at once, which is not a
+        // thing the property means.
+        if (p.kind === "script") {
+          const r = el("div", "scx-row");
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.id = "scx";
+          cb.addEventListener("change", () => { scxOn = cb.checked; apply(); });
+          const lab = el("label", null, "match Script_Extensions too");
+          lab.htmlFor = "scx";
+          r.appendChild(cb);
+          r.appendChild(lab);
+          r.appendChild(infoButton(() =>
+            '<div class="hi-prop"><b>Script_Extensions</b><br>' +
+            esc(p.scx_note || "") + "</div>"));
+          grid.appendChild(r);
+        }
+      });
+      box.appendChild(grid);
+      panel.appendChild(box);
+    });
+
+    // What is deliberately not offered, and why. An absence that is a decision has to
+    // say so, or it reads as an oversight.
+    if (F.excluded && F.excluded.length) {
+      const box = el("div", "fsec");
+      box.appendChild(el("h3", null, "Not offered"));
+      F.excluded.forEach(x => {
+        const p = el("p", null, x.heading + ": " + x.names.join(", ") + ". " + x.why);
+        box.appendChild(p);
+      });
+      panel.appendChild(box);
+    }
+  }
+
+  const panelStates = [];
+  function openPanel() {
+    panel.hidden = false;
+    scrim.hidden = false;
+    openBtn.classList.add("open");
+    GH.hover.close();
+  }
+  function closePanel() {
+    panel.hidden = true;
+    scrim.hidden = true;
+    openBtn.classList.remove("open");
+    GH.hover.close();
+  }
+  scrim.addEventListener("click", closePanel);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !panel.hidden) closePanel();
+  });
+
+  const openBtn = el("button", null, "Filters");
+  openBtn.type = "button";
+  openBtn.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
+  bar.appendChild(openBtn);
+  const chipHost = el("span");
+  bar.appendChild(chipHost);
+
+  const reset = el("button", null, "reset");
+  reset.type = "button";
+  reset.addEventListener("click", () => {
+    controls.forEach(c => { c.node.value = ""; chosen[c.p.key] = ""; });
+    const cb = document.getElementById("scx");
+    if (cb) { cb.checked = false; }
+    scxOn = false;
+    apply();
+  });
+  bar.appendChild(reset);
+  const state = el("span", "state");
+  bar.appendChild(state);
+  buildPanel();
+
+  // The counts in the dropdowns, and everything the filter reports, are of cells drawn
+  // rather than glyphs kept — a compressed family contributes its exemplars only. Said
+  // on the page because the two numbers differ by 1,186 and nothing else would explain it.
+  document.getElementById("filter-note").textContent =
+    "Filters act on the " + num(D.provenance.totals.cells) + " cells drawn here, not on " +
+    "the " + num(D.provenance.totals.kept) + " glyphs kept: a compressed family is " +
+    "represented by its exemplars, so its folded members are not filtered. Properties " +
+    "come from UCD " + D.provenance.ucd_properties + "; nothing on this page is measured.";
+
+  const emptyMsg = document.getElementById("empty");
+
+  // -- what the bar shows once the panel is shut
+  function label(p) {
+    const v = chosen[p.key];
+    if (p.kind === "binary") return v === "y" ? "yes" : "no";
+    if (p.kind === "age") return "≤ " + v;
+    if (p.kind === "script") {
+      if (v.charAt(0) === "@") {
+        const g = p.groups.find(x => x.g === v.slice(1));
+        return (g ? g.label.split(" -")[0] : v) + (scxOn ? " +scx" : "");
+      }
+      return v + (scxOn ? " +scx" : "");
+    }
+    return v;
+  }
+
+  function drawChips(active) {
+    chipHost.textContent = "";
+    active.forEach(p => {
+      const c = el("button", "chip");
+      c.type = "button";
+      c.appendChild(el("b", null, p.name.replace(/_/g, " ")));
+      c.appendChild(document.createTextNode(" " + label(p)));
+      c.appendChild(el("i", null, "×"));
+      c.title = "clear this filter";
+      c.addEventListener("click", () => {
+        chosen[p.key] = "";
+        const ctl = controls.find(x => x.p.key === p.key);
+        if (ctl) ctl.node.value = "";
+        apply();
+      });
+      chipHost.appendChild(c);
+    });
+  }
+
+  function apply() {
+    const active = props.filter(p => chosen[p.key]);
+    const on = active.length > 0;
+    let visible = 0;
+
+    views.forEach(gv => {
+      let gShown = 0;
+      gv.leaves.forEach(lv => {
+        let n = 0, seen = false;
+        lv.cells.forEach(cv => {
+          const hit = !on || active.every(p => hits(cv.rec, p));
+          cv.node.hidden = !hit;
+          // The ellipsis stands between two drawn exemplars, so it belongs only where
+          // something visible precedes the cell it introduces.
+          if (cv.sep) cv.sep.hidden = !(hit && seen);
+          if (hit) { n++; seen = true; }
+        });
+        lv.box.hidden = n === 0;
+        lv.match.textContent = on ? n + " matching" : "";
+        // "2 of 745 shown" describes the unfiltered drawing and stops being true the
+        // moment one of those two is filtered out.
+        if (lv.folded) lv.folded.hidden = on;
+        gShown += n;
+      });
+      if (gv.sec) gv.sec.hidden = gShown === 0;
+      if (gv.link) gv.link.hidden = gShown === 0;
+      if (gv.linkCount) gv.linkCount.textContent = num(on ? gShown : gv.shown);
+      if (gv.match) gv.match.textContent = on ? gShown + " matching" : "";
+      visible += gShown;
+    });
+
+    const text = on
+      ? num(visible) + " of " + num(D.provenance.totals.cells) + " cells"
+      : num(visible) + " cells";
+    [state].concat(panelStates).forEach(s => {
+      s.className = "state" + (on ? " on" : "");
+      s.textContent = text;
+    });
+    // A control that is doing something should look like it, with the panel shut too.
+    controls.forEach(c => c.row.classList.toggle("set", !!chosen[c.p.key]));
+    drawChips(active);
+    reset.disabled = !on && !scxOn;
+    emptyMsg.hidden = visible > 0;
+    index.hidden = visible === 0;   // an index of nothing is an empty box
+    // A panel anchored to a cell that has just been hidden would be left floating.
+    GH.hover.close();
+  }
+  apply();
 
   // -- dropped, listed but not rendered: they are out of the inventory
   const dz = document.getElementById("dropped");

@@ -170,11 +170,139 @@ glyphs in the foreground colour means. Forcing a permanently light cell backgrou
 fix the names and break the page's fit with the system, and that is Justin's call rather
 than one to make silently.
 
+## Property filters
+
+Curation set 15 asks for filter dropdowns on `General_Category`, `East_Asian_Width` and
+`Bidi_Class` — the same three properties the info box already carries, and the only place
+`CLAUDE.md` allows the two-letter classes to appear. They combine with AND, and `reset`
+returns the page to exactly the state set 14 describes.
+
+Curation set 16 then took that from three properties to **ninety**: twenty
+enumerated and seventy binary, being every property the UCD publishes except the
+script-specific ones and the string-valued ones, plus UTS #39's two identifier properties.
+What follows describes the built result.
+
+### Where the vocabulary comes from
+
+Nothing about the vocabulary is written by hand. `tools/ucd_props.py` reads it, and the
+division of labour is the point:
+
+| What | Source |
+| --- | --- |
+| Which binary properties exist | `PropList.txt`, `DerivedCoreProperties.txt`, `emoji-data.txt`, read wholesale |
+| Enumerated values per codepoint | `DerivedAge.txt`, `LineBreak.txt`, the three `auxiliary/*Break*.txt`, `DerivedNumericType.txt`, `BidiBrackets.txt`, `DerivedNormalizationProps.txt` |
+| Long names for values | `PropertyValueAliases-18.0.0.txt`, UAX #44 loose matching |
+| Long names for properties | `PropertyAliases.txt` |
+| Script and Script_Extensions | fontTools, ISO 15924 |
+| The script grouping | CLDR `scriptMetadata.txt`, field 5, UAX #31 identifier usage |
+| The prose in every info popup | `data/property-notes.json` — **authored, first pass by Claude** |
+
+Only the last row is written rather than read. Binary properties are read wholesale rather
+than listed, so the next UCD version's additions arrive without an edit; an unresolved
+value alias is printed at generation time rather than silently falling back.
+
+The alias reader indexes **every** alias on a line, not just the short one, because the UCD
+files disagree about which form they use — `GraphemeBreakProperty.txt` writes the long
+`Regional_Indicator` where `PropertyValueAliases.txt` files it under short `RI`.
+
+### Version matching
+
+The property files are vendored at **UCD 16.0.0** under `data/ucd-16.0.0/`, which is what
+this Python's `unicodedata` and fontTools' script data both report. Mixing a 16.0.0
+inventory with an 18.0.0 property file would put values on glyphs that did not carry them.
+`PropertyValueAliases-18.0.0.txt` is the deliberate exception: it supplies long names only,
+and value aliases are added and never removed, so a later file resolves an earlier file's
+values and resolves strictly more of them.
+
+### The three filters that are not plain equality
+
+- **Age is a threshold**, not an equality: "not after 3.2" keeps everything assigned in 3.2
+  or earlier, and the option labels carry the cumulative count for that reason. This is the
+  one property whose useful question is cumulative — a font cannot contain a character that
+  did not exist when it was built.
+- **Script collapses into groups.** 103 script values appear on the page and 83% of cells
+  are `Zyyy`, so a flat list would be one enormous option and a long tail. The groups are
+  UAX #31 identifier usage as CLDR publishes it — `RECOMMENDED`, `LIMITED_USE`, `EXCLUSION`
+  — with Common and Inherited lifted out. Individual scripts stay selectable underneath.
+- **Script_Extensions is a checkbox on the Script filter**, not a filter of its own. It
+  widens the match rather than asking a separate question, which is what the property
+  means. It changes the answer for 121 cells.
+- **Identifier_Type is set-valued.** A codepoint can be restricted for several reasons at
+  once — 709 cells carry more than one — so the filter asks whether a reason is among them
+  rather than whether it is the value. Counted per reason for the same reason.
+
+### Encoding
+
+Enumerated values are stored on a cell only where they differ from the property's default,
+and the page supplies the default when it filters — `Word_Break` is `Other` for 4,532 of
+4,832 cells, and storing that would cost more than the glyph data. The seventy binary
+properties are one hex bitmask per cell. Bit indices run past 31, so the page reads the mask
+a hex digit at a time; JavaScript's bitwise operators truncate to 32 bits and would have
+silently dropped every property after the thirty-second. The whole addition costs 378 KiB.
+
+### Inert filters are drawn anyway
+
+Twenty-one of the ninety hold for no cell on the page, for every cell, or take one
+value across the whole page. They are drawn disabled, with the reason in the info popup,
+because that a property is inert **here** is a finding about the inventory rather than a
+reason to hide the control. `Default_Ignorable_Code_Point` matching nothing follows from an
+inventory built of things that draw; `Grapheme_Base` matching everything says the inventory
+is all standalone characters; `Canonical_Combining_Class` being 0 throughout says nothing in
+it is a combining mark.
+
+### Two things worth stating plainly, and the page states them
+
+- **The filter acts on cells drawn, not on glyphs kept.** 4,832 against 6,018. A compressed
+  family is represented by its exemplars, so its folded members are not filtered, and a
+  family whose exemplars miss a property may still hold members that carry it. This is the
+  one place compaction costs something rather than just saving space.
+- **Counts follow the filter everywhere.** Set headings, leaf headings and the index all
+  show the matching count, empty leaves and empty sets disappear entirely, and the
+  `N of 4,832` readout is the total. The "2 of 745 shown" folding note is suppressed while
+  a filter is active, because it describes the unfiltered drawing.
+
+### Not offered, and why
+
+Set 17 fixes what may count as a reason. **A property is excluded for what it is, never
+because it is unused on the current selection.** The inventory is a working choice — the
+filters themselves make it re-openable, since a property filter can pick a candidate out of
+a much larger pool — and the only durable exclusion is script writing characters. This is
+why an inert filter is drawn disabled rather than dropped, and it cost one correction on the
+way in: `Vertical_Orientation` had been excluded as "script-specific" on the argument that a
+filter over it "would be mostly empty". It is neither script-specific nor empty here (1,922
+upright against 2,771 rotated) and is now offered.
+
+The panel says the rest on the page rather than only here, so that each absence reads as a
+decision. **Script text writing** properties come out in four clusters of one kind — Indic syllable
+structure, Arabic and Syriac cursive joining, Hangul composition, and the CJK
+radical-to-ideograph mapping. Their values describe a role inside one script rather than
+anything about the character, which makes this the *same* rule as the glyph-level exclusion
+of set 17 rather than a second one beside it.
+
+Set 18 fixes the discriminator, because the obvious one is wrong: **totality proves
+nothing.** Every enumerated UCD property has a value for every codepoint —
+`Indic_Syllabic_Category` defaults to `Other`, `Hangul_Syllable_Type` to `NA`,
+`Joining_Type` to `Non_Joining`. What matters is what the value is a *statement about*.
+Exclude where the **property** is one script's machinery; keep it where merely some of its
+**values** name scripts. So `Line_Break` (Hangul, South East Asian values), `Word_Break`
+(Katakana) and `Bidi_Class` (Arabic) all stay — each makes a claim about any character —
+while `Joining_Type = Non_Joining` makes no claim about the character at all, only about
+Arabic and Syriac.
+
+**String-valued** properties have no finite set to choose from. `Bidi_Mirroring_Glyph` is the one that needed a ruling: it is a mapping,
+so `Bidi_Mirrored` is offered as the filter and the mapping itself appears in the cell info
+box. 542 cells are mirrored but only 416 have a partner listed, the rest being for the
+renderer to flip with no other character to flip to.
+
+`Line_Break` and `Bidi_Paired_Bracket_Type` were deferred by name in `CLAUDE.md` and are now
+offered, by Justin's ruling on set 16. The deferral stands for table columns and no longer
+stands for filters.
+
 ## Deliberately absent
 
-No controls, per set 14. The one navigation aid is an index of set names at the top, which
-is not a control in the sense that set rules out — it selects nothing and changes nothing
-about what is drawn. Flagged here because it is a judgement call.
+No controls beyond the filters above, per set 14. The other navigation aid is an index of
+set names at the top, which selects nothing and changes nothing about what is drawn.
+Flagged here because it is a judgement call.
 
 No measurement of any kind. That is the bench's job, and the two pages are linked so a
 candidate found here can be taken there.

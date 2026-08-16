@@ -783,3 +783,292 @@ Flagged, not acted on, because they are placements rather than splits:
   candidate you already have.
 - Sits in the **glyph curation** workstream, not the app viewer one. It consumes the curated
   sets; it does not measure anything.
+
+### Set 15, 2026-08-15
+
+#### Filter dropdowns on the browse view
+
+- Status: stated
+- `General_Category`, `East_Asian_Width` and `Bidi_Class`, as dropdowns on `browse.html`.
+- These are the same three properties the info box already carries, and set 7 confines the
+  two-letter classes to the info box rather than the table. A dropdown is neither.
+- **This qualifies set 14's "no controls".** That ruling was about the bench's apparatus —
+  font selection, measurement, spacing — arriving on a page whose purpose is looking. A
+  filter selects among what is already drawn and measures nothing, so the purpose survives.
+  Recorded explicitly so a later session does not read the filters as drift from set 14.
+- Claude's note on the one real cost: the filter acts on the 4,832 cells drawn, not the
+  6,018 glyphs kept, because a compressed family is represented by its exemplars. A family
+  whose exemplars miss a property can still hold members that carry it. Said on the page.
+
+### Set 16, 2026-08-16
+
+#### Filter on basically every property, not three
+
+- Status: stated
+- The three filters of set 15 become **the whole property set**, with these named
+  explicitly: `Age`, the emoji properties (`Emoji`, `Emoji_Presentation`,
+  `Extended_Pictographic`), `Script` and `Script_Extensions`, `Grapheme_Cluster_Break`,
+  `Word_Break`, `Sentence_Break`, `Pattern_Syntax`, `Math`, `Bidi_Mirroring_Glyph`,
+  `Default_Ignorable_Code_Point`, `Numeric_Type`, and the quick checks. Justin: *"you get
+  the idea — basically all the properties"*.
+- **Two exclusions, and they are the rule for anything added later.** No script-specific
+  properties. No string-valued ones.
+- `Age` filters as **"not after"** — a threshold, not an equality. It is the one property
+  whose useful question is cumulative.
+- `Script` and `Script_Extensions` are **collapsed into natural groups**, Justin's guess at
+  the axis being *"ancient / rare / common or something???"*.
+- **Every filter carries an info popup** explaining what it does, and **where the value set
+  is small and finite, one per option**. The filters themselves get their own popup, the
+  bar having run out of room at three.
+- The criterion behind the whole set, in Justin's words: **"the issue is picking a set that
+  is going to be consistently rendered."** The properties are worth having because they
+  narrow towards glyphs that render the same everywhere, not because the UCD publishes them.
+- Scope: **the page is the testbed.** *"Most of these ideas will migrate into the tool
+  eventually, but the page is all we need right now to test ideas."*
+
+##### Two rulings this set overturns or qualifies
+
+- **`Line_Break` and `Bidi_Paired_Bracket_Type` are no longer deferred.** `CLAUDE.md`
+  defers both by name as too complex for the current stage. Justin was shown that Line_Break
+  is one of the better-spread enumerations on the page (24 live values) and ruled to
+  **include both**. The deferral stands for table columns; it no longer stands for filters.
+- **The emoji properties are live, not placeholders.** Justin first asked for them
+  statically locked out. Measurement showed that dropping the emoji blocks did not remove
+  pictographs from the page — 550 drawn cells are `Extended_Pictographic`, 201 `Emoji`, 91
+  `Emoji_Presentation` — and that the last of those is the sharpest rendering-consistency
+  signal available, since a colour emoji font claims those characters whatever font was
+  chosen. Justin ruled to **make all three live**.
+
+##### Claude's notes, recorded because they were decisions
+
+- The script grouping is **read, not invented**. UAX #31 identifier usage, as published in
+  CLDR's `scriptMetadata.txt`, already classifies every script as `RECOMMENDED`,
+  `LIMITED_USE` or `EXCLUSION` — which is what "common, rare, ancient" resolves to. Common
+  and Inherited are lifted out separately because they are not scripts anyone writes in, and
+  because Common alone is four cells in five.
+- An **inert filter is still drawn**, disabled, with the reason. That a property holds for
+  no cell on the page (`Default_Ignorable_Code_Point`) or for every cell (`Grapheme_Base`)
+  is a finding about the inventory, not a reason to hide the control. 20 of the 85 are inert.
+- `Bidi_Mirroring_Glyph` is a mapping, so it cannot be a filter. `Bidi_Mirrored` is offered
+  instead and the mapping appears in the cell info box. Worth knowing: 542 cells are
+  `Bidi_Mirrored` but only 416 have a partner listed — the rest are to be flipped by the
+  renderer with no other character to flip to.
+- The properties are read from UCD **16.0.0**, vendored under `data/ucd-16.0.0/`, matching
+  this Python's `unicodedata` and fontTools' script data exactly. Mixing versions would put
+  values on glyphs that did not carry them.
+- Four properties were added after checking the build against Justin's own catalogue,
+  `ucd-properties-for-markright.md`, which is the brief behind this set: **Decomposition_Type**
+  (his note: more useful than the mapping, because the tag says *why* a character is
+  unstable — `<super>` is what folds an ordinal away), **Canonical_Combining_Class**,
+  and UTS #39's **Identifier_Status** and **Identifier_Type**. The last two are not UCD
+  properties and are vendored separately under `data/uts39-16.0.0/`. Identifier_Type is
+  set-valued: 709 cells carry more than one reason.
+- Not built, and named here so the absence is visible: the **section 9 adjacent data sets**
+  of that catalogue — UTR #25 math class, UTS #39 confusables, `StandardizedVariants.txt`,
+  `NameAliases.txt`. They are not UCD properties, each needs its own fetch, and two of them
+  (math class, confusables) are assessments rather than properties. Justin's call.
+
+### Set 17, 2026-08-16
+
+#### Consistent rendering is not fitness, and the inventory is not the world
+
+- Status: stated, as an observation rather than an instruction, and the second half is a
+  standing rule
+- **The emoji tension.** Emoji render *highly consistently* and are nonetheless **"really
+  poor for this use case"** — common system and human usage, for encoding. Justin flags this
+  as an open tension and notes others might disagree.
+- Claude's reading of why the two can both be true, recorded because it is the distinction
+  the tension turns on: emoji are consistent in **presence and metrics** and inconsistent in
+  **drawing** — the same codepoint is a different picture on each platform. Add that they
+  are semantically loud and already common in the content being marked up, and the very
+  property that makes them reliably available makes them unfit to carry structure. So
+  **"consistently rendered" is a necessary test, not a sufficient one.** Said on the page,
+  in the info notes for `Emoji` and `Emoji_Presentation`.
+- **The filters make the inventory provisional.** Justin's observation: with property
+  filtering in place, the filters *"allow re-inclusion of basically the entire glyph set"*.
+  He is explicit that he is **not heading there yet** — this is to be kept in mind, not
+  acted on.
+- **The standing rule that follows, and it governs.** Do not exclude a property, a glyph, or
+  a group **because it is unused on the current selection**. The current selection is a
+  working choice and can be reopened; a property's fitness is a fact about the property.
+  *"About the only exclusion is 'script text writing characters'."*
+
+##### What this corrected immediately
+
+- `Vertical_Orientation` had been excluded as "script-specific". It is neither
+  script-specific nor rare here — 1,922 upright against 2,771 rotated over the drawn cells —
+  and the exclusion note argued from a filter being "mostly empty", which is exactly the
+  reasoning this set forbids. It is now a filter, in the rendering section.
+- The remaining exclusions were rewritten to argue from **what a property is** rather than
+  from how much of it appears: they are out because their value is a statement about one
+  script's internal structure, not because they would be sparse.
+- The existing treatment of **inert filters already agreed with this set** and stays: a
+  property that holds for nothing here is still drawn, disabled, with the count as the
+  reason. Under set 17 that is no longer a nicety — it is the correct handling, because the
+  inventory it is inert against is provisional.
+
+### Set 18, 2026-08-16
+
+#### The property exclusions are one rule, and `Joining_Type` is not borderline
+
+- Status: stated, as a correction
+- Justin, on Claude having called `Joining_Type` a borderline exclusion: **"Why is
+  Joining-Type borderline? All those four exclusions are 'script text writing' effectively.
+  Agree?"** — and yes.
+- The four clusters are **Indic syllable structure**, **Arabic and Syriac cursive joining**,
+  **Hangul composition**, and the **CJK radical-to-ideograph mapping**. They are one
+  category, not a category plus an awkward case: each is machinery for writing running text
+  in a script. That makes the property exclusion **the same rule** as the glyph exclusion
+  set 17 states — script text writing — rather than a second rule that happens to sit
+  alongside it.
+- Claude's reason for the hedge does not survive: it was that `Joining_Type` **has a value
+  for every codepoint**. So does every enumerated property in the UCD —
+  `Indic_Syllabic_Category` defaults to `Other`, `Hangul_Syllable_Type` to `NA`. Totality
+  discriminates nothing, so it could not have made one of them borderline.
+- **The discriminator that does work**, recorded because the next property will need it:
+  exclude where the **property** is one script's text-writing machinery, not where some of
+  its **values** name scripts. `Line_Break` carries Hangul and South East Asian values,
+  `Word_Break` carries Katakana, `Bidi_Class` carries Arabic ones — all three stay, because
+  each makes a claim about *any* character. `Joining_Type = Non_Joining` makes no claim
+  about the character at all; it says the character takes no part in Arabic and Syriac
+  cursive joining, which is a fact about those scripts.
+- The exclusion heading on the page is now **"Script text writing"**, in Justin's words,
+  rather than "Script-specific".
+
+### Set 19, 2026-08-16
+
+#### Which dropped groups are script text writing, and the deadness test for the rest
+
+- Status: stated, and the second half is explicitly **a later phase — not to be acted on**
+- Justin, on the four groups Claude named as dropped entire: **"emoji are the obvious one
+  that isn't 'text writing'."** Confirmed against the `Script` property rather than by
+  judgement — braille is `Brai` throughout, sign writing `Sgnw` throughout, script numerals
+  carry 40-odd real scripts, and **emoji and pictographs is `Zyyy` Common in all 1,275
+  members**. Unicode gives emoji no script of its own.
+- The consequence is not that emoji comes back. It is that **its exclusion changes grounds**:
+  it is out on *fitness* — Justin's "really poor for this use case" — and not because it is
+  a script. Under set 17 a fitness exclusion is a working choice rather than a durable one.
+  The recorded reasons already said as much without anyone noticing: braille reads "a
+  script", sign writing "a script notation", emoji **"not appropriate here"**.
+- Two further dropped groups fall the same way and had not been named: **currency** (33) and
+  **superscripts and subscripts** (27), both entirely `Zyyy`.
+
+##### The later phase, and the test it will use
+
+- Justin: **"With script numerals, as with 'common' script punctuation, it will eventually
+  come down to whether those scripts are utterly dead outside research. But that's a later
+  phase I think."**
+- That test is already published and already vendored. **UAX #31 identifier usage, via
+  CLDR's `scriptMetadata.txt`**, classifies every script as `RECOMMENDED`, `LIMITED_USE` or
+  `EXCLUSION`, and `EXCLUSION` is defined as historic and obsolete, kept for scholarly use.
+  It is the same data already grouping the `Script` filter, so the later phase is a query
+  rather than new machinery, and the browse page can answer it for included glyphs today.
+- The numbers, recorded now so the later phase starts with them rather than re-deriving:
+
+  | Group | Historic/obsolete | Living, widely used | Living, small communities | Common |
+  | --- | ---: | ---: | ---: | ---: |
+  | `script numerals` (dropped, 894) | 388 | 259 | 11 | 236 |
+  | `script punctuation` (kept, 426) | 192 | 98 | 116 | 20 |
+
+- **The finding worth keeping: applied consistently, this test moves glyphs in both
+  directions.** It is not a re-inclusion axis. `script numerals` would gain roughly 624 —
+  388 from dead scripts plus 236 that carry no script at all — while `script punctuation`,
+  which is already in, would lose roughly 214 belonging to living scripts. The current
+  boundary is simply not drawn on this axis, so adopting the axis is a redraw and not an
+  extension.
+- Also flagged, not acted on, and now qualified by set 20: 236 of the dropped
+  `script numerals` are `Script=Common` —
+  Indic and Ottoman Siyaq, Aegean, Kaktovik, Mayan, Common Indic Number Forms. Those are
+  numeral notations rather than the digits used to write running text in a script, so the
+  group's own stated reason, "no other script's general numerics were kept", may not reach
+  them.
+
+### Set 20, 2026-08-16
+
+#### What the tool is for: the exhausted ASCII punctuation pool
+
+- Status: stated. **This is a statement of purpose and it governs.**
+- Justin, on `script punctuation`: **"lots of more obscure but standard glyphs ARE fully
+  appropriate. This is actually the LEGACY of projects this tool is designed to support
+  (mostly, but not solely, all the encoding use of less-used 127(-33) ASCII chars)."**
+- Two things follow, and the first corrects a reading this project could easily have drifted
+  into:
+  - **Obscurity is a qualification, not a disqualification.** A glyph nobody writes is a
+    glyph free to be given a meaning. Set 19's deadness test therefore reads differently for
+    punctuation than the phrasing there implied — a dead script's punctuation is *more*
+    available, not less.
+  - **The tool exists because a pool ran dry.** The legacy practice is encoding structure in
+    the less-used printable ASCII characters. When that pool is exhausted, a project reaches
+    for a character that is already carrying meaning — MarkRight reaching for `\` — and
+    that is the failure this instrument is built to give an alternative to.
+- Justin's open question: `/` and `?` are unavailable **"because dates I assume — although
+  maybe that is just a pre-computer encoding standard — maybe ALL punctuation is?"**
+
+##### Claude's answer, measured rather than asserted
+
+- **Yes, and the UCD already records it.** Of the 32 printable non-alphanumeric ASCII
+  characters, **15 carry a prose role the UCD states as a property** — `Sentence_Terminal`,
+  `Terminal_Punctuation`, `Quotation_Mark`, `Dash`, or a bidi bracket pair:
+
+      !  "  '  (  )  ,  -  .  :  ;  ?  [  ]  {  }
+
+  Punctuation *is* a pre-computer encoding standard for prosody and structure, and those
+  properties are Unicode's machine-readable record of it. They became filters this session,
+  so the page can now select on "already carrying a load".
+- **But `/` is not one of them**, and that is the interesting part. The UCD puts `/` with
+  `@` and `` ` `` in the 17 with no recorded prose role:
+
+      #  $  %  &  *  +  /  <  =  >  @  \  ^  _  `  |  ~
+
+  So `/`'s unavailability is not pre-computer. It is a **computing-era** claim — paths,
+  URLs, protocols, regex, closing tags. `?` is genuinely prose-loaded; `/` only feels that
+  way.
+- **Two strata of "already taken", and the UCD records only the older one.** That is a real
+  gap in what this tool can currently answer.
+- **The pool is provably empty.** Every one of those 17 has since been claimed by computing
+  — `#` comment, `$` variable, `%` escape, `&` reference, `*` glob, `+` concatenation, `/`
+  path, `<` `>` tags, `=` assignment, `@` address, `\` escape, `^` caret, `_` identifier,
+  `` ` `` code span, `|` pipe, `~` home. The 15 were taken by prose, the 17 by computing,
+  and nothing in ASCII is left. Claude's characterisation of the computing half, not data —
+  there is no published source for it. That absence is the gap named above.
+
+### Set 21, 2026-08-16
+
+#### ASCII punctuation is exhausted for MarkRight, and dis-use is the criterion. Deferred.
+
+- Status: stated, and **DEFERRED by instruction. Do not act on any of it.**
+- **No ASCII punctuation is any use to MarkRight.** Justin: *"NO ascii punctuation belongs
+  anywhere near our app, by now it is all overloaded a hundred times or over."* Not the 17
+  computing claimed, not the 15 prose claimed — all of it. *"Our app"* is MarkRight, which
+  is the need that triggered this tool and is not this tool.
+- **Nor a good part of Latin Unicode punctuation**, *"regardless of properties"*. The
+  properties do not decide this and cannot be made to.
+- **It is a value judgement, not a deterministic test.** Recorded in those words because
+  the temptation this project keeps meeting is to find a property that stands in for a
+  judgement. There is none here.
+- **The positive criterion, for when this is picked up: *"searching for dis-use is
+  helpful."*** Not "is it a symbol", not "is it obscure by block" — is it *unused*.
+
+##### What this does to set 20
+
+Set 20 stands as history and as the statement of why the tool exists. It is **not a
+shortlist**. The 32 ASCII characters and their two strata explain how the pool ran dry;
+they do not nominate anything. Any later reading of set 20 that treats the 17 "no recorded
+prose role" characters as available is wrong, and set 21 is the correction in advance.
+
+##### The scope error this set caught, recorded because it recurred
+
+Claude wrote set 21 up as ruling ASCII punctuation out as **"marker candidates"**, and then
+raised whether that should also remove it from the browse inventory. Justin: *"'Marker
+candidate' — conflating that in the context of MarkRight specifically. So not a relevant
+condition anywhere here. Vast amounts of included glyphs are not suitable for the specific
+marker candidates I am hunting for for MarkRight specifically."*
+
+- **There is no candidate status in this tool.** Set 6 already records this and `CLAUDE.md`
+  states it outright; it was imported again anyway, by way of a phrase rather than a
+  decision. A term borrowed from MarkRight brings MarkRight's criteria with it.
+- **So set 21 carries no implication for the inventory at all.** It says what MarkRight
+  cannot use. `common latin punctuation` and everything else stay exactly where they are,
+  and the question Claude raised about them was malformed rather than open.
+- That vast amounts of the inventory are useless to MarkRight is **the expected condition**,
+  not a defect to be filtered away.
