@@ -1072,3 +1072,51 @@ marker candidates I am hunting for for MarkRight specifically."*
   and the question Claude raised about them was malformed rather than open.
 - That vast amounts of the inventory are useless to MarkRight is **the expected condition**,
   not a defect to be filtered away.
+
+### Set 22, 2026-08-16
+
+#### Order by renderer behaviour, and act on a glyph from its info box
+
+- Status: stated
+- **Prioritise the filter panel by rendering.** *"Some prioritisation is needed - bringing
+  the major rendering aspects to the top - I think that includes the 'breaking' ones
+  (wherever break-before and break-after live e.g.) Script and Vintage are second-tier."*
+- **The info box answers renderer treatment, not font coverage.** *"For glyph info boxes, we
+  need a few more properties at least, but script and age are not them. The objective being
+  to understand how renderers will treat the glyph, not which fonts will have it (at this
+  first scanning for candidates stage)."*
+- **The test for what goes in it**, in Justin's words: *"not every last little property, but
+  all the major ones that say 'if you use these characters together, there's a decent chance
+  the renderer will treat them as peers.'"*
+- **Click a glyph in the popup to copy it to the clipboard.**
+- **A function in the filter to apply the filters according to what was shown in the popup**
+  — described by Justin as *"THEN the big one"*.
+
+##### As built
+
+- Sections reordered: **Rendering and presentation**, then **Breaking and segmentation**,
+  then Vintage, Script, Classification, Normalisation, Identifier and case, Other.
+  `Line_Break` moved out of rendering to join `Grapheme_Cluster_Break`, `Word_Break` and
+  `Sentence_Break`, so "wherever break-before and break-after live" is now one place.
+- The peer set is **twelve properties**, defined once in `ucd_props.PEERS` and used by both
+  the info box and the filter action, so the two cannot drift apart: General_Category,
+  East_Asian_Width, Line_Break, Grapheme_Cluster_Break, Word_Break, Bidi_Class,
+  Bidi_Paired_Bracket_Type, Vertical_Orientation, Emoji_Presentation,
+  Extended_Pictographic, Bidi_Mirrored, Default_Ignorable_Code_Point.
+- Age and Script were **removed** from the info box, having been added there earlier in the
+  same session. They predict coverage rather than treatment, and remain filters.
+- Values now read as `AI · Ambiguous` rather than bare `AI`, since the long alias was
+  already to hand from the filter definitions.
+- `filter to peers` sets all twelve at once — the strict reading — and each lands as a chip
+  on the bar, so loosening is one click per property rather than reassembling by hand. An
+  inert property is skipped, because it selects nothing by definition.
+
+##### Claude's notes
+
+- Both actions are wired by **delegation from the document**, keyed on `data-copy` and
+  `data-peers`. `src/hover.js` owns the popup's markup and sets it with `innerHTML`, so the
+  alternative was changing the shared component's contract or rebinding on every open.
+  Neither is worth it for two buttons.
+- The clipboard write uses the async API with the old selection-based route as fallback,
+  because `file://` is a secure context in Chrome and Firefox but need not be everywhere
+  this page is opened.

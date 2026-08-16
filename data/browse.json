@@ -22,29 +22,29 @@
  "filters": {
   "sections": [
    {
+    "key": "rendering",
+    "name": "Rendering and presentation",
+    "note": "What a renderer actually draws - width, direction, orientation, and whether an emoji font will claim the character out from under the one you chose."
+   },
+   {
+    "key": "breaking",
+    "name": "Breaking and segmentation",
+    "note": "Where the text may come apart around it: line wrapping, grapheme clusters, word and sentence boundaries. A marker that takes a break opportunity its neighbours do not will not hold a column."
+   },
+   {
     "key": "vintage",
     "name": "Vintage",
-    "note": "How long a codepoint has existed. The strongest single predictor of whether a font will have it at all."
+    "note": "How long a codepoint has existed. The strongest single predictor of whether a font will have it at all - which is a different question from how it is treated."
    },
    {
     "key": "script",
     "name": "Script",
-    "note": "Which writing system a glyph belongs to, and how widely that system is used."
-   },
-   {
-    "key": "rendering",
-    "name": "Rendering and presentation",
-    "note": "Properties that bear on what a renderer actually draws - width, direction, whether an emoji font will claim it."
+    "note": "Which writing system a glyph belongs to, and how widely that system is used. Bears on font selection rather than on renderer behaviour."
    },
    {
     "key": "classification",
     "name": "Classification",
     "note": "What kind of character it is, in the Unicode Character Database's own terms."
-   },
-   {
-    "key": "segmentation",
-    "name": "Segmentation",
-    "note": "How text-boundary algorithms treat it. Rarely visible in a specimen, but it is what decides where a cursor stops."
    },
    {
     "key": "normalisation",
@@ -1004,7 +1004,7 @@
    {
     "key": "lb",
     "prop": "lb",
-    "section": "rendering",
+    "section": "breaking",
     "kind": "enum",
     "name": "Line_Break",
     "gloss": "Line_Break - how a line-breaking algorithm may break around this codepoint.",
@@ -1473,7 +1473,7 @@
    {
     "key": "gcb",
     "prop": "GCB",
-    "section": "segmentation",
+    "section": "breaking",
     "kind": "enum",
     "name": "Grapheme_Cluster_Break",
     "gloss": "Grapheme_Cluster_Break - the codepoint's role in finding user-perceived character boundaries.",
@@ -1497,7 +1497,7 @@
    {
     "key": "wb",
     "prop": "WB",
-    "section": "segmentation",
+    "section": "breaking",
     "kind": "enum",
     "name": "Word_Break",
     "gloss": "Word_Break - the codepoint's role in finding word boundaries.",
@@ -1575,7 +1575,7 @@
    {
     "key": "sb",
     "prop": "SB",
-    "section": "segmentation",
+    "section": "breaking",
     "kind": "enum",
     "name": "Sentence_Break",
     "gloss": "Sentence_Break - the codepoint's role in finding sentence boundaries.",
@@ -2384,6 +2384,20 @@
     "n": 542,
     "gloss": "The glyph should be mirrored when drawn in right-to-left context. Note this is not the same as having a mirrored partner: 542 cells here are mirrored, but only 416 have another codepoint listed as their mirror in BidiMirroring.txt - the rest are expected to be flipped by the renderer with no separate character to flip to."
    }
+  ],
+  "peers": [
+   "gc",
+   "eaw",
+   "lb",
+   "gcb",
+   "wb",
+   "bidi",
+   "bpt",
+   "vo",
+   "Emoji_Presentation",
+   "Extended_Pictographic",
+   "Bidi_Mirrored",
+   "Default_Ignorable_Code_Point"
   ],
   "excluded": [
    {

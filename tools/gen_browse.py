@@ -679,6 +679,7 @@ def main():
             "sections": [{"key": k, "name": n, "note": d}
                          for k, n, d in ucd_props.SECTIONS],
             "props": props,
+            "peers": ucd_props.PEERS,
             "excluded": [{"heading": h, "names": ns, "why": w}
                          for h, ns, w in ucd_props.EXCLUDED],
         },

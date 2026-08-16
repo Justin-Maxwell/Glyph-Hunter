@@ -261,6 +261,41 @@ it is a combining mark.
   `N of 4,832` readout is the total. The "2 of 745 shown" folding note is suppressed while
   a filter is active, because it describes the unfiltered drawing.
 
+### Ordered by what a renderer does, not by what a font has
+
+Set 22 orders the panel: **Rendering and presentation** first, then **Breaking and
+segmentation**, then Vintage, Script, and the rest. `Line_Break` sits with the other three
+break properties rather than under rendering, so "wherever break-before and break-after
+live" is one place.
+
+The split behind that ordering is the useful part. `Age` and `Script` predict **whether a
+font has the glyph**. Everything above them predicts **how a renderer treats it**. At the
+scanning stage those are different questions, and only the second decides whether two
+characters can be used together.
+
+### The peer set, and the two actions on it
+
+Twelve properties answer "will a renderer treat these characters alike?" — General_Category,
+East_Asian_Width, Line_Break, Grapheme_Cluster_Break, Word_Break, Bidi_Class,
+Bidi_Paired_Bracket_Type, Vertical_Orientation, Emoji_Presentation, Extended_Pictographic,
+Bidi_Mirrored, Default_Ignorable_Code_Point.
+
+They are declared **once**, as `ucd_props.PEERS`, and carried into `browse.json`. The info
+box renders that list and `filter to peers` applies that list, so the table you read and the
+filter you get cannot drift apart. Age and Script are deliberately absent from both.
+
+- **Clicking the glyph copies it.** Async clipboard API, with the selection-based route as
+  fallback, since `file://` is a secure context in Chrome and Firefox but need not be
+  wherever this page is opened.
+- **`filter to peers` sets all twelve at once**, to that glyph's own values — the strict
+  reading of peerhood. Each lands as a chip on the bar, so loosening is one click per
+  property rather than assembling the query by hand. Inert properties are skipped, since
+  they select nothing.
+
+Both are wired by delegation on `data-copy` and `data-peers`, because `src/hover.js` owns
+the popup's markup and sets it with `innerHTML`; binding at build time would have meant
+changing the shared component's contract for the sake of two buttons.
+
 ### Not offered, and why
 
 Set 17 fixes what may count as a reason. **A property is excluded for what it is, never

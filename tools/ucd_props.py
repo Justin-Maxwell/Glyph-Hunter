@@ -212,7 +212,7 @@ ENUMS = [
     ("gc",      "gc",  "classification", None),
     ("eaw",     "ea",  "rendering",      None),
     ("bidi",    "bc",  "rendering",      None),
-    ("lb",      "lb",  "rendering",      "XX"),
+    ("lb",      "lb",  "breaking",       "XX"),
     ("bpt",     "bpt", "rendering",      "n"),
     ("vo",      "vo",  "rendering",      "R"),
     ("dt",      "dt",  "normalisation",  "None"),
@@ -220,9 +220,9 @@ ENUMS = [
     ("nt",      "nt",  "classification", "None"),
     ("idst",    None,  "identifier",     "Restricted"),
     ("idt",     None,  "identifier",     "Not_Character"),
-    ("gcb",     "GCB", "segmentation",   "Other"),
-    ("wb",      "WB",  "segmentation",   "Other"),
-    ("sb",      "SB",  "segmentation",   "Other"),
+    ("gcb",     "GCB", "breaking",       "Other"),
+    ("wb",      "WB",  "breaking",       "Other"),
+    ("sb",      "SB",  "breaking",       "Other"),
     ("nfc_qc",  "NFC_QC",  "normalisation", "Y"),
     ("nfd_qc",  "NFD_QC",  "normalisation", "Y"),
     ("nfkc_qc", "NFKC_QC", "normalisation", "Y"),
@@ -321,20 +321,25 @@ BINARY_SECTIONS = {
                    "Grapheme_Link", "Other_Grapheme_Extend", "Other_Default_Ignorable_Code_Point"],
 }
 
+# Ordered by set 22: what a renderer does with the glyph comes first, and how likely a font
+# is to have it comes second. Vintage and Script answer the second question, so they are
+# below the two that answer the first.
 SECTIONS = [
+    ("rendering", "Rendering and presentation",
+     "What a renderer actually draws - width, direction, orientation, and whether an emoji "
+     "font will claim the character out from under the one you chose."),
+    ("breaking", "Breaking and segmentation",
+     "Where the text may come apart around it: line wrapping, grapheme clusters, word and "
+     "sentence boundaries. A marker that takes a break opportunity its neighbours do not "
+     "will not hold a column."),
     ("vintage", "Vintage",
      "How long a codepoint has existed. The strongest single predictor of whether a font "
-     "will have it at all."),
+     "will have it at all - which is a different question from how it is treated."),
     ("script", "Script",
-     "Which writing system a glyph belongs to, and how widely that system is used."),
-    ("rendering", "Rendering and presentation",
-     "Properties that bear on what a renderer actually draws - width, direction, whether "
-     "an emoji font will claim it."),
+     "Which writing system a glyph belongs to, and how widely that system is used. Bears "
+     "on font selection rather than on renderer behaviour."),
     ("classification", "Classification",
      "What kind of character it is, in the Unicode Character Database's own terms."),
-    ("segmentation", "Segmentation",
-     "How text-boundary algorithms treat it. Rarely visible in a specimen, but it is what "
-     "decides where a cursor stops."),
     ("normalisation", "Normalisation",
      "Whether the codepoint survives normalisation unchanged. An NFKC-unstable glyph may "
      "not come back the same from a round trip through other software."),
@@ -342,6 +347,28 @@ SECTIONS = [
      "Whether the codepoint may appear in a programming identifier, and how it cases."),
     ("other", "Other binary properties",
      "Everything else the UCD marks as a yes/no property of a codepoint."),
+]
+
+# The properties the info box shows, and the ones "filter to peers" applies. Chosen to
+# answer one question - **will a renderer treat these characters alike?** - and not the
+# adjacent one of whether a font has them at all. So Age and Script are deliberately absent
+# despite being available: they predict coverage, not treatment.
+#
+# Enum keys and binary property names are mixed here on purpose; the page tells them apart
+# by looking each one up in the filter definitions.
+PEERS = [
+    "gc",                             # the coarse class everything else hangs off
+    "eaw",                            # cells occupied - the hard constraint for a column
+    "lb",                             # break opportunity either side
+    "gcb",                            # does it form its own cluster
+    "wb",                             # does a double-click drag it in
+    "bidi",                           # direction, and whether it takes it from context
+    "bpt",                            # bracket pairing under the bidi algorithm
+    "vo",                             # upright or rotated when set vertically
+    "Emoji_Presentation",             # will a colour emoji font claim it
+    "Extended_Pictographic",          # pictographic to the segmentation rules
+    "Bidi_Mirrored",                  # flipped in RTL context
+    "Default_Ignorable_Code_Point",   # renders as nothing rather than as tofu
 ]
 
 

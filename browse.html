@@ -243,6 +243,31 @@ footer code { font-family: ui-monospace, monospace; }
   color: var(--dim); font-size: 16px; cursor: pointer; line-height: 1;
 }
 .gh-hover-close:hover { color: var(--ink); }
+/* The glyph in the info box is the copy affordance, so it has to look pressable and say
+   what it did. The flash replaces the hint rather than sitting beside it, so the box does
+   not change height when you click. */
+.hi-glyph {
+  cursor: copy; border-radius: 6px; padding: .15rem 0 .3rem; position: relative;
+}
+.hi-glyph:hover, .hi-glyph:focus-visible { background: var(--edge); outline: none; }
+.hi-glyph .copy-hint {
+  display: block; font-size: 10.5px; line-height: 1; color: var(--dimmer);
+  font-family: system-ui, sans-serif; margin-top: .25rem;
+}
+.hi-glyph[data-flash] .copy-hint { visibility: hidden; }
+.hi-glyph[data-flash]::after {
+  content: attr(data-flash);
+  position: absolute; left: 0; right: 0; bottom: .3rem;
+  font-size: 10.5px; line-height: 1; color: var(--accent);
+  font-family: system-ui, sans-serif;
+}
+.peer-btn {
+  display: block; width: 100%; margin: .5rem 0 .15rem;
+  font: inherit; font-size: .74rem; cursor: pointer;
+  background: none; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 4px; padding: .25rem .5rem;
+}
+.peer-btn:hover { background: var(--edge); }
 .hi-glyph {
   font-size: 52px; line-height: 1.15; text-align: center; margin-bottom: .2rem;
   font-family: "Noto Sans Symbols 2", "Noto Sans Symbols", "Noto Sans Math",
@@ -326,15 +351,59 @@ h3 .ident svg { border-radius: 3px; }
     return identCache.get(key);
   }
 
+  // -- what a cell carries for one property, and how it reads.
+  // Defined before infoBox because the info box is built from the same peer list the
+  // filters use, rather than from a second hand-written list that could drift from it.
+  function propOf(key) { return (D.filters.props || []).find(p => p.key === key); }
+
+  function valueOf(c, p) {
+    if (!p) return null;
+    if (p.kind === "binary") return hasBit(c.b, p.bit) ? "y" : "n";
+    if (p.kind === "set") return (c[p.key] !== undefined ? c[p.key] : [p.default]);
+    return c[p.key] !== undefined ? c[p.key] : p.default;
+  }
+
+  function readValue(p, v) {
+    if (p.kind === "binary") return v === "y" ? "yes" : "no";
+    const hit = (p.values || []).find(x => x.v === v);
+    if (!hit) return String(v);
+    return hit.label === hit.v ? hit.v.replace(/_/g, " ")
+                               : hit.v + " · " + hit.label.replace(/_/g, " ");
+  }
+
   // The info box. No advance, no spacing, no supplying-font guess — this page measures
   // nothing, and those belong to the bench.
+  //
+  // The property table answers one question, per curation set 22: **will a renderer treat
+  // these characters alike?** Age and Script are deliberately not in it despite being to
+  // hand — they predict whether a font has the glyph, which is the adjacent question and
+  // not this one. They remain filters.
   function infoBox(c, leaf, group) {
     let where = "<b>" + esc(group.name) + "</b> → " + esc(leaf.name);
     if (leaf.disposition === "compress") {
       where += "<br>one of " + num(leaf.n) + " in a family folded to " +
                leaf.shown + ", U+" + leaf.range[0] + "–" + leaf.range[1];
     }
-    return '<div class="hi-glyph">' + esc(c.c) + "</div>" +
+
+    let rows = "";
+    (D.filters.peers || []).forEach(key => {
+      const p = propOf(key);
+      if (!p) return;
+      const v = valueOf(c, p);
+      rows += "<tr><td>" + esc(p.name.replace(/_/g, " ")) + "</td><td>" +
+              esc(readValue(p, v)) + "</td></tr>";
+    });
+    // A mapping rather than a class, so it cannot be a filter - the info box is where
+    // set 16 puts it instead.
+    if (c.bmg) {
+      rows += "<tr><td>Bidi Mirroring Glyph</td><td>" +
+              esc(String.fromCodePoint(parseInt(c.bmg, 16))) +
+              " <code>U+" + esc(c.bmg) + "</code></td></tr>";
+    }
+
+    return '<div class="hi-glyph" data-copy="' + esc(c.c) + '" role="button" tabindex="0" ' +
+        'title="click to copy this character">' + esc(c.c) +
+        '<span class="copy-hint">click to copy</span></div>' +
       '<div class="hi-title"><code>U+' + esc(c.cp) + "</code> · " +
         esc(c.name || "unnamed") + "</div>" +
       '<div class="hi-block">' + identicon(c.block_canonical, 24) +
@@ -344,23 +413,14 @@ h3 .ident svg { border-radius: 3px; }
         // consuming it. ROADMAP set 9.
         "<code>" + esc(c.block_short) + "</code> · <code>" +
         esc(c.block_canonical) + "</code></div></div>" +
-      '<table class="hi-table">' +
-        "<tr><td>Age</td><td>" + esc(c.age || "—") + "</td></tr>" +
-        "<tr><td>Script</td><td>" + esc(c.sc || "—") +
-          (c.scx ? " <span>(+" + esc(c.scx.filter(s => s !== c.sc).join(" ")) + ")</span>" : "") +
-          "</td></tr>" +
-        "<tr><td>General_Category</td><td>" + esc(c.gc || "—") + "</td></tr>" +
-        "<tr><td>East_Asian_Width</td><td>" + esc(c.eaw || "—") + "</td></tr>" +
-        "<tr><td>Bidi_Class</td><td>" + esc(c.bidi || "—") + "</td></tr>" +
-        // A mapping rather than a class, so it cannot be a filter - the info box is
-        // where set 16 puts it instead.
-        (c.bmg ? "<tr><td>Bidi_Mirroring_Glyph</td><td>" +
-                 esc(String.fromCodePoint(parseInt(c.bmg, 16))) +
-                 " <code>U+" + esc(c.bmg) + "</code></td></tr>" : "") +
-      "</table>" +
+      '<table class="hi-table">' + rows + "</table>" +
+      '<button class="peer-btn" type="button" data-peers="' + esc(c.cp) + '" ' +
+        'title="Sets every property above as a filter, then clear any of them from the bar">' +
+        "filter to peers</button>" +
       '<div class="hi-where">' + where + "</div>" +
-      '<div class="caveat">Advance and itemisation are the bench\'s to answer, ' +
-      "not this page's.</div>";
+      '<div class="caveat">Every property above is renderer behaviour. Whether a font has ' +
+      "the glyph is Age and Script, which are filters rather than facts about treatment. " +
+      "Advance and itemisation are the bench's to answer, not this page's.</div>";
   }
 
   // -- totals
@@ -373,6 +433,8 @@ h3 .ident svg { border-radius: 3px; }
     d.appendChild(document.createTextNode(label));
     totals.appendChild(d);
   });
+
+  const cellByCp = new Map();
 
   // One view record per set, filled in by the index pass and the group pass, so the
   // filter can reach every piece of a set without walking the DOM.
@@ -464,6 +526,9 @@ h3 .ident svg { border-radius: 3px; }
         GH.hover.attach(d, () => infoBox(c, leaf, g), c.cp);
         cells.appendChild(d);
         lv.cells.push({ node: d, sep: sep, rec: c });
+        // "filter to peers" is clicked inside the popup, which is outside this closure,
+        // so the record has to be reachable by codepoint.
+        cellByCp.set(c.cp, c);
       });
       box.appendChild(cells);
 
@@ -847,6 +912,86 @@ h3 .ident svg { border-radius: 3px; }
     GH.hover.close();
   }
   apply();
+
+  // -- the two things you can do from inside the info box.
+  //
+  // Delegated from the document because src/hover.js owns the popup's markup and sets it
+  // with innerHTML; reaching in to bind listeners at build time would mean either changing
+  // the shared component's contract or rebinding on every open. Neither is worth it for
+  // two buttons identified by a data attribute.
+  function flash(node, text) {
+    const prev = node.getAttribute("data-flash");
+    node.setAttribute("data-flash", text);
+    setTimeout(() => {
+      if (node.getAttribute("data-flash") === text) {
+        if (prev === null) node.removeAttribute("data-flash");
+        else node.setAttribute("data-flash", prev);
+      }
+    }, 1200);
+  }
+
+  function copyText(text, node) {
+    // The async clipboard API needs a secure context. file:// counts as one in Chrome and
+    // Firefox, but not everywhere this page might be opened, so the old selection-based
+    // route stays as the fallback rather than being assumed dead.
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      flash(node, ok ? "copied" : "copy failed");
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => flash(node, "copied"))
+        .catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  // Set every peer property to this glyph's own values. Deliberately all of them at once:
+  // the result is the strict reading of "a renderer would treat these alike", and loosening
+  // it is one click per chip on the bar, which is easier than assembling it filter by
+  // filter.
+  function filterToPeers(cp) {
+    const c = cellByCp.get(cp);
+    if (!c) return;
+    controls.forEach(ctl => { ctl.node.value = ""; chosen[ctl.p.key] = ""; });
+    const scxBox = document.getElementById("scx");
+    if (scxBox) scxBox.checked = false;
+    scxOn = false;
+    (D.filters.peers || []).forEach(key => {
+      const p = propOf(key);
+      if (!p || p.inert) return;          // an inert control selects nothing by definition
+      const v = valueOf(c, p);
+      if (v === undefined || v === null) return;
+      chosen[p.key] = p.kind === "set" ? (v[0] || p.default) : v;
+      const ctl = controls.find(x => x.p.key === p.key);
+      if (ctl) ctl.node.value = chosen[p.key];
+    });
+    GH.hover.close();
+    apply();
+    document.getElementById("filters").scrollIntoView({ block: "start" });
+  }
+
+  document.addEventListener("click", e => {
+    const copy = e.target.closest && e.target.closest("[data-copy]");
+    if (copy) { copyText(copy.getAttribute("data-copy"), copy); return; }
+    const peers = e.target.closest && e.target.closest("[data-peers]");
+    if (peers) filterToPeers(peers.getAttribute("data-peers"));
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const copy = e.target.closest && e.target.closest("[data-copy]");
+    if (copy) { e.preventDefault(); copyText(copy.getAttribute("data-copy"), copy); }
+  });
 
   // -- dropped, listed but not rendered: they are out of the inventory
   const dz = document.getElementById("dropped");
